@@ -13,10 +13,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const rapidApiKey = useDemoStore(state => state.rapidApiKey);
   const rapidApiHost = useDemoStore(state => state.rapidApiHost);
   const setApiConfig = useDemoStore(state => state.setApiConfig);
+  const geminiApiKey = useDemoStore(state => state.geminiApiKey);
+  const setGeminiApiKey = useDemoStore(state => state.setGeminiApiKey);
 
   const [enabled, setEnabled] = useState(liveApiEnabled);
   const [key, setKey] = useState(rapidApiKey);
   const [host, setHost] = useState(rapidApiHost);
+  const [gKey, setGKey] = useState(geminiApiKey);
 
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<'idle' | 'success' | 'failed'>('idle');
@@ -27,8 +30,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     setEnabled(liveApiEnabled);
     setKey(rapidApiKey);
     setHost(rapidApiHost);
+    setGKey(geminiApiKey);
     setTestResult('idle');
-  }, [liveApiEnabled, rapidApiKey, rapidApiHost, open]);
+  }, [liveApiEnabled, rapidApiKey, rapidApiHost, geminiApiKey, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -43,6 +47,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
   const handleSave = () => {
     setApiConfig({ enabled, key: key.trim(), host: host.trim() });
+    setGeminiApiKey(gKey.trim());
     onClose();
   };
 
@@ -149,6 +154,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 className="w-full h-9 px-3 rounded-md bg-bg-sunken border border-border-default text-xs text-text-primary focus:border-accent-blue placeholder-text-tertiary outline-none transition-colors duration-150"
                 disabled={!enabled}
               />
+            </div>
+
+            <div className="h-px bg-border-subtle my-2" />
+
+            {/* Gemini API Key Input */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider font-mono">
+                  Gemini API Key
+                </label>
+                <a
+                  href="https://aistudio.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-accent-blue hover:underline"
+                >
+                  Get Gemini Key
+                </a>
+              </div>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-tertiary pointer-events-none" />
+                <input
+                  type="password"
+                  placeholder="Enter Gemini API Key..."
+                  value={gKey}
+                  onChange={e => setGKey(e.target.value)}
+                  className="w-full h-9 pl-9 pr-3 rounded-md bg-bg-sunken border border-border-default text-xs text-text-primary focus:border-accent-blue placeholder-text-tertiary outline-none transition-colors duration-150"
+                />
+              </div>
+              <span className="text-[9px] text-text-secondary">
+                Used securely for live AI chat. If left empty, Copilot runs in mock demo mode.
+              </span>
             </div>
 
             {/* Connection Status & Test Button */}

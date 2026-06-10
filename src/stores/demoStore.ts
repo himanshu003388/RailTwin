@@ -95,6 +95,7 @@ export interface DemoState {
   rapidApiKey: string;
   rapidApiHost: string;
   apiStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
+  geminiApiKey: string;
 
   // Actions
   startDemo: () => void;
@@ -115,6 +116,7 @@ export interface DemoState {
   toggleTheme: () => void;
   setTheme: (theme: 'dark' | 'light') => void;
   setApiConfig: (config: { enabled: boolean, key: string, host: string }) => void;
+  setGeminiApiKey: (key: string) => void;
   updateLiveTrainsFromApi: () => Promise<void>;
 }
 
@@ -197,7 +199,8 @@ const initialStoreState = {
   liveApiEnabled: typeof window !== 'undefined' ? localStorage.getItem('railtwin-api-enabled') === 'true' : false,
   rapidApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-key') || '' : '',
   rapidApiHost: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-host') || 'irctc1.p.rapidapi.com' : 'irctc1.p.rapidapi.com',
-  apiStatus: 'disconnected' as const
+  apiStatus: 'disconnected' as const,
+  geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : ''
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -270,6 +273,13 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         message: 'Running Delhi–Howrah high-fidelity simulator'
       });
     }
+  },
+
+  setGeminiApiKey: (key) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('railtwin-gemini-api-key', key);
+    }
+    set({ geminiApiKey: key });
   },
 
   updateLiveTrainsFromApi: async () => {
@@ -364,7 +374,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       liveApiEnabled: current.liveApiEnabled,
       rapidApiKey: current.rapidApiKey,
       rapidApiHost: current.rapidApiHost,
-      apiStatus: current.apiStatus
+      apiStatus: current.apiStatus,
+      geminiApiKey: current.geminiApiKey
     });
 
     DEMO_TIMELINE.forEach(event => {
@@ -452,7 +463,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       liveApiEnabled: get().liveApiEnabled,
       rapidApiKey: get().rapidApiKey,
       rapidApiHost: get().rapidApiHost,
-      apiStatus: get().apiStatus
+      apiStatus: get().apiStatus,
+      geminiApiKey: get().geminiApiKey
     });
   },
 
