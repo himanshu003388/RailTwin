@@ -72,13 +72,19 @@ export const TopBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider border select-none ${
               liveApiEnabled && apiStatus === 'connected'
                 ? 'bg-accent-green-soft text-accent-green border-accent-green/20'
+                : liveApiEnabled && apiStatus === 'connecting'
+                ? 'bg-accent-amber-soft text-accent-amber border-accent-amber/20'
                 : 'bg-accent-blue-soft text-accent-blue border-accent-blue/20'
             }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${
-              liveApiEnabled && apiStatus === 'connected' ? 'bg-accent-green animate-pulse' : 'bg-accent-blue'
+              liveApiEnabled && apiStatus === 'connected'
+                ? 'bg-accent-green animate-pulse'
+                : liveApiEnabled && apiStatus === 'connecting'
+                ? 'bg-accent-amber animate-pulse'
+                : 'bg-accent-blue'
             }`} />
-            <span>{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : 'Simulated'}</span>
+            <span>{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting' : 'Simulated'}</span>
           </div>
         </div>
 

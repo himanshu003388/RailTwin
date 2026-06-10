@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { CORRIDOR, TRAINS, SORTED_STATIONS, interpolateTrainPosition, getCorridorDistance, type Train } from '../data/corridor';
 import { DEMO_TIMELINE } from '../data/mockScenario';
+import { fetchLiveTrainStatus, normalizeLiveTrainData } from '../services/railwayService';
 
 export interface CopilotMessage {
   id: string;
@@ -93,7 +94,7 @@ export interface DemoState {
   liveApiEnabled: boolean;
   rapidApiKey: string;
   rapidApiHost: string;
-  apiStatus: 'disconnected' | 'connected' | 'error';
+  apiStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
 
   // Actions
   startDemo: () => void;
@@ -120,6 +121,9 @@ export interface DemoState {
 // Global timers references
 let timerInterval: any = null;
 let eventTimeouts: any[] = [];
+
+// Concurrency guard for live API updates
+let liveApiUpdating = false;
 
 const createInitialStationRisks = (): Record<string, StationRisk> => {
   const risks: Record<string, StationRisk> = {};
@@ -248,16 +252,16 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       liveApiEnabled: config.enabled,
       rapidApiKey: config.key,
       rapidApiHost: config.host,
-      apiStatus: config.enabled ? (config.key ? 'connected' : 'disconnected') : 'disconnected'
+      apiStatus: config.enabled ? (config.key ? 'connecting' : 'disconnected') : 'disconnected'
     });
 
     if (config.enabled && config.key) {
       get().addToast({
-        type: 'success',
+        type: 'info',
         title: 'Live Tracking Enabled',
-        message: 'Synchronized with Indian Railways real-time feeds'
+        message: 'Connecting to Indian Railways feeds...'
       });
-      // Fetch status immediately
+      // Fetch status immediately — status will update to 'connected' on success
       get().updateLiveTrainsFromApi();
     } else {
       get().addToast({
@@ -272,8 +276,11 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const { liveApiEnabled, rapidApiKey, rapidApiHost, trains } = get();
     if (!liveApiEnabled || !rapidApiKey) return;
 
+    // Guard against concurrent calls
+    if (liveApiUpdating) return;
+    liveApiUpdating = true;
+
     try {
-      const { fetchLiveTrainStatus, normalizeLiveTrainData } = await import('../services/railwayService');
       const updatedTrains = [...trains];
       let hasChange = false;
 
@@ -285,7 +292,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           
           // Interpolate new coordinate if position/progress changes
           if (normalized.currentStation || normalized.routeProgress !== undefined) {
-            const { interpolateTrainPosition } = await import('../data/corridor');
             const merged = { ...train, ...normalized } as Train;
             normalized.coordinates = interpolateTrainPosition(merged);
           }
@@ -314,6 +320,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     } catch (e) {
       console.error('Failed to update live trains from API', e);
       set({ apiStatus: 'error' });
+    } finally {
+      liveApiUpdating = false;
     }
   },
 
@@ -344,13 +352,19 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     eventTimeouts.forEach(clearTimeout);
     eventTimeouts = [];
 
+    const current = get();
     set({
       ...initialStoreState,
       trains: JSON.parse(JSON.stringify(TRAINS)),
       stationRisks: createInitialStationRisks(),
       demoRunning: true,
       isPaused: false,
-      activePanel: 'map'
+      activePanel: 'map',
+      // Preserve live API config from current state
+      liveApiEnabled: current.liveApiEnabled,
+      rapidApiKey: current.rapidApiKey,
+      rapidApiHost: current.rapidApiHost,
+      apiStatus: current.apiStatus
     });
 
     DEMO_TIMELINE.forEach(event => {
