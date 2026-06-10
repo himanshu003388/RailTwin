@@ -89,6 +89,11 @@ export interface DemoState {
   whatIfResult: WhatIfResult | null;
   networkHealth: NetworkHealth;
   audioEnabled: boolean;
+  theme: 'dark' | 'light';
+  liveApiEnabled: boolean;
+  rapidApiKey: string;
+  rapidApiHost: string;
+  apiStatus: 'disconnected' | 'connected' | 'error';
 
   // Actions
   startDemo: () => void;
@@ -106,6 +111,10 @@ export interface DemoState {
   setWhatIfScenario: (scenario: 'rainfall' | 'signal_failure' | 'track_damage' | 'fog') => void;
   runWhatIf: () => void;
   toggleAudio: () => void;
+  toggleTheme: () => void;
+  setTheme: (theme: 'dark' | 'light') => void;
+  setApiConfig: (config: { enabled: boolean, key: string, host: string }) => void;
+  updateLiveTrainsFromApi: () => Promise<void>;
 }
 
 // Global timers references
@@ -179,7 +188,12 @@ const initialStoreState = {
   whatIfScenario: 'rainfall' as const,
   whatIfResult: null,
   networkHealth: { efficiency: 100, onTimePerf: 100, platformUtil: 73, signalStatus: 'operational' as const, activeAlerts: 0 },
-  audioEnabled: false
+  audioEnabled: false,
+  theme: (typeof window !== 'undefined' && localStorage.getItem('theme') === 'light') ? 'light' : 'dark',
+  liveApiEnabled: typeof window !== 'undefined' ? localStorage.getItem('railtwin-api-enabled') === 'true' : false,
+  rapidApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-key') || '' : '',
+  rapidApiHost: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-host') || 'irctc1.p.rapidapi.com' : 'irctc1.p.rapidapi.com',
+  apiStatus: 'disconnected' as const
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -197,6 +211,110 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
   toggleAudio: () => {
     set(state => ({ audioEnabled: !state.audioEnabled }));
+  },
+
+  toggleTheme: () => {
+    const nextTheme = get().theme === 'dark' ? 'light' : 'dark';
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('theme', nextTheme);
+    }
+    if (nextTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    set({ theme: nextTheme });
+  },
+
+  setTheme: (theme) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('theme', theme);
+    }
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    set({ theme });
+  },
+
+  setApiConfig: (config) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('railtwin-api-enabled', String(config.enabled));
+      localStorage.setItem('railtwin-rapidapi-key', config.key);
+      localStorage.setItem('railtwin-rapidapi-host', config.host);
+    }
+    set({
+      liveApiEnabled: config.enabled,
+      rapidApiKey: config.key,
+      rapidApiHost: config.host,
+      apiStatus: config.enabled ? (config.key ? 'connected' : 'disconnected') : 'disconnected'
+    });
+
+    if (config.enabled && config.key) {
+      get().addToast({
+        type: 'success',
+        title: 'Live Tracking Enabled',
+        message: 'Synchronized with Indian Railways real-time feeds'
+      });
+      // Fetch status immediately
+      get().updateLiveTrainsFromApi();
+    } else {
+      get().addToast({
+        type: 'info',
+        title: 'Simulation Active',
+        message: 'Running Delhi–Howrah high-fidelity simulator'
+      });
+    }
+  },
+
+  updateLiveTrainsFromApi: async () => {
+    const { liveApiEnabled, rapidApiKey, rapidApiHost, trains } = get();
+    if (!liveApiEnabled || !rapidApiKey) return;
+
+    try {
+      const { fetchLiveTrainStatus, normalizeLiveTrainData } = await import('../services/railwayService');
+      const updatedTrains = [...trains];
+      let hasChange = false;
+
+      // Update each train in parallel
+      const updatePromises = trains.map(async (train) => {
+        try {
+          const apiData = await fetchLiveTrainStatus(train.id, rapidApiKey, rapidApiHost);
+          const normalized = normalizeLiveTrainData(train.id, apiData, train);
+          
+          // Interpolate new coordinate if position/progress changes
+          if (normalized.currentStation || normalized.routeProgress !== undefined) {
+            const { interpolateTrainPosition } = await import('../data/corridor');
+            const merged = { ...train, ...normalized } as Train;
+            normalized.coordinates = interpolateTrainPosition(merged);
+          }
+
+          return { id: train.id, normalized };
+        } catch (e) {
+          console.error(`Failed live update for train ${train.id}`, e);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(updatePromises);
+      results.forEach(res => {
+        if (res) {
+          const idx = updatedTrains.findIndex(t => t.id === res.id);
+          if (idx !== -1) {
+            updatedTrains[idx] = { ...updatedTrains[idx], ...res.normalized };
+            hasChange = true;
+          }
+        }
+      });
+
+      if (hasChange) {
+        set({ trains: updatedTrains, apiStatus: 'connected' });
+      }
+    } catch (e) {
+      console.error('Failed to update live trains from API', e);
+      set({ apiStatus: 'error' });
+    }
   },
 
   pauseDemo: () => {
@@ -315,7 +433,12 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     set({
       ...initialStoreState,
       trains: JSON.parse(JSON.stringify(TRAINS)),
-      stationRisks: createInitialStationRisks()
+      stationRisks: createInitialStationRisks(),
+      theme: get().theme,
+      liveApiEnabled: get().liveApiEnabled,
+      rapidApiKey: get().rapidApiKey,
+      rapidApiHost: get().rapidApiHost,
+      apiStatus: get().apiStatus
     });
   },
 

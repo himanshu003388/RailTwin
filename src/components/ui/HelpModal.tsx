@@ -37,18 +37,18 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
       onClick={onClose}
     >
       <div
-        className="bg-[#0f0f0f] border border-[#222222] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[80vh] overflow-hidden flex flex-col"
+        className="bg-bg-card border border-border-default rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[80vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#222222]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
           <div className="flex items-center gap-2">
-            <Keyboard className="w-4 h-4 text-[#3b82f6]" />
-            <h2 className="text-sm font-semibold text-white">Keyboard Shortcuts & Panel Guide</h2>
+            <Keyboard className="w-4 h-4 text-accent-blue" />
+            <h2 className="text-sm font-semibold text-text-primary">Keyboard Shortcuts & Panel Guide</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-[#555555] hover:text-white transition-colors duration-150 p-1"
+            className="text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1"
             aria-label="Close help"
           >
             <X className="w-4 h-4" />
@@ -59,14 +59,14 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         <div className="px-6 py-4 overflow-y-auto flex flex-col gap-6 scrollbar-thin">
           {/* Shortcuts */}
           <div>
-            <h3 className="text-[10px] uppercase tracking-[0.15em] text-[#555555] font-medium mb-3">Keyboard Shortcuts</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Keyboard Shortcuts</h3>
             <div className="flex flex-col gap-1.5">
               {SHORTCUTS.map(s => (
                 <div key={s.key} className="flex items-center gap-3 py-1.5">
-                  <kbd className="min-w-[48px] px-2 py-1 bg-[#1a1a1a] border border-[#333333] rounded text-[11px] font-mono text-[#888888] text-center shadow-sm">
+                  <kbd className="min-w-[48px] px-2 py-1 bg-bg-elevated border border-border-default rounded text-[11px] font-mono text-text-secondary text-center shadow-sm">
                     {s.key}
                   </kbd>
-                  <span className="text-xs text-[#888888]">{s.desc}</span>
+                  <span className="text-xs text-text-secondary">{s.desc}</span>
                 </div>
               ))}
             </div>
@@ -74,16 +74,16 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
 
           {/* Panels */}
           <div>
-            <h3 className="text-[10px] uppercase tracking-[0.15em] text-[#555555] font-medium mb-3">Panel Overview</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Panel Overview</h3>
             <div className="flex flex-col gap-2">
               {PANELS.map(p => (
-                <div key={p.num} className="flex items-start gap-3 py-2 border-b border-[#1a1a1a] last:border-0">
-                  <span className="w-5 h-5 rounded bg-[#1a1a1a] border border-[#333333] flex items-center justify-center text-[10px] font-mono font-bold text-[#3b82f6] flex-shrink-0 mt-0.5">
+                <div key={p.num} className="flex items-start gap-3 py-2 border-b border-border-subtle last:border-0">
+                  <span className="w-5 h-5 rounded bg-bg-elevated border border-border-default flex items-center justify-center text-[10px] font-mono font-bold text-accent-blue flex-shrink-0 mt-0.5">
                     {p.num}
                   </span>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium text-white">{p.name}</span>
-                    <span className="text-[11px] text-[#666666]">{p.desc}</span>
+                    <span className="text-xs font-medium text-text-primary">{p.name}</span>
+                    <span className="text-[11px] text-text-secondary">{p.desc}</span>
                   </div>
                 </div>
               ))}
@@ -92,8 +92,8 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-[#222222] text-center">
-          <span className="text-[10px] text-[#444444] font-mono">Press any key or click outside to close</span>
+        <div className="px-6 py-3 border-t border-border-default text-center">
+          <span className="text-[10px] text-text-tertiary font-mono">Press any key or click outside to close</span>
         </div>
       </div>
     </div>

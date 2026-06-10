@@ -27,32 +27,32 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
     };
   }, [toast.id, onDismiss]);
 
-  // Style configurations based on Toast type
+  // Style configurations based on Toast type using CSS variables
   const typeConfigs = {
     info: {
-      border: '#3b82f6',
+      border: 'var(--color-accent-blue)',
       icon: Info,
-      color: '#3b82f6'
+      color: 'var(--color-accent-blue)'
     },
     warning: {
-      border: '#f59e0b',
+      border: 'var(--color-accent-amber)',
       icon: AlertTriangle,
-      color: '#f59e0b'
+      color: 'var(--color-accent-amber)'
     },
     error: {
-      border: '#ef4444',
+      border: 'var(--color-accent-red)',
       icon: AlertCircle,
-      color: '#ef4444'
+      color: 'var(--color-accent-red)'
     },
     success: {
-      border: '#22c55e',
+      border: 'var(--color-accent-green)',
       icon: CheckCircle,
-      color: '#22c55e'
+      color: 'var(--color-accent-green)'
     },
     ai: {
-      border: '#a855f7',
+      border: 'var(--color-accent-purple)',
       icon: Bot,
-      color: '#a855f7'
+      color: 'var(--color-accent-purple)'
     }
   };
 
@@ -61,7 +61,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
 
   return (
     <div
-      className="relative bg-[#111111] border border-[#222222] rounded-lg p-3 min-w-[288px] max-w-[340px] pointer-events-auto flex items-start gap-3 shadow-2xl animate-toast-slide select-none overflow-hidden"
+      className="relative bg-bg-card border border-border-default rounded-lg p-3 min-w-[288px] max-w-[340px] pointer-events-auto flex items-start gap-3 shadow-2xl animate-toast-slide select-none overflow-hidden"
       style={{ borderLeft: `4px solid ${config.border}` }}
     >
       {/* Left Icon */}
@@ -69,7 +69,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
 
       {/* Content */}
       <div className="flex-1 flex flex-col gap-0.5 pr-4">
-        <span className="text-xs font-semibold text-white font-sans">
+        <span className="text-xs font-semibold text-text-primary font-sans">
           {toast.title}
         </span>
         <span className="text-[10px] text-text-secondary leading-normal font-sans">
@@ -80,7 +80,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       {/* Dismiss X button */}
       <button
         onClick={() => onDismiss(toast.id)}
-        className="absolute top-2 right-2 text-text-tertiary hover:text-white transition-colors duration-150 p-0.5 hover:bg-white/5 rounded outline-none"
+        className="absolute top-2 right-2 text-text-tertiary hover:text-text-primary transition-colors duration-150 p-0.5 hover:bg-bg-hover rounded outline-none"
       >
         <X className="w-3 h-3" />
       </button>

@@ -80,11 +80,11 @@ export const WelcomeOverlay: React.FC = () => {
     >
       <div className="relative w-full max-w-md mx-4">
         {/* Card */}
-        <div className="bg-[#0f0f0f] border border-[#222222] rounded-2xl p-8 shadow-2xl">
+        <div className="bg-bg-card border border-border-default rounded-2xl p-8 shadow-2xl">
           {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="absolute top-4 right-4 text-[#555555] hover:text-white transition-colors duration-150 p-1"
+            className="absolute top-4 right-4 text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1"
             aria-label="Close welcome"
           >
             <X className="w-4 h-4" />
@@ -96,22 +96,22 @@ export const WelcomeOverlay: React.FC = () => {
               <div
                 key={i}
                 className={`h-1 rounded-full transition-all duration-300 ${
-                  i === step ? 'w-6 bg-[#3b82f6]' : i < step ? 'w-2 bg-[#3b82f6]/50' : 'w-2 bg-[#222222]'
+                  i === step ? 'w-6 bg-accent-blue' : i < step ? 'w-2 bg-accent-blue/50' : 'w-2 bg-border-default'
                 }`}
               />
             ))}
           </div>
 
           {/* Icon */}
-          <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#222222] flex items-center justify-center mb-5">
-            <Icon className="w-6 h-6 text-[#3b82f6]" />
+          <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-border-default flex items-center justify-center mb-5">
+            <Icon className="w-6 h-6 text-accent-blue" />
           </div>
 
           {/* Content */}
-          <h2 className="text-lg font-semibold text-white mb-2 tracking-tight">
+          <h2 className="text-lg font-semibold text-text-primary mb-2 tracking-tight">
             {current.title}
           </h2>
-          <p className="text-sm text-[#888888] leading-relaxed mb-8">
+          <p className="text-sm text-text-secondary leading-relaxed mb-8">
             {current.desc}
           </p>
 
@@ -119,14 +119,14 @@ export const WelcomeOverlay: React.FC = () => {
           <div className="flex items-center justify-between">
             <button
               onClick={handleDismiss}
-              className="text-xs text-[#555555] hover:text-[#888888] transition-colors duration-150 font-mono"
+              className="text-xs text-text-tertiary hover:text-text-secondary transition-colors duration-150 font-mono"
             >
               Skip tour
             </button>
 
             <button
               onClick={handleNext}
-              className="flex items-center gap-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-all duration-150 active:scale-[0.98]"
+              className="flex items-center gap-2 bg-accent-blue hover:opacity-90 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-all duration-150 active:scale-[0.98]"
             >
               {step < STEPS.length - 1 ? 'Next' : 'Get Started'}
               <ArrowRight className="w-3.5 h-3.5" />
@@ -135,8 +135,8 @@ export const WelcomeOverlay: React.FC = () => {
         </div>
 
         {/* Keyboard hint */}
-        <div className="text-center mt-3 text-[10px] text-[#444444] font-mono">
-          Press <kbd className="px-1 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[#666]">Enter</kbd> to continue · <kbd className="px-1 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[#666]">Esc</kbd> to skip
+        <div className="text-center mt-3 text-[10px] text-text-tertiary font-mono">
+          Press <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-default rounded text-text-secondary">Enter</kbd> to continue · <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-default rounded text-text-secondary">Esc</kbd> to skip
         </div>
       </div>
     </div>

@@ -20,6 +20,18 @@ import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 		<meta property="og:description" content="Predictive Digital Twin for Indian Railway Operations" />
 		<meta name="theme-color" content="#0a0a0a" />
 
+		<!-- Theme Initialization -->
+		<script is:inline>
+			(function() {
+				const storedTheme = localStorage.getItem('theme');
+				if (storedTheme === 'light' || (!storedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+					document.documentElement.classList.add('light');
+				} else {
+					document.documentElement.classList.remove('light');
+				}
+			})();
+		</script>
+
 		<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.3.0/dist/maplibre-gl.css" />
 		<!-- Load MapLibre JS script with defer -->
 		<script defer is:inline src="https://unpkg.com/maplibre-gl@4.3.0/dist/maplibre-gl.js"></script>

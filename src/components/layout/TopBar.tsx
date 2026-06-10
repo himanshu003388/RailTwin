@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle } from 'lucide-react';
+import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings } from 'lucide-react';
 import { HelpModal } from '../ui/HelpModal';
+import { SettingsModal } from '../ui/SettingsModal';
 
 export const TopBar: React.FC = () => {
   const demoRunning = useDemoStore(state => state.demoRunning);
   const audioEnabled = useDemoStore(state => state.audioEnabled);
   const toggleAudio = useDemoStore(state => state.toggleAudio);
+  const theme = useDemoStore(state => state.theme);
+  const toggleTheme = useDemoStore(state => state.toggleTheme);
+  const liveApiEnabled = useDemoStore(state => state.liveApiEnabled);
+  const apiStatus = useDemoStore(state => state.apiStatus);
   const [timeStr, setTimeStr] = useState('');
   const [showHelp, setShowHelp] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Live IST Clock
   useEffect(() => {
@@ -27,6 +33,25 @@ export const TopBar: React.FC = () => {
     return () => clearInterval(id);
   }, []);
 
+  // Live API Polling
+  useEffect(() => {
+    const updateLiveTrains = useDemoStore.getState().updateLiveTrainsFromApi;
+    
+    // Fetch immediately if enabled
+    if (liveApiEnabled) {
+      updateLiveTrains();
+    }
+
+    const intervalId = setInterval(() => {
+      const state = useDemoStore.getState();
+      if (state.liveApiEnabled) {
+        state.updateLiveTrainsFromApi();
+      }
+    }, 30000); // Poll every 30 seconds
+
+    return () => clearInterval(intervalId);
+  }, [liveApiEnabled]);
+
   return (
     <>
       <header
@@ -37,10 +62,24 @@ export const TopBar: React.FC = () => {
         }}
       >
         {/* ── Breadcrumb Left ── */}
-        <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[11px] uppercase tracking-widest">
-          <span>Ops Center</span>
-          <span className="text-border-active">/</span>
-          <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[11px] uppercase tracking-widest">
+            <span>Ops Center</span>
+            <span className="text-border-active">/</span>
+            <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
+          </div>
+          <div
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider border select-none ${
+              liveApiEnabled && apiStatus === 'connected'
+                ? 'bg-accent-green-soft text-accent-green border-accent-green/20'
+                : 'bg-accent-blue-soft text-accent-blue border-accent-blue/20'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              liveApiEnabled && apiStatus === 'connected' ? 'bg-accent-green animate-pulse' : 'bg-accent-blue'
+            }`} />
+            <span>{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : 'Simulated'}</span>
+          </div>
         </div>
 
         {/* ── Center Stat Pills ── */}
@@ -101,6 +140,28 @@ export const TopBar: React.FC = () => {
             <HelpCircle className="w-3.5 h-3.5" />
           </button>
 
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-3.5 h-3.5" />
+            ) : (
+              <Moon className="w-3.5 h-3.5" />
+            )}
+          </button>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => setShowSettings(true)}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            title="Configure Live API"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+
           {/* Audio Toggle */}
           <button
             onClick={toggleAudio}
@@ -150,6 +211,7 @@ export const TopBar: React.FC = () => {
       </header>
 
       <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
+      <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
     </>
   );
 };

@@ -12,14 +12,14 @@ export const DashboardView: React.FC = () => {
   const trains = useDemoStore(state => state.trains);
 
   return (
-    <div className="flex w-full h-[calc(100vh-48px)] overflow-hidden bg-[#0a0a0a]">
+    <div className="flex w-full h-[calc(100vh-48px)] overflow-hidden bg-bg-page">
       {/* Left Panel: Digital Twin Corridor Map (always visible to maintain operations view) */}
-      <div className="w-[65%] h-full border-r border-[#222222] relative bg-[#0d0d0d]">
+      <div className="w-[65%] h-full border-r border-border-default relative bg-bg-sunken">
         <CorridorMap />
       </div>
 
       {/* Right Panel: Contextual Telemetry & Controls based on Navigation */}
-      <div className="w-[35%] h-full overflow-y-auto bg-[#0a0a0a] flex flex-col border-l border-[#222222] shadow-2xl">
+      <div className="w-[35%] h-full overflow-y-auto bg-bg-page flex flex-col border-l border-border-default shadow-2xl">
         {activePanel === 'map' && (
           <div className="p-4 flex flex-col gap-4">
             <div>

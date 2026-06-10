@@ -85,8 +85,13 @@ const getStationsGeoJSON = (stationRisks: any) => {
 };
 
 // Tile style URLs in priority order (most reliable first)
-const TILE_STYLES = [
+const DARK_STYLES = [
   'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  'https://demotiles.maplibre.org/style.json',
+];
+
+const LIGHT_STYLES = [
+  'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
   'https://demotiles.maplibre.org/style.json',
 ];
@@ -107,6 +112,7 @@ export const CorridorMap: React.FC = () => {
   const weatherAlert = useDemoStore(state => state.weatherAlert);
   const activePanel = useDemoStore(state => state.activePanel);
   const demoTime = useDemoStore(state => state.demoTime);
+  const theme = useDemoStore(state => state.theme);
 
   const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
@@ -123,6 +129,10 @@ export const CorridorMap: React.FC = () => {
   // Initialize map with error + timeout handling
   useEffect(() => {
     if (!maplibReady || !mapContainer.current) return;
+
+    // Reset style index for new theme
+    styleIndexRef.current = 0;
+    const stylesToUse = theme === 'light' ? LIGHT_STYLES : DARK_STYLES;
 
     const initMap = (styleUrl: string) => {
       // Clean up any existing map
@@ -146,10 +156,10 @@ export const CorridorMap: React.FC = () => {
       const timeoutId = setTimeout(() => {
         if (!mapLoadedRef.current) {
           const nextIdx = styleIndexRef.current + 1;
-          if (nextIdx < TILE_STYLES.length) {
+          if (nextIdx < stylesToUse.length) {
             styleIndexRef.current = nextIdx;
             setLoadingText('Retrying with fallback tiles...');
-            initMap(TILE_STYLES[nextIdx]);
+            initMap(stylesToUse[nextIdx]);
           } else {
             setMapError(true);
           }
@@ -161,10 +171,10 @@ export const CorridorMap: React.FC = () => {
         if (e?.error?.status === 404 && e?.sourceId) return;
         clearTimeout(timeoutId);
         const nextIdx = styleIndexRef.current + 1;
-        if (nextIdx < TILE_STYLES.length) {
+        if (nextIdx < stylesToUse.length) {
           styleIndexRef.current = nextIdx;
           setLoadingText('Switching tile source...');
-          setTimeout(() => initMap(TILE_STYLES[nextIdx]), 500);
+          setTimeout(() => initMap(stylesToUse[nextIdx]), 500);
         } else {
           setMapError(true);
         }
@@ -312,8 +322,8 @@ export const CorridorMap: React.FC = () => {
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold']
         },
         paint: {
-          'text-color': '#ffffff',
-          'text-halo-color': '#0a0a0a',
+          'text-color': theme === 'light' ? '#171717' : '#ffffff',
+          'text-halo-color': theme === 'light' ? '#ffffff' : '#0a0a0a',
           'text-halo-width': 2,
           'text-halo-blur': 1
         }
@@ -332,8 +342,8 @@ export const CorridorMap: React.FC = () => {
           'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
         },
         paint: {
-          'text-color': '#666666',
-          'text-halo-color': '#0a0a0a',
+          'text-color': theme === 'light' ? '#4d4d4d' : '#666666',
+          'text-halo-color': theme === 'light' ? '#ffffff' : '#0a0a0a',
           'text-halo-width': 1.5,
           'text-halo-blur': 0.5
         }
@@ -348,9 +358,9 @@ export const CorridorMap: React.FC = () => {
         const riskColor = crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e';
 
         const html = `
-          <div style="background:#0a0a0a; color:#fff; font-family:system-ui,sans-serif; font-size:12px; border:1px solid #222; padding:14px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.7); min-width:180px;">
-            <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:#3b82f6;">${name}</div>
-            <div style="font-size:10px; color:#555; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
+          <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#171717' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#ebebeb' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 12px 32px rgba(0,0,0,0.1)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:180px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:${theme === 'light' ? '#0070f3' : '#3b82f6'};">${name}</div>
+            <div style="font-size:10px; color:${theme === 'light' ? '#888' : '#555'}; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
             <div style="display:flex; flex-direction:column; gap:5px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:#888;">Crowd Risk</span>
@@ -374,7 +384,7 @@ export const CorridorMap: React.FC = () => {
 
     // Start with first style
     mapLoadedRef.current = false;
-    initMap(TILE_STYLES[0]);
+    initMap(stylesToUse[0]);
 
     return () => {
       Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
@@ -382,7 +392,7 @@ export const CorridorMap: React.FC = () => {
       mapLoadedRef.current = false;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
-  }, [maplibReady]);
+  }, [maplibReady, theme]);
 
 
   // Sync station risks
@@ -449,9 +459,9 @@ export const CorridorMap: React.FC = () => {
           display:flex; align-items:center; justify-content:center; gap:4px;
           height:26px; padding:0 8px 0 6px;
           border-radius:13px;
-          background:#0f0f0f;
+          background:${theme === 'light' ? '#ffffff' : '#0f0f0f'};
           border:2px solid ${trainColor};
-          box-shadow: 0 0 12px ${trainColor}40, 0 2px 8px rgba(0,0,0,0.5);
+          box-shadow: 0 0 12px ${trainColor}40, 0 2px 8px ${theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.5)'};
           font-family: 'Geist Mono', monospace;
           transition: box-shadow 0.3s ease, border-color 0.3s ease;
         `;
@@ -463,7 +473,7 @@ export const CorridorMap: React.FC = () => {
 
         // Train ID text
         const idText = document.createElement('span');
-        idText.style.cssText = `color:#fff; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
+        idText.style.cssText = `color:${theme === 'light' ? '#171717' : '#fff'}; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
         idText.innerText = train.id;
         pill.appendChild(idText);
 
@@ -475,7 +485,7 @@ export const CorridorMap: React.FC = () => {
           font-family: system-ui, sans-serif;
           font-size:9px; font-weight:600;
           color:${trainColor};
-          text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+          text-shadow: ${theme === 'light' ? '0 1px 2px rgba(255,255,255,0.9)' : '0 1px 4px rgba(0,0,0,0.8)'};
           white-space:nowrap;
           line-height:1;
           opacity:0.9;
@@ -547,22 +557,22 @@ export const CorridorMap: React.FC = () => {
       const toName = toStation ? STATION_FULL_NAMES[toStation.code] || toStation.code : train.nextStation.toUpperCase();
 
       const popupContent = `
-        <div style="background:#0a0a0a; color:#fff; font-family:system-ui,sans-serif; font-size:12px; border:1px solid #222; padding:14px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.7); min-width:200px;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #1a1a1a;">
+        <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#171717' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#ebebeb' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 12px 32px rgba(0,0,0,0.1)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:200px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid ${theme === 'light' ? '#f0f0f0' : '#1a1a1a'};">
             <div style="width:10px; height:10px; border-radius:50%; background:${trainColor}; flex-shrink:0;"></div>
             <div>
               <div style="font-weight:700; font-size:13px; color:${trainColor};">${train.name}</div>
-              <div style="font-size:10px; color:#555; font-family:monospace;">${train.id} · ${train.type}</div>
+              <div style="font-size:10px; color:${theme === 'light' ? '#888' : '#555'}; font-family:monospace;">${train.id} · ${train.type}</div>
             </div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px;">
             <div style="display:flex; justify-content:space-between;">
               <span style="color:#666;">Route</span>
-              <span style="color:#aaa; font-size:11px;">${fromName} → ${toName}</span>
+              <span style="color:${theme === 'light' ? '#4d4d4d' : '#aaa'}; font-size:11px;">${fromName} → ${toName}</span>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:#666;">Speed</span>
-              <span style="color:#fff; font-weight:600;">${train.speed} km/h</span>
+              <span style="color:${theme === 'light' ? '#171717' : '#fff'}; font-weight:600;">${train.speed} km/h</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span style="color:#666;">Status</span>
@@ -570,9 +580,9 @@ export const CorridorMap: React.FC = () => {
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:#666;">Occupancy</span>
-              <span style="color:#fff;">
+              <span style="color:${theme === 'light' ? '#171717' : '#fff'};">
                 <span style="font-weight:600;">${occupancy}%</span>
-                <span style="color:#555; font-size:10px;"> (${train.passengerCount.toLocaleString()}/${train.capacity.toLocaleString()})</span>
+                <span style="color:${theme === 'light' ? '#888' : '#555'}; font-size:10px;"> (${train.passengerCount.toLocaleString()}/${train.capacity.toLocaleString()})</span>
               </span>
             </div>
           </div>
@@ -702,12 +712,12 @@ export const CorridorMap: React.FC = () => {
 
       {/* ═══ Map Header ═══ */}
       <div className="absolute top-3 left-3 z-10 pointer-events-none">
-        <div className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-[#222222] rounded-xl px-4 py-2.5 shadow-lg">
+        <div className="bg-bg-card/90 backdrop-blur-sm border border-border-default rounded-xl px-4 py-2.5 shadow-lg">
           <div className="flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
             <div>
-              <div className="text-[11px] font-bold text-white tracking-wide">Delhi–Howrah Corridor</div>
-              <div className="text-[9px] text-[#555555] font-mono">1,531 km · 7 stations · 5 trains</div>
+              <div className="text-[11px] font-bold text-text-primary tracking-wide">Delhi–Howrah Corridor</div>
+              <div className="text-[9px] text-text-secondary font-mono">1,531 km · 7 stations · 5 trains</div>
             </div>
           </div>
         </div>
@@ -715,10 +725,10 @@ export const CorridorMap: React.FC = () => {
 
       {/* ═══ Map Legend ═══ */}
       <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-        <div className="bg-[#0a0a0a]/92 backdrop-blur-sm border border-[#1a1a1a] rounded-xl p-3.5 shadow-xl max-w-[200px]">
+        <div className="bg-bg-card/92 backdrop-blur-sm border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px]">
           {/* Station risk section */}
           <div className="mb-3">
-            <div className="text-[9px] font-bold text-[#555] uppercase tracking-[0.12em] mb-2">Station Risk</div>
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
               {[
                 { color: '#22c55e', label: 'Low' },
@@ -728,18 +738,18 @@ export const CorridorMap: React.FC = () => {
               ].map(r => (
                 <div key={r.label} className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 6px ${r.color}40` }} />
-                  <span className="text-[10px] text-[#999]">{r.label}</span>
+                  <span className="text-[10px] text-text-secondary">{r.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-[#1a1a1a] my-2.5" />
+          <div className="h-px bg-border-subtle my-2.5" />
 
           {/* Train routes section */}
           <div>
-            <div className="text-[9px] font-bold text-[#555] uppercase tracking-[0.12em] mb-2">Trains</div>
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
             <div className="flex flex-col gap-1.5">
               {[
                 { id: '12301', name: 'Rajdhani', color: '#3b82f6', dir: '→' },
@@ -750,18 +760,18 @@ export const CorridorMap: React.FC = () => {
               ].map(t => (
                 <div key={t.id} className="flex items-center gap-2">
                   <span className="w-4 h-[2.5px] rounded-full flex-shrink-0" style={{ background: t.color }} />
-                  <span className="text-[10px] text-[#999] flex-1 truncate">{t.name}</span>
-                  <span className="text-[9px] text-[#444] font-mono">{t.id}</span>
+                  <span className="text-[10px] text-text-secondary flex-1 truncate">{t.name}</span>
+                  <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Direction hint */}
-          <div className="mt-2.5 pt-2 border-t border-[#1a1a1a]">
-            <div className="flex items-center gap-1.5 text-[9px] text-[#444]">
+          <div className="mt-2.5 pt-2 border-t border-border-subtle">
+            <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0">
-                <path d="M1 3H9M7 1L9 3L7 5" stroke="#555" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span>Direction of travel</span>
             </div>

@@ -13,6 +13,7 @@
     "deploy": "astro build && gh-pages -d dist"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.9",
     "@astrojs/react": "^5.0.7",
     "@fontsource/geist": "^5.2.9",
     "@fontsource/geist-mono": "^5.2.8",
@@ -25,6 +26,7 @@
     "react-dom": "^19.2.7",
     "recharts": "^3.8.1",
     "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
