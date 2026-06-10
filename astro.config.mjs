@@ -8,7 +8,7 @@ const isVercel = !!process.env.VERCEL;
 // https://astro.build/config
 export default defineConfig({
   site: isVercel ? 'https://rail-twin.vercel.app' : 'https://himanshu003388.github.io',
-  base: isVercel ? '' : '/RailTwin',
+  base: isVercel ? '/' : '/RailTwin',
   integrations: [react()],
   vite: { plugins: [tailwindcss()] }
 });
