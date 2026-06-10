@@ -86,7 +86,8 @@ const getStationsGeoJSON = (stationRisks: any) => {
 
 // Tile style URLs in priority order (most reliable first)
 const TILE_STYLES = [
-  'https://tiles.openfreemap.org/styles/dark',
+  'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
   'https://demotiles.maplibre.org/style.json',
 ];
 
@@ -141,7 +142,7 @@ export const CorridorMap: React.FC = () => {
       mapRef.current = map;
       if (window.innerWidth <= 768) { map.scrollZoom.disable(); }
 
-      // Timeout — if tiles don't load in 15s, try fallback
+      // Timeout — if tiles don't load in 10s, try fallback
       const timeoutId = setTimeout(() => {
         if (!mapLoadedRef.current) {
           const nextIdx = styleIndexRef.current + 1;
@@ -153,11 +154,11 @@ export const CorridorMap: React.FC = () => {
             setMapError(true);
           }
         }
-      }, 15000);
+      }, 10000);
 
       map.on('error', (e: any) => {
-        // Ignore tile 404s which are non-fatal; only catch style load errors
-        if (e?.error?.status === 404 || e?.sourceId) return;
+        // Ignore individual tile 404s (non-fatal), but catch style/source load failures
+        if (e?.error?.status === 404 && e?.sourceId) return;
         clearTimeout(timeoutId);
         const nextIdx = styleIndexRef.current + 1;
         if (nextIdx < TILE_STYLES.length) {
