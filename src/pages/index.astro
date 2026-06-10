@@ -8,6 +8,9 @@ import { DelayChart } from '../components/panels/DelayChart';
 import { SimulationPanel } from '../components/panels/SimulationPanel';
 import { CopilotChat } from '../components/copilot/CopilotChat';
 import { StationRiskPanel } from '../components/panels/StationRiskPanel';
+import { WhatIfPanel } from '../components/panels/WhatIfPanel';
+import { HealthDashboard } from '../components/panels/HealthDashboard';
+import { TimelineScrubber } from '../components/ui/TimelineScrubber';
 ---
 
 <DashboardLayout>
@@ -20,9 +23,12 @@ import { StationRiskPanel } from '../components/panels/StationRiskPanel';
           <DelayChart slot="delays" client:visible />
           <SimulationPanel slot="simulation" client:load />
           <CopilotChat slot="copilot" client:load />
+          <WhatIfPanel slot="whatif" client:load />
+          <HealthDashboard slot="health" client:load />
         </MainPanel>
       </main>
       <RightSidebar client:load>
+        <TimelineScrubber client:load />
         <StationRiskPanel client:visible />
       </RightSidebar>
     </div>

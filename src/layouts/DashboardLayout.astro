@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { AlertBanner } from '../components/ui/AlertBanner';
 import { ToastContainer } from '../components/ui/ToastContainer';
+import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
 ---
 
 <!doctype html>
@@ -54,6 +55,7 @@ import { ToastContainer } from '../components/ui/ToastContainer';
 		</script>
 
 		<AlertBanner client:load />
+		<KeyboardShortcuts client:load />
 		<slot />
 		<ToastContainer client:load />
 	</body>

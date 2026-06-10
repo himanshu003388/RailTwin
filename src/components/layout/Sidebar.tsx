@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Train, MapPin, Clock, Zap, Bot } from 'lucide-react';
+import { Train, MapPin, Clock, Zap, Bot, TestTube, Activity } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
@@ -91,8 +91,10 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     { id: 'map' as const, label: 'Map View', icon: MapPin },
     { id: 'delays' as const, label: 'Train Delays', icon: Clock },
-    { id: 'simulation' as const, label: 'Simulation Panel', icon: Zap },
+    { id: 'simulation' as const, label: 'Simulation', icon: Zap },
     { id: 'copilot' as const, label: 'AI Copilot', icon: Bot },
+    { id: 'whatif' as const, label: 'What-If Lab', icon: TestTube },
+    { id: 'health' as const, label: 'System Health', icon: Activity },
   ];
 
   return (
@@ -173,6 +175,14 @@ export const Sidebar: React.FC = () => {
           <span className="text-[9px] text-[#333333] font-mono">
             Hackathon prototype v1.0
           </span>
+          <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 mt-1.5">
+            <span className="text-[8px] text-[#333] font-mono">
+              <kbd className="px-1 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[#555]">1-6</kbd> panels
+            </span>
+            <span className="text-[8px] text-[#333] font-mono">
+              <kbd className="px-1 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[#555]">M</kbd> audio
+            </span>
+          </div>
         </div>
       </div>
     </aside>

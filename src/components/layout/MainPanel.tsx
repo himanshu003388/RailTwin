@@ -6,12 +6,16 @@ interface MainPanelProps {
   delays?: React.ReactNode;
   simulation?: React.ReactNode;
   copilot?: React.ReactNode;
+  whatif?: React.ReactNode;
+  health?: React.ReactNode;
 }
 
 export const MainPanel: React.FC<MainPanelProps> = ({
   delays,
   simulation,
-  copilot
+  copilot,
+  whatif,
+  health
 }) => {
   const activePanel = useDemoStore(state => state.activePanel);
 
@@ -45,6 +49,8 @@ export const MainPanel: React.FC<MainPanelProps> = ({
           {activePanel === 'delays' && delays}
           {activePanel === 'simulation' && simulation}
           {activePanel === 'copilot' && copilot}
+          {activePanel === 'whatif' && whatif}
+          {activePanel === 'health' && health}
         </div>
       )}
     </div>

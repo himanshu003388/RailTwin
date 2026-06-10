@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Shield, ShieldAlert, Users, Compass, Clock } from 'lucide-react';
+import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX } from 'lucide-react';
 
 export const TopBar: React.FC = () => {
   const demoRunning = useDemoStore(state => state.demoRunning);
+  const audioEnabled = useDemoStore(state => state.audioEnabled);
+  const toggleAudio = useDemoStore(state => state.toggleAudio);
   const [timeStr, setTimeStr] = useState('');
 
   // Live IST Clock
@@ -57,6 +59,19 @@ export const TopBar: React.FC = () => {
 
       {/* Right status indicator */}
       <div className="flex items-center gap-2">
+        {/* Audio Toggle */}
+        <button
+          onClick={toggleAudio}
+          className="flex items-center gap-1 bg-[#1a1a1a] border border-[#222222] px-2 py-0.5 rounded text-xs transition-colors duration-150 outline-none hover:border-[#333]"
+          title={audioEnabled ? 'Mute alerts' : 'Enable audio alerts'}
+        >
+          {audioEnabled ? (
+            <Volume2 className="w-3.5 h-3.5 text-[#22c55e]" />
+          ) : (
+            <VolumeX className="w-3.5 h-3.5 text-[#555]" />
+          )}
+        </button>
+
         {demoRunning ? (
           <div className="flex items-center gap-1.5 bg-[#f59e0b]/5 border border-[#f59e0b]/20 px-2 py-0.5 rounded text-[#f59e0b] text-xs font-medium">
             <span className="relative flex h-2 w-2">

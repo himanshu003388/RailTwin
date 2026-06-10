@@ -141,6 +141,49 @@ export const CorridorMap: React.FC = () => {
         }
       });
 
+      // --- LAYER 1b: Individual Train Route Paths ---
+      const trainColors: Record<string, string> = {
+        '12301': '#3b82f6',
+        '12303': '#f59e0b',
+        '12305': '#22c55e',
+        '13005': '#a855f7',
+        '12273': '#ef4444'
+      };
+      const initialTrains = useDemoStore.getState().trains;
+      const trainRouteFeatures = initialTrains.map(train => {
+        const fromStation = sortedStations.find(s => s.id === train.currentStation);
+        const toStation = sortedStations.find(s => s.id === train.nextStation);
+        if (!fromStation || !toStation) return null;
+        return {
+          type: 'Feature' as const,
+          properties: { trainId: train.id, color: trainColors[train.id] || '#3b82f6' },
+          geometry: {
+            type: 'LineString' as const,
+            coordinates: [fromStation.coordinates, toStation.coordinates]
+          }
+        };
+      }).filter(Boolean);
+
+      map.addSource('train-routes', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: trainRouteFeatures as any[]
+        }
+      });
+
+      map.addLayer({
+        id: 'train-route-lines',
+        type: 'line',
+        source: 'train-routes',
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 2.5,
+          'line-opacity': 0.4,
+          'line-dasharray': [6, 4]
+        }
+      });
+
       // --- LAYER 2: Station Circle Layer ---
       map.addSource('stations', {
         type: 'geojson',
@@ -309,12 +352,19 @@ export const CorridorMap: React.FC = () => {
         el.style.width = '28px';
         el.style.height = '28px';
         el.style.position = 'relative';
+        el.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
         const inner = document.createElement('div');
         inner.className = 'flex items-center justify-center rounded-full text-white font-mono text-[9px] font-bold shadow-lg transition-all duration-300 cursor-pointer w-full h-full';
         inner.style.backgroundColor = '#111111';
         inner.innerText = train.id;
         el.appendChild(inner);
+
+        // Direction indicator arrow
+        const arrow = document.createElement('div');
+        arrow.className = 'absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-[#3b82f6] transition-all duration-300';
+        arrow.style.opacity = '0';
+        el.appendChild(arrow);
 
         const popup = new maplibregl.Popup({ closeButton: false, offset: 15 });
 
@@ -326,7 +376,7 @@ export const CorridorMap: React.FC = () => {
         markerEntry = { marker, element: el, inner: inner };
         markersRef.current[train.id] = markerEntry;
       } else {
-        // Reposition active marker
+        // Reposition active marker with smooth transition
         markerEntry.marker.setLngLat(train.coordinates);
       }
 
@@ -502,6 +552,21 @@ export const CorridorMap: React.FC = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] inline-block border border-white/20" />
             <span>Critical Risk</span>
           </div>
+        </div>
+        <div className="font-bold border-b border-[#222222] pb-1.5 mb-1.5 mt-2 pt-2 text-text-secondary">Train Routes</div>
+        <div className="flex flex-col gap-1">
+          {[
+            { id: '12301', name: 'Rajdhani', color: '#3b82f6' },
+            { id: '12303', name: 'Poorva', color: '#f59e0b' },
+            { id: '12305', name: 'Rajdhani', color: '#22c55e' },
+            { id: '13005', name: 'Mail', color: '#a855f7' },
+            { id: '12273', name: 'Duronto', color: '#ef4444' },
+          ].map(t => (
+            <div key={t.id} className="flex items-center gap-2">
+              <span className="w-4 h-0.5 inline-block rounded" style={{ backgroundColor: t.color }} />
+              <span className="text-[9px]">{t.id} {t.name}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
