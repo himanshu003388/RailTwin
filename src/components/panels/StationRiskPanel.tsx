@@ -38,12 +38,12 @@ const StationCard: React.FC<StationCardProps> = ({
   }, [crowdRisk]);
 
   // Determine flash border color
-  let flashBorderColor = '#222222';
+  let flashBorderColor = 'var(--color-border-default)';
   if (isFlash) {
-    if (crowdRisk === 'moderate') flashBorderColor = '#f59e0b';
-    else if (crowdRisk === 'high') flashBorderColor = '#f97316';
-    else if (crowdRisk === 'critical') flashBorderColor = '#ef4444';
-    else flashBorderColor = '#22c55e';
+    if (crowdRisk === 'moderate') flashBorderColor = 'var(--color-risk-moderate)';
+    else if (crowdRisk === 'high')     flashBorderColor = 'var(--color-risk-high)';
+    else if (crowdRisk === 'critical') flashBorderColor = 'var(--color-risk-critical)';
+    else flashBorderColor = 'var(--color-risk-low)';
   }
 
   // Show bottom details row if active telemetry exists
@@ -57,24 +57,26 @@ const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <div
-      className="bg-bg-card border rounded-lg p-3 mb-2 hover:border-border-hover transition-all duration-300"
+      className="bg-bg-card border rounded-lg p-3 mb-2 transition-all duration-300"
       style={{
-        borderColor: isFlash ? flashBorderColor : '#222222',
-        boxShadow: isFlash ? `0 0 8px ${flashBorderColor}22` : 'none'
+        borderColor: isFlash ? flashBorderColor : 'var(--color-border-default)',
+        boxShadow:   isFlash ? `0 0 10px ${flashBorderColor}33` : 'var(--shadow-card)',
       }}
+      onMouseEnter={e => { if (!isFlash) (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-hover)'; }}
+      onMouseLeave={e => { if (!isFlash) (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'; }}
     >
       <div className="flex items-center justify-between">
         {/* Left Side: Info */}
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#555] select-none">
+          <span className="font-mono text-xs uppercase tracking-widest text-text-tertiary select-none">
             {station.code}
           </span>
           <div className="flex items-center gap-1">
-            <span className="text-sm font-medium text-white select-none">
+            <span className="text-sm font-medium text-text-primary select-none">
               {station.name}
             </span>
             {isPatnaWeather && (
-              <CloudRain className="w-3.5 h-3.5 text-[#ef4444] animate-pulse" />
+              <CloudRain className="w-3.5 h-3.5 text-accent-red animate-pulse" />
             )}
           </div>
         </div>
@@ -87,17 +89,17 @@ const StationCard: React.FC<StationCardProps> = ({
       {hasDetails && (
         <div className="mt-2.5 pt-2 border-t border-border-default/50 flex flex-wrap gap-x-3 gap-y-1">
           {hasPrediction && (
-            <span className="text-[#f59e0b] font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
+            <span className="text-accent-amber font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
               <span>⚠</span> {prediction.trainId} +{prediction.delayMinutes}m
             </span>
           )}
           {hasConflicts && (
-            <span className="text-[#ef4444] font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
+            <span className="text-accent-red font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
               <span>⚡</span> {risks.platformConflicts} conflicts
             </span>
           )}
           {hasHighCrowd && (
-            <span className="text-[#f59e0b] font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
+            <span className="text-accent-amber font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
               <span>👥</span> High crowd
             </span>
           )}
@@ -165,17 +167,15 @@ export const StationRiskPanel: React.FC = () => {
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
             <span
-              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                hasCriticalStation ? 'bg-[#ef4444]' : 'bg-[#22c55e]'
-              }`}
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ background: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)' }}
             />
             <span
-              className={`relative inline-flex rounded-full h-2 w-2 ${
-                hasCriticalStation ? 'bg-[#ef4444]' : 'bg-[#22c55e]'
-              }`}
+              className="relative inline-flex rounded-full h-2 w-2"
+              style={{ background: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)', boxShadow: hasCriticalStation ? 'var(--glow-red)' : 'var(--glow-green)' }}
             />
           </span>
-          <span className="text-[10px] text-text-secondary font-mono select-none">
+          <span className="text-[10px] text-text-secondary font-mono select-none font-bold uppercase tracking-wider" style={{ color: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)' }}>
             {hasCriticalStation ? 'CRITICAL RISK' : 'NOMINAL'}
           </span>
         </div>

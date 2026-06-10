@@ -98,6 +98,8 @@ export const CorridorMap: React.FC = () => {
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
   const styleIndexRef = useRef(0);
+  // Use a ref to avoid stale closure in setTimeout callbacks
+  const mapLoadedRef = useRef(false);
 
   const trains = useDemoStore(state => state.trains);
   const stationRisks = useDemoStore(state => state.stationRisks);
@@ -134,25 +136,24 @@ export const CorridorMap: React.FC = () => {
         center: [84.0, 25.5],
         zoom: 5.5,
         attributionControl: false,
-        transformRequest: (url: string) => ({ url }),
       });
 
       mapRef.current = map;
       if (window.innerWidth <= 768) { map.scrollZoom.disable(); }
 
-      // Timeout — if tiles don't load in 12s, try fallback
+      // Timeout — if tiles don't load in 15s, try fallback
       const timeoutId = setTimeout(() => {
-        if (!mapLoaded) {
+        if (!mapLoadedRef.current) {
           const nextIdx = styleIndexRef.current + 1;
           if (nextIdx < TILE_STYLES.length) {
             styleIndexRef.current = nextIdx;
-            setLoadingText(`Retrying with fallback tiles...`);
+            setLoadingText('Retrying with fallback tiles...');
             initMap(TILE_STYLES[nextIdx]);
           } else {
             setMapError(true);
           }
         }
-      }, 12000);
+      }, 15000);
 
       map.on('error', (e: any) => {
         // Ignore tile 404s which are non-fatal; only catch style load errors
@@ -170,6 +171,7 @@ export const CorridorMap: React.FC = () => {
 
       map.on('load', () => {
         clearTimeout(timeoutId);
+        mapLoadedRef.current = true;
         setMapLoaded(true);
         setMapError(false);
         const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
@@ -370,11 +372,13 @@ export const CorridorMap: React.FC = () => {
     }; // end initMap
 
     // Start with first style
+    mapLoadedRef.current = false;
     initMap(TILE_STYLES[0]);
 
     return () => {
       Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
       markersRef.current = {};
+      mapLoadedRef.current = false;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
   }, [maplibReady]);

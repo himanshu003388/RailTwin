@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { Bot, Send, User, Info } from 'lucide-react';
 
-// Subcomponent to typewriter reasoning traces line-by-line
-interface ReasoningTraceProps {
-  trace: string;
-}
+interface ReasoningTraceProps { trace: string; }
 
 const ReasoningTrace: React.FC<ReasoningTraceProps> = ({ trace }) => {
   const lines = trace.split('\n');
@@ -15,20 +12,23 @@ const ReasoningTrace: React.FC<ReasoningTraceProps> = ({ trace }) => {
     setVisibleCount(0);
     const interval = setInterval(() => {
       setVisibleCount(prev => {
-        if (prev < lines.length) {
-          return prev + 1;
-        } else {
-          clearInterval(interval);
-          return prev;
-        }
+        if (prev < lines.length) return prev + 1;
+        clearInterval(interval);
+        return prev;
       });
     }, 80);
-
     return () => clearInterval(interval);
   }, [trace]);
 
   return (
-    <div className="bg-[#0a0a0a] border-l-2 border-[#a855f7] p-2.5 rounded-r-lg font-mono text-[10px] text-[#888888] whitespace-pre-wrap mt-2 flex flex-col gap-1 w-full select-text selection:bg-[#a855f7]/30 selection:text-white">
+    <div
+      className="rounded-r-lg p-2.5 font-mono text-[10px] whitespace-pre-wrap mt-2 flex flex-col gap-1 w-full select-text"
+      style={{
+        background: 'var(--color-bg-page)',
+        borderLeft: '2px solid var(--color-accent-purple)',
+        color: 'var(--color-text-secondary)',
+      }}
+    >
       {lines.slice(0, visibleCount).map((line, idx) => (
         <div key={idx}>{line}</div>
       ))}
@@ -37,36 +37,31 @@ const ReasoningTrace: React.FC<ReasoningTraceProps> = ({ trace }) => {
 };
 
 export const CopilotChat: React.FC = () => {
-  const copilot = useDemoStore(state => state.copilot);
-  const messages = copilot.messages;
+  const copilot   = useDemoStore(state => state.copilot);
+  const messages  = copilot.messages;
   const [inputText, setInputText] = useState('');
-
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Pre-populate initial agent message on mount
   useEffect(() => {
     const currentMessages = useDemoStore.getState().copilot.messages;
-    const hasInit = currentMessages.some(m => m.id === 'init-agent-msg');
-
-    if (!hasInit) {
-      const initAgentMsg = {
-        id: 'init-agent-msg',
-        sender: 'copilot' as const,
-        message: "Good morning. I'm monitoring the Delhi–Howrah corridor. All 8 stations operational, 5 trains on schedule. No active disruptions detected. Ask me anything about current operations.",
-        timestamp: new Date()
-      };
-
+    if (!currentMessages.some(m => m.id === 'init-agent-msg')) {
       useDemoStore.setState(state => ({
         copilot: {
           ...state.copilot,
-          // Replace initial system log with friendly agent prompt
-          messages: [initAgentMsg, ...state.copilot.messages.filter(m => m.id !== 'init-msg')]
+          messages: [
+            {
+              id: 'init-agent-msg',
+              sender: 'copilot' as const,
+              message: "Good morning. I'm monitoring the Delhi–Howrah corridor. All 8 stations operational, 5 trains on schedule. No active disruptions detected. Ask me anything about current operations.",
+              timestamp: new Date()
+            },
+            ...state.copilot.messages.filter(m => m.id !== 'init-msg')
+          ]
         }
       }));
     }
   }, []);
 
-  // Auto scroll to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, copilot.thinking]);
@@ -79,38 +74,15 @@ export const CopilotChat: React.FC = () => {
 
   const handleSendMessage = (text: string) => {
     if (!text.trim()) return;
-
-    // Send user message
-    const userMsg = {
-      id: `user-msg-${Date.now()}`,
-      sender: 'user' as const,
-      message: text,
-      timestamp: new Date()
-    };
-
     useDemoStore.setState(state => ({
-      copilot: {
-        ...state.copilot,
-        thinking: true,
-        messages: [...state.copilot.messages, userMsg]
-      }
+      copilot: { ...state.copilot, thinking: true, messages: [...state.copilot.messages, { id: `user-msg-${Date.now()}`, sender: 'user' as const, message: text, timestamp: new Date() }] }
     }));
-
-    // Trigger copilot response after delay
     setTimeout(() => {
-      const reply = presetReplies[text] || "I am analyzing the corridor telemetry. Please let me know if you would like me to compile details on train delay predictions or station platform conflicts.";
-      const copilotMsg = {
-        id: `copilot-msg-${Date.now()}`,
-        sender: 'copilot' as const,
-        message: reply,
-        timestamp: new Date()
-      };
-
       useDemoStore.setState(state => ({
         copilot: {
           ...state.copilot,
           thinking: false,
-          messages: [...state.copilot.messages, copilotMsg]
+          messages: [...state.copilot.messages, { id: `copilot-msg-${Date.now()}`, sender: 'copilot' as const, message: presetReplies[text] || "I am analyzing the corridor telemetry. Please let me know if you would like details on delay predictions or platform conflicts.", timestamp: new Date() }]
         }
       }));
     }, 800);
@@ -123,10 +95,8 @@ export const CopilotChat: React.FC = () => {
     setInputText('');
   };
 
-  // Preset Questions check: show them when there's no custom user messages yet
   const hasUserMessages = messages.some(m => m.sender === 'user');
 
-  // Hardcoded reasoning text triggered when recommended message is sent
   const reasoningText = `[AGENT] Risk threshold breached: 12301 predicted +38min at PNBE
 [TOOL] run_simulation({"train":"12301","delay":38})
 [RESULT] 3 platform conflicts · PNBE crowd → CRITICAL · +52min cascade
@@ -136,16 +106,19 @@ export const CopilotChat: React.FC = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-48px)] bg-bg-page text-text-primary">
-      {/* Chat History Container */}
+      {/* Chat History */}
       <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin">
         {!hasUserMessages && (
-          <div className="flex flex-col items-center justify-center py-8 text-[#555] select-none">
-            <Bot className="w-10 h-10 text-[#222222] mb-3" />
-            <span className="text-sm text-[#888888] font-medium mb-1">Ask about corridor status</span>
-            <span className="text-xs text-[#555555] max-w-[280px] text-center leading-relaxed mb-3">
+          <div className="flex flex-col items-center justify-center py-8 select-none">
+            <Bot className="w-10 h-10 text-border-default mb-3" />
+            <span className="text-sm text-text-secondary font-medium mb-1">Ask about corridor status</span>
+            <span className="text-xs text-text-tertiary max-w-[280px] text-center leading-relaxed mb-3">
               Use the preset questions below or type your own query about the Delhi-Howrah corridor
             </span>
-            <div className="flex items-center gap-1.5 text-[10px] text-[#444444] bg-[#111111] border border-[#222222] rounded-lg px-3 py-1.5">
+            <div
+              className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
+              style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-default)', color: 'var(--color-text-tertiary)' }}
+            >
               <Info className="w-3 h-3" />
               <span>Demo responses — not live AI</span>
             </div>
@@ -154,50 +127,43 @@ export const CopilotChat: React.FC = () => {
 
         {messages.map(msg => {
           const isCopilot = msg.sender === 'copilot';
-          const isSystem = msg.sender === 'system';
-          const isUser = msg.sender === 'user';
-          
-          // Timestamp formatting
-          const timeLabel = new Intl.DateTimeFormat('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-          }).format(msg.timestamp);
+          const isSystem  = msg.sender === 'system';
+          const isUser    = msg.sender === 'user';
+          const timeLabel = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(msg.timestamp);
 
-          if (isSystem) {
-            return (
-              <div key={msg.id} className="text-center font-mono text-[10px] text-[#444] py-1 select-none">
-                {msg.message} — {timeLabel}
+          if (isSystem) return (
+            <div key={msg.id} className="text-center font-mono text-[10px] text-text-muted py-1 select-none">
+              {msg.message} — {timeLabel}
+            </div>
+          );
+
+          if (isUser) return (
+            <div key={msg.id} className="flex flex-col gap-1 items-end max-w-[80%] self-end">
+              <div className="flex items-center gap-1.5 mr-1 select-none">
+                <User className="w-3.5 h-3.5 text-text-secondary" />
+                <span className="text-xs font-semibold text-text-secondary">Operator</span>
               </div>
-            );
-          }
-
-          if (isUser) {
-            return (
-              <div key={msg.id} className="flex flex-col gap-1 items-end max-w-[80%] self-end">
-                <div className="flex items-center gap-1.5 mr-1 select-none">
-                  <User className="w-3.5 h-3.5 text-text-secondary" />
-                  <span className="text-xs font-semibold text-text-secondary">Operator</span>
-                </div>
-                <div className="bg-[#1a1a1a] border border-[#333333] rounded-lg rounded-tr-sm p-3 text-sm text-white select-text selection:bg-[#3b82f6]/30 selection:text-white leading-relaxed">
-                  {msg.message}
-                </div>
+              <div
+                className="rounded-lg rounded-tr-sm p-3 text-sm text-text-primary select-text leading-relaxed"
+                style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-hover)' }}
+              >
+                {msg.message}
               </div>
-            );
-          }
+            </div>
+          );
 
-          // Trigger reasoning trace overlay on recommendation events
           const isRecMessage = msg.id.startsWith('cop-rec-');
-
           return (
             <div key={msg.id} className="flex flex-col gap-1 items-start max-w-[85%] self-start">
               <div className="flex items-center gap-1.5 ml-1 select-none">
-                <Bot className="w-3.5 h-3.5 text-[#a855f7]" />
-                <span className="text-xs font-semibold text-[#a855f7]">RailTwin Copilot</span>
-                <span className="text-[10px] text-[#444] font-mono">{timeLabel}</span>
+                <Bot className="w-3.5 h-3.5 text-accent-purple" />
+                <span className="text-xs font-semibold text-accent-purple">RailTwin Copilot</span>
+                <span className="text-[10px] text-text-muted font-mono">{timeLabel}</span>
               </div>
-              <div className="bg-[#0f0a1a] border border-[#2d1b6b] rounded-lg rounded-tl-sm p-3 text-sm text-text-primary select-text selection:bg-[#a855f7]/30 selection:text-white leading-relaxed">
+              <div
+                className="rounded-lg rounded-tl-sm p-3 text-sm text-text-primary select-text leading-relaxed"
+                style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)' }}
+              >
                 {msg.message}
                 {isRecMessage && <ReasoningTrace trace={reasoningText} />}
               </div>
@@ -205,21 +171,23 @@ export const CopilotChat: React.FC = () => {
           );
         })}
 
-        {/* Animated Thinking bubble */}
         {copilot.thinking && (
-          <div className="flex flex-col gap-1 items-start max-w-[85%] self-start animate-pulse">
+          <div className="flex flex-col gap-1 items-start max-w-[85%] self-start">
             <div className="flex items-center gap-1.5 ml-1 select-none">
-              <Bot className="w-3.5 h-3.5 text-[#a855f7]" />
-              <span className="text-xs font-semibold text-[#a855f7]">RailTwin Copilot</span>
+              <Bot className="w-3.5 h-3.5 text-accent-purple" />
+              <span className="text-xs font-semibold text-accent-purple">RailTwin Copilot</span>
             </div>
-            <div className="bg-[#0f0a1a] border border-[#2d1b6b] rounded-lg rounded-tl-sm p-3">
-              <span className="text-xs text-[#a855f7] font-mono block mb-1.5 select-none">
+            <div
+              className="rounded-lg rounded-tl-sm p-3"
+              style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)' }}
+            >
+              <span className="text-xs text-accent-purple font-mono block mb-1.5 select-none">
                 Analyzing corridor state...
               </span>
               <div className="flex gap-1 items-center h-2 pl-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] bounce-1 inline-block" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] bounce-2 inline-block" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] bounce-3 inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-1 inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-2 inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-3 inline-block" />
               </div>
             </div>
           </div>
@@ -228,50 +196,54 @@ export const CopilotChat: React.FC = () => {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Preset Questions and Input Form */}
+      {/* Input Area */}
       <div className="border-t border-border-default p-4 bg-bg-card">
-        {/* Presets pills (hide if user has messages) */}
         {!hasUserMessages && (
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
-            <button
-              onClick={() => handleSendMessage('Which station is most at risk?')}
-              className="bg-[#1a1a1a] border border-[#333333] hover:border-[#555555] text-xs text-[#888888] hover:text-white rounded-full px-3 py-1.5 transition-colors duration-150 whitespace-nowrap outline-none"
-            >
-              Which station is most at risk?
-            </button>
-            <button
-              onClick={() => handleSendMessage("What's the cascade impact?")}
-              className="bg-[#1a1a1a] border border-[#333333] hover:border-[#555555] text-xs text-[#888888] hover:text-white rounded-full px-3 py-1.5 transition-colors duration-150 whitespace-nowrap outline-none"
-            >
-              What's the cascade impact?
-            </button>
-            <button
-              onClick={() => handleSendMessage('Recommended actions?')}
-              className="bg-[#1a1a1a] border border-[#333333] hover:border-[#555555] text-xs text-[#888888] hover:text-white rounded-full px-3 py-1.5 transition-colors duration-150 whitespace-nowrap outline-none"
-            >
-              Recommended actions?
-            </button>
+            {['Which station is most at risk?', "What's the cascade impact?", 'Recommended actions?'].map(q => (
+              <button
+                key={q}
+                onClick={() => handleSendMessage(q)}
+                className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none"
+                style={{
+                  background: 'var(--color-bg-elevated)',
+                  border: '1px solid var(--color-border-default)',
+                  color: 'var(--color-text-tertiary)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-tertiary)'; }}
+              >
+                {q}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Input Bar Form */}
         <form onSubmit={handleFormSubmit} className="flex gap-2 items-center relative">
           <input
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             placeholder="Ask about corridor status..."
-            className="flex-grow bg-[#111111] border border-[#333333] hover:border-[#444444] focus:border-[#a855f7] rounded-lg text-sm text-white px-3.5 py-2 outline-none transition-colors duration-200 placeholder-[#444] pr-10"
+            className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10"
+            style={{
+              background: 'var(--color-bg-elevated)',
+              border: '1px solid var(--color-border-default)',
+              color: 'var(--color-text-primary)',
+            }}
+            onFocus={e  => (e.currentTarget.style.borderColor = 'var(--color-accent-purple)')}
+            onBlur={e   => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
           />
           <button
             type="submit"
-            className="absolute right-1.5 bg-[#a855f7] hover:bg-[#9333ea] text-white p-1.5 rounded-md transition-colors duration-200 outline-none active:scale-95"
+            className="absolute right-1.5 text-white p-1.5 rounded-md transition-colors duration-200 outline-none active:scale-95"
+            style={{ background: 'var(--color-accent-purple)', boxShadow: '0 0 8px rgba(168,85,247,0.4)' }}
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
 
-        <div className="mt-2.5 text-[9px] text-[#333333] text-center font-mono select-none uppercase tracking-wider">
+        <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider">
           RailTwin Copilot · Powered by LangGraph + Gemini
         </div>
       </div>
