@@ -12,6 +12,5 @@ export default defineConfig({
   base: isVercel ? '/' : '/RailTwin',
   integrations: [react()],
   vite: { plugins: [tailwindcss()] },
-  output: (isVercel || process.env.NODE_ENV === 'development') ? 'hybrid' : 'static',
   adapter: isVercel ? vercel() : undefined
 });
