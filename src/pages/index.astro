@@ -4,13 +4,6 @@ import { TopBar } from '../components/layout/TopBar';
 import { Sidebar } from '../components/layout/Sidebar';
 import { MainPanel } from '../components/layout/MainPanel';
 import { RightSidebar } from '../components/layout/RightSidebar';
-import { DelayChart } from '../components/panels/DelayChart';
-import { SimulationPanel } from '../components/panels/SimulationPanel';
-import { CopilotChat } from '../components/copilot/CopilotChat';
-import { StationRiskPanel } from '../components/panels/StationRiskPanel';
-import { WhatIfPanel } from '../components/panels/WhatIfPanel';
-import { HealthDashboard } from '../components/panels/HealthDashboard';
-import { TimelineScrubber } from '../components/ui/TimelineScrubber';
 ---
 
 <DashboardLayout>
@@ -19,18 +12,9 @@ import { TimelineScrubber } from '../components/ui/TimelineScrubber';
     <div class="dashboard-body">
       <Sidebar client:load />
       <main class="dashboard-main">
-        <MainPanel client:load>
-          <DelayChart slot="delays" client:visible />
-          <SimulationPanel slot="simulation" client:load />
-          <CopilotChat slot="copilot" client:load />
-          <WhatIfPanel slot="whatif" client:load />
-          <HealthDashboard slot="health" client:load />
-        </MainPanel>
+        <MainPanel client:load />
       </main>
-      <RightSidebar client:load>
-        <TimelineScrubber client:load />
-        <StationRiskPanel client:visible />
-      </RightSidebar>
+      <RightSidebar client:load />
     </div>
   </div>
 </DashboardLayout>

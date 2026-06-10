@@ -72,6 +72,7 @@ export const CorridorMap: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [maplibReady, setMaplibReady] = useState(false);
 
   // Subscribe to store updates
   const trains = useDemoStore(state => state.trains);
@@ -85,14 +86,25 @@ export const CorridorMap: React.FC = () => {
   // References to track previous delays
   const prevDelaysRef = useRef<Record<string, number>>({});
 
+  // Poll for maplibregl script load
   useEffect(() => {
-    if (!mapContainer.current) return;
-
-    // Check if maplibregl is loaded globally
-    if (typeof maplibregl === 'undefined') {
-      console.error('MapLibre GL JS not found in global scope.');
+    if (typeof maplibregl !== 'undefined') {
+      setMaplibReady(true);
       return;
     }
+
+    const interval = setInterval(() => {
+      if (typeof maplibregl !== 'undefined') {
+        setMaplibReady(true);
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!maplibReady || !mapContainer.current) return;
 
     // Initialize MapLibre Map
     const map = new maplibregl.Map({

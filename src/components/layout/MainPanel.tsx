@@ -1,22 +1,13 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CorridorMap } from '../map/CorridorMap';
+import { DelayChart } from '../panels/DelayChart';
+import { SimulationPanel } from '../panels/SimulationPanel';
+import { CopilotChat } from '../copilot/CopilotChat';
+import { WhatIfPanel } from '../panels/WhatIfPanel';
+import { HealthDashboard } from '../panels/HealthDashboard';
 
-interface MainPanelProps {
-  delays?: React.ReactNode;
-  simulation?: React.ReactNode;
-  copilot?: React.ReactNode;
-  whatif?: React.ReactNode;
-  health?: React.ReactNode;
-}
-
-export const MainPanel: React.FC<MainPanelProps> = ({
-  delays,
-  simulation,
-  copilot,
-  whatif,
-  health
-}) => {
+export const MainPanel: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
 
   return (
@@ -46,11 +37,11 @@ export const MainPanel: React.FC<MainPanelProps> = ({
       {/* Details area for other panels */}
       {activePanel !== 'map' && (
         <div className="flex-1 w-full overflow-hidden p-4 relative animate-panel-in bg-[#0a0a0a]">
-          {activePanel === 'delays' && delays}
-          {activePanel === 'simulation' && simulation}
-          {activePanel === 'copilot' && copilot}
-          {activePanel === 'whatif' && whatif}
-          {activePanel === 'health' && health}
+          {activePanel === 'delays' && <DelayChart />}
+          {activePanel === 'simulation' && <SimulationPanel />}
+          {activePanel === 'copilot' && <CopilotChat />}
+          {activePanel === 'whatif' && <WhatIfPanel />}
+          {activePanel === 'health' && <HealthDashboard />}
         </div>
       )}
     </div>
