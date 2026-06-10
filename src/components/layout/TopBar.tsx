@@ -18,93 +18,138 @@ export const TopBar: React.FC = () => {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: false,
       };
-      const formatted = new Intl.DateTimeFormat('en-US', options).format(new Date());
-      setTimeStr(`${formatted} IST`);
+      setTimeStr(`${new Intl.DateTimeFormat('en-US', options).format(new Date())} IST`);
     };
-
     updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+    const id = setInterval(updateTime, 1000);
+    return () => clearInterval(id);
   }, []);
 
   return (
     <>
-    <header className="h-12 bg-bg-card border-b border-border-default px-4 flex items-center justify-between text-sm select-none shrink-0">
-      {/* Breadcrumb Left */}
-      <div className="flex items-center gap-2 text-text-secondary font-mono text-[11px] uppercase tracking-wider">
-        <span className="text-text-tertiary">Operations Center</span>
-        <span className="text-text-tertiary">/</span>
-        <span className="text-text-primary font-medium">Delhi–Howrah</span>
-      </div>
-
-      {/* Center Stat Pills */}
-      <div className="flex items-center gap-3">
-        {/* Pass Count */}
-        <div className="flex items-center gap-1.5 bg-bg-elevated border border-border-default px-2 py-0.5 rounded text-text-secondary text-xs">
-          <Users className="w-3.5 h-3.5 text-text-tertiary" />
-          <span>23M daily passengers</span>
+      <header
+        className="h-12 border-b border-border-default px-4 flex items-center justify-between text-sm select-none shrink-0"
+        style={{
+          background: 'linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 100%)',
+          boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3)',
+        }}
+      >
+        {/* ── Breadcrumb Left ── */}
+        <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[11px] uppercase tracking-widest">
+          <span>Ops Center</span>
+          <span className="text-border-active">/</span>
+          <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
         </div>
 
-        {/* Corridor Length */}
-        <div className="flex items-center gap-1.5 bg-bg-elevated border border-border-default px-2 py-0.5 rounded text-text-secondary text-xs">
-          <Compass className="w-3.5 h-3.5 text-text-tertiary" />
-          <span>1,531 km corridor</span>
+        {/* ── Center Stat Pills ── */}
+        <div className="flex items-center gap-2">
+          {/* Passenger Count */}
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
+            style={{
+              background: 'var(--color-bg-sunken)',
+              border: '1px solid var(--color-border-subtle)',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+            }}
+          >
+            <Users className="w-3 h-3 text-text-muted" />
+            <span>23M daily passengers</span>
+          </div>
+
+          {/* Corridor Length */}
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
+            style={{
+              background: 'var(--color-bg-sunken)',
+              border: '1px solid var(--color-border-subtle)',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+            }}
+          >
+            <Compass className="w-3 h-3 text-text-muted" />
+            <span>1,531 km corridor</span>
+          </div>
+
+          {/* Live Clock — highlighted */}
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-secondary text-[11px] font-mono"
+            style={{
+              background: 'rgba(59,130,246,0.06)',
+              border: '1px solid rgba(59,130,246,0.2)',
+              boxShadow: '0 0 8px rgba(59,130,246,0.12)',
+            }}
+          >
+            <Clock className="w-3 h-3 text-accent-blue" />
+            <span
+              className="text-text-primary"
+              style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em' }}
+            >
+              {timeStr || '00:00:00 IST'}
+            </span>
+          </div>
         </div>
 
-        {/* Live Clock */}
-        <div className="flex items-center gap-1.5 bg-bg-elevated border border-border-default px-2 py-0.5 rounded text-text-primary text-xs font-mono">
-          <Clock className="w-3.5 h-3.5 text-accent-blue" />
-          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{timeStr || '00:00:00 IST'}</span>
-        </div>
-      </div>
+        {/* ── Right Controls ── */}
+        <div className="flex items-center gap-2">
+          {/* Help Button */}
+          <button
+            onClick={() => setShowHelp(true)}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none"
+            title="Keyboard shortcuts & help"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+          </button>
 
-      {/* Right status indicator */}
-      <div className="flex items-center gap-2">
-        {/* Help Button */}
-        <button
-          onClick={() => setShowHelp(true)}
-          className="flex items-center gap-1 bg-bg-elevated border border-border-default px-2 py-0.5 rounded text-xs transition-colors duration-150 outline-none hover:border-border-hover"
-          title="Keyboard shortcuts & help"
-        >
-          <HelpCircle className="w-3.5 h-3.5 text-text-tertiary" />
-        </button>
+          {/* Audio Toggle */}
+          <button
+            onClick={toggleAudio}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle hover:border-border-default transition-all duration-150 outline-none"
+            title={audioEnabled ? 'Mute alerts' : 'Enable audio alerts'}
+          >
+            {audioEnabled ? (
+              <Volume2 className="w-3.5 h-3.5 text-accent-green" style={{ filter: 'drop-shadow(0 0 4px rgba(34,197,94,0.5))' }} />
+            ) : (
+              <VolumeX className="w-3.5 h-3.5 text-text-tertiary" />
+            )}
+          </button>
 
-        {/* Audio Toggle */}
-        <button
-          onClick={toggleAudio}
-          className="flex items-center gap-1 bg-bg-elevated border border-border-default px-2 py-0.5 rounded text-xs transition-colors duration-150 outline-none hover:border-border-hover"
-          title={audioEnabled ? 'Mute alerts' : 'Enable audio alerts'}
-        >
-          {audioEnabled ? (
-            <Volume2 className="w-3.5 h-3.5 text-accent-green" />
+          {/* System Status Badge */}
+          {demoRunning ? (
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-accent-amber text-[11px] font-mono font-semibold"
+              style={{
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.25)',
+                boxShadow: '0 0 10px rgba(245,158,11,0.15)',
+              }}
+            >
+              <span className="relative flex w-2 h-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-amber opacity-75" />
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-amber" style={{ boxShadow: '0 0 6px rgba(245,158,11,0.8)' }} />
+              </span>
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Demo Active</span>
+            </div>
           ) : (
-            <VolumeX className="w-3.5 h-3.5 text-text-tertiary" />
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-accent-green text-[11px] font-mono font-semibold"
+              style={{
+                background: 'rgba(34,197,94,0.07)',
+                border: '1px solid rgba(34,197,94,0.2)',
+              }}
+            >
+              <span className="relative flex w-2 h-2">
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 5px rgba(34,197,94,0.7)' }} />
+              </span>
+              <Shield className="w-3.5 h-3.5" />
+              <span>Nominal</span>
+            </div>
           )}
-        </button>
+        </div>
+      </header>
 
-        {demoRunning ? (
-          <div className="flex items-center gap-1.5 bg-[#f59e0b]/5 border border-[#f59e0b]/20 px-2 py-0.5 rounded text-accent-amber text-xs font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-amber opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-amber"></span>
-            </span>
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Demo Active</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 bg-[#22c55e]/5 border border-[#22c55e]/20 px-2 py-0.5 rounded text-accent-green text-xs font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-green"></span>
-            </span>
-            <Shield className="w-3.5 h-3.5" />
-            <span>Systems Nominal</span>
-          </div>
-        )}
-      </div>
-    </header>
-    <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
+      <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
     </>
   );
 };

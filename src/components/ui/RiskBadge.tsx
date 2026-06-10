@@ -4,63 +4,71 @@ export interface RiskBadgeProps {
   level: 'low' | 'moderate' | 'high' | 'critical';
 }
 
+const RISK_STYLES = {
+  low: {
+    bg:     'var(--color-risk-low-bg)',
+    text:   'var(--color-risk-low)',
+    border: 'var(--color-risk-low-border)',
+    glow:   'rgba(34, 197, 94, 0.25)',
+    dot:    'var(--color-risk-low)',
+  },
+  moderate: {
+    bg:     'var(--color-risk-moderate-bg)',
+    text:   'var(--color-risk-moderate)',
+    border: 'var(--color-risk-moderate-border)',
+    glow:   'rgba(245, 158, 11, 0.25)',
+    dot:    'var(--color-risk-moderate)',
+  },
+  high: {
+    bg:     'var(--color-risk-high-bg)',
+    text:   'var(--color-risk-high)',
+    border: 'var(--color-risk-high-border)',
+    glow:   'rgba(249, 115, 22, 0.25)',
+    dot:    'var(--color-risk-high)',
+  },
+  critical: {
+    bg:     'var(--color-risk-critical-bg)',
+    text:   'var(--color-risk-critical)',
+    border: 'var(--color-risk-critical-border)',
+    glow:   'rgba(239, 68, 68, 0.35)',
+    dot:    'var(--color-risk-critical)',
+  },
+};
+
 export const RiskBadge: React.FC<RiskBadgeProps> = ({ level }) => {
   const [pop, setPop] = useState(false);
 
   useEffect(() => {
     setPop(true);
-    const timer = setTimeout(() => setPop(false), 300);
+    const timer = setTimeout(() => setPop(false), 320);
     return () => clearTimeout(timer);
   }, [level]);
 
-  // Define styles map
-  const styles = {
-    low: {
-      bg: '#052e16',
-      text: '#22c55e',
-      border: '#166534',
-      dot: '#22c55e'
-    },
-    moderate: {
-      bg: '#451a03',
-      text: '#f59e0b',
-      border: '#92400e',
-      dot: '#f59e0b'
-    },
-    high: {
-      bg: '#431407',
-      text: '#f97316',
-      border: '#9a3412',
-      dot: '#f97316'
-    },
-    critical: {
-      bg: '#450a0a',
-      text: '#ef4444',
-      border: '#991b1b',
-      dot: '#ef4444'
-    }
-  };
-
-  const current = styles[level] || styles.low;
+  const s = RISK_STYLES[level] ?? RISK_STYLES.low;
   const isCritical = level === 'critical';
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-mono font-medium border uppercase tracking-wider select-none transition-transform duration-300 ${
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold border uppercase select-none transition-transform duration-200 ${
         isCritical ? 'animate-critical-border' : ''
       } ${pop ? 'animate-badge-pop' : ''}`}
       style={{
-        backgroundColor: current.bg,
-        color: current.text,
-        borderColor: current.border
+        backgroundColor: s.bg,
+        color:           s.text,
+        borderColor:     s.border,
+        letterSpacing:   '0.08em',
+        boxShadow:       `0 0 8px ${s.glow}`,
       }}
     >
-      {/* Dot indicator */}
+      {/* Status dot */}
       <span
-        className="w-1.5 h-1.5 rounded-full inline-block"
-        style={{ backgroundColor: current.dot }}
+        className="w-1.5 h-1.5 rounded-full inline-block shrink-0"
+        style={{
+          backgroundColor: s.dot,
+          boxShadow: `0 0 5px ${s.glow}`,
+        }}
       />
-      <span>{level}</span>
+      {level}
     </span>
   );
 };
