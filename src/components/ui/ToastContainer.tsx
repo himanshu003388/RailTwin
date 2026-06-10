@@ -104,16 +104,6 @@ export const ToastContainer: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 p-4 max-w-full pointer-events-none">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes toast-slide {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        .animate-toast-slide {
-          animation: toast-slide 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      ` }} />
-
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={removeToast} />
       ))}

@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { AlertBanner } from '../components/ui/AlertBanner';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
+import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 ---
 
 <!doctype html>
@@ -25,18 +26,18 @@ import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
 	</head>
 	<body class="bg-bg-page text-text-primary h-[100dvh] overflow-hidden">
 		<!-- Full-page Premium Loading Overlay -->
-		<div id="loading-overlay" class="fixed inset-0 bg-[#0a0a0a] z-[9999] flex flex-col items-center justify-center select-none" style="transition: opacity 300ms ease-out;">
+		<div id="loading-overlay" class="fixed inset-0 bg-bg-page z-[9999] flex flex-col items-center justify-center select-none" style="transition: opacity 300ms ease-out;">
 			<div class="flex flex-col items-center gap-6">
 				<!-- Breathing RailTwin Logo -->
-				<div class="w-16 h-16 rounded-full bg-[#111111] border border-[#222222] flex items-center justify-center text-[#3b82f6] shadow-sm animate-breath">
+				<div class="w-16 h-16 rounded-full bg-bg-card border border-border-default flex items-center justify-center text-accent-blue shadow-sm animate-breath">
 					<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18"></path><path d="M12 2v20"></path><path d="M4 18h16"></path><path d="M4 14h16"></path><path d="M4 10h16"></path><path d="M4 6h16"></path></svg>
 				</div>
 				
 				<div class="flex flex-col items-center gap-2">
-					<span class="font-mono text-xs text-[#555] tracking-wider uppercase">Initializing Operations Center...</span>
+					<span class="font-mono text-xs text-text-tertiary tracking-wider uppercase">Initializing Operations Center...</span>
 					<!-- Progress Track -->
-					<div class="w-48 bg-[#111111] h-[2px] rounded-full overflow-hidden mt-1 border border-[#222222]/30">
-						<div class="bg-[#3b82f6] h-full animate-loading-bar" style="width: 0%"></div>
+					<div class="w-48 bg-bg-card h-[2px] rounded-full overflow-hidden mt-1 border border-border-default/30">
+						<div class="bg-accent-blue h-full animate-loading-bar" style="width: 0%"></div>
 					</div>
 				</div>
 			</div>
@@ -56,6 +57,7 @@ import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
 
 		<AlertBanner client:load />
 		<KeyboardShortcuts client:load />
+		<WelcomeOverlay client:load />
 		<slot />
 		<ToastContainer client:load />
 	</body>

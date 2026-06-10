@@ -51,9 +51,9 @@ export const HealthDashboard: React.FC = () => {
     : '#ef4444';
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white select-none">
+    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#222222] pb-2.5 mb-4">
+      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-4">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-[#22c55e]" />
           <h2 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium">
@@ -70,53 +70,53 @@ export const HealthDashboard: React.FC = () => {
 
       {/* Network Gauges */}
       <div className="grid grid-cols-1 gap-3 mb-5">
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
+        <div className="bg-bg-card border border-border-default rounded-lg p-3">
           <GaugeBar value={networkHealth.efficiency} color="#3b82f6" label="Network Efficiency" />
         </div>
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
+        <div className="bg-bg-card border border-border-default rounded-lg p-3">
           <GaugeBar value={networkHealth.onTimePerf} color="#22c55e" label="On-Time Performance" />
         </div>
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
+        <div className="bg-bg-card border border-border-default rounded-lg p-3">
           <GaugeBar value={networkHealth.platformUtil} color="#a855f7" label="Platform Utilization" />
         </div>
       </div>
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-2.5 flex flex-col">
+        <div className="bg-bg-card border border-border-default rounded-lg p-2.5 flex flex-col">
           <div className="flex items-center gap-1.5 mb-1">
-            <Train className="w-3 h-3 text-[#3b82f6]" />
-            <span className="text-[9px] text-[#555] font-mono uppercase">Active Trains</span>
+            <Train className="w-3 h-3 text-accent-blue" />
+            <span className="text-[9px] text-text-tertiary font-mono uppercase">Active Trains</span>
           </div>
-          <span className="text-lg font-mono font-bold text-white" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          <span className="text-lg font-mono font-bold text-text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {trains.length}
           </span>
         </div>
 
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-2.5 flex flex-col">
+        <div className="bg-bg-card border border-border-default rounded-lg p-2.5 flex flex-col">
           <div className="flex items-center gap-1.5 mb-1">
-            <Users className="w-3 h-3 text-[#a855f7]" />
-            <span className="text-[9px] text-[#555] font-mono uppercase">Passengers</span>
+            <Users className="w-3 h-3 text-accent-purple" />
+            <span className="text-[9px] text-text-tertiary font-mono uppercase">Passengers</span>
           </div>
-          <span className="text-lg font-mono font-bold text-white" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          <span className="text-lg font-mono font-bold text-text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {(totalPassengers / 1000).toFixed(1)}K
           </span>
         </div>
 
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-2.5 flex flex-col">
+        <div className="bg-bg-card border border-border-default rounded-lg p-2.5 flex flex-col">
           <div className="flex items-center gap-1.5 mb-1">
-            <Gauge className="w-3 h-3 text-[#f59e0b]" />
-            <span className="text-[9px] text-[#555] font-mono uppercase">Avg Speed</span>
+            <Gauge className="w-3 h-3 text-accent-amber" />
+            <span className="text-[9px] text-text-tertiary font-mono uppercase">Avg Speed</span>
           </div>
-          <span className="text-lg font-mono font-bold text-white" style={{ fontVariantNumeric: 'tabular-nums' }}>
-            {avgSpeed} <span className="text-xs text-[#555]">km/h</span>
+          <span className="text-lg font-mono font-bold text-text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {avgSpeed} <span className="text-xs text-text-tertiary">km/h</span>
           </span>
         </div>
 
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-2.5 flex flex-col">
+        <div className="bg-bg-card border border-border-default rounded-lg p-2.5 flex flex-col">
           <div className="flex items-center gap-1.5 mb-1">
-            <AlertTriangle className="w-3 h-3 text-[#ef4444]" />
-            <span className="text-[9px] text-[#555] font-mono uppercase">Alerts</span>
+            <AlertTriangle className="w-3 h-3 text-accent-red" />
+            <span className="text-[9px] text-text-tertiary font-mono uppercase">Alerts</span>
           </div>
           <span className="text-lg font-mono font-bold" style={{ color: networkHealth.activeAlerts > 0 ? '#ef4444' : '#22c55e', fontVariantNumeric: 'tabular-nums' }}>
             {networkHealth.activeAlerts}
@@ -125,8 +125,8 @@ export const HealthDashboard: React.FC = () => {
       </div>
 
       {/* Station Risk Summary */}
-      <div className="bg-[#111111] border border-[#222222] rounded-lg p-3 mb-4">
-        <span className="text-[10px] text-[#555] font-mono uppercase tracking-wider block mb-2">
+      <div className="bg-bg-card border border-border-default rounded-lg p-3 mb-4">
+        <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider block mb-2">
           Station Risk Summary
         </span>
         <div className="flex flex-col gap-1.5">
@@ -137,7 +137,7 @@ export const HealthDashboard: React.FC = () => {
               : risk.crowdRisk === 'moderate' ? '#f59e0b'
               : '#22c55e';
             return (
-              <div key={station.id} className="flex items-center justify-between py-1 border-b border-[#222222]/30 last:border-0">
+              <div key={station.id} className="flex items-center justify-between py-1 border-b border-border-default/30 last:border-0">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: riskColor }} />
                   <span className="text-[10px] font-mono text-white">{station.code}</span>
@@ -160,8 +160,8 @@ export const HealthDashboard: React.FC = () => {
       </div>
 
       {/* Active Systems Status */}
-      <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
-        <span className="text-[10px] text-[#555] font-mono uppercase tracking-wider block mb-2">
+      <div className="bg-bg-card border border-border-default rounded-lg p-3">
+        <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider block mb-2">
           Active Systems
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -192,7 +192,7 @@ export const HealthDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-3 text-[9px] text-[#333] text-center font-mono uppercase tracking-wider">
+      <div className="mt-3 text-[9px] text-text-tertiary text-center font-mono uppercase tracking-wider">
         System Health · Real-Time Monitoring
       </div>
     </div>

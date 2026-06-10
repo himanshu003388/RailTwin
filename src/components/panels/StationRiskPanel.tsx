@@ -57,7 +57,7 @@ const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <div
-      className="bg-[#111111] border rounded-lg p-3 mb-2 hover:border-[#333333] transition-all duration-300"
+      className="bg-bg-card border rounded-lg p-3 mb-2 hover:border-border-hover transition-all duration-300"
       style={{
         borderColor: isFlash ? flashBorderColor : '#222222',
         boxShadow: isFlash ? `0 0 8px ${flashBorderColor}22` : 'none'
@@ -85,7 +85,7 @@ const StationCard: React.FC<StationCardProps> = ({
 
       {/* Bottom details row */}
       {hasDetails && (
-        <div className="mt-2.5 pt-2 border-t border-[#222222]/50 flex flex-wrap gap-x-3 gap-y-1">
+        <div className="mt-2.5 pt-2 border-t border-border-default/50 flex flex-wrap gap-x-3 gap-y-1">
           {hasPrediction && (
             <span className="text-[#f59e0b] font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
               <span>⚠</span> {prediction.trainId} +{prediction.delayMinutes}m
@@ -131,7 +131,7 @@ export const StationRiskPanel: React.FC = () => {
     : passengersAtRisk.toString();
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white">
+    <div className="flex flex-col h-full bg-bg-page text-text-primary">
       {/* 2x2 Stats Grid */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <StatCard
@@ -158,7 +158,7 @@ export const StationRiskPanel: React.FC = () => {
       </div>
 
       {/* Header with Live Dot */}
-      <div className="flex items-center justify-between border-b border-[#222222] pb-2 mb-3">
+      <div className="flex items-center justify-between border-b border-border-default pb-2 mb-3">
         <span className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium select-none">
           Live Stations Status
         </span>

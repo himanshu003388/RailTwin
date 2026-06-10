@@ -16,7 +16,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   color = '#ffffff'
 }) => {
   return (
-    <div className="bg-[#111111] border border-[#222222] rounded-xl p-3.5 flex flex-col justify-between select-none hover:border-[#333333] transition-colors duration-150">
+    <div className="bg-bg-card border border-border-default rounded-xl p-3.5 flex flex-col justify-between select-none hover:border-border-hover transition-colors duration-150">
       {/* Label */}
       <span className="text-[10px] text-text-secondary uppercase tracking-wider font-mono font-semibold">
         {label}

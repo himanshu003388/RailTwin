@@ -25,7 +25,7 @@ export const TrainCard: React.FC<TrainCardProps> = ({ train }) => {
   const occupancyRate = Math.round((train.passengerCount / train.capacity) * 100);
 
   return (
-    <div className="bg-[#111111] border border-[#222222] hover:border-[#333333] rounded-xl p-3 flex flex-col gap-2.5 transition-all duration-150 select-none">
+    <div className="bg-bg-card border border-border-default hover:border-border-hover rounded-xl p-3 flex flex-col gap-2.5 transition-all duration-150 select-none">
       {/* Top Header Row */}
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-0.5">
@@ -52,7 +52,7 @@ export const TrainCard: React.FC<TrainCardProps> = ({ train }) => {
       </div>
 
       {/* Speed & Occupancy Stats */}
-      <div className="flex items-center justify-between text-[10px] font-mono text-text-secondary pt-1 border-t border-[#222222]/30">
+      <div className="flex items-center justify-between text-[10px] font-mono text-text-secondary pt-1 border-t border-border-default/30">
         <div className="flex items-center gap-1">
           <Gauge className="w-3.5 h-3.5 text-text-tertiary" />
           <span>Speed: <strong className="text-white font-bold">{train.speed}</strong> km/h</span>
@@ -66,7 +66,7 @@ export const TrainCard: React.FC<TrainCardProps> = ({ train }) => {
       </div>
 
       {/* Occupancy progress bar */}
-      <div className="w-full bg-[#1a1a1a] h-1.5 rounded-full overflow-hidden border border-[#222222]/20">
+      <div className="w-full bg-bg-elevated h-1.5 rounded-full overflow-hidden border border-border-default/20">
         <div
           className={`h-full transition-all duration-500 rounded-full ${
             occupancyRate > 90 ? 'bg-[#ef4444]' : 'bg-[#3b82f6]'

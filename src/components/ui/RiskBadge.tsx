@@ -55,23 +55,6 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({ level }) => {
         borderColor: current.border
       }}
     >
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes border-pulse-critical {
-          0% { border-color: rgba(153, 27, 27, 0.5); }
-          50% { border-color: rgba(239, 68, 68, 1); }
-          100% { border-color: rgba(153, 27, 27, 0.5); }
-        }
-        .animate-critical-border {
-          animation: border-pulse-critical 1.5s infinite;
-        }
-        @keyframes badge-pop {
-          0% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        .animate-badge-pop {
-          animation: badge-pop 300ms ease-out forwards;
-        }
-      ` }} />
       {/* Dot indicator */}
       <span
         className="w-1.5 h-1.5 rounded-full inline-block"

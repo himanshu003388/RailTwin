@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CORRIDOR } from '../../data/corridor';
-import { Train } from 'lucide-react';
+import { Train, Play } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -87,28 +87,32 @@ export const DelayChart: React.FC = () => {
     };
   });
 
-  return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white select-none">
-      {/* Dynamic Keyframe Animations for predictions row lists */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes prediction-slide-in {
-          from { opacity: 0; transform: translateX(-12px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-prediction-row {
-          animation: prediction-slide-in 0.3s ease-out forwards;
-        }
-      ` }} />
+  const startDemo = useDemoStore(state => state.startDemo);
+  const demoRunning = useDemoStore(state => state.demoRunning);
 
+  return (
+    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
       {predictions.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center border border-[#222222] border-dashed rounded-xl py-12 px-4 text-center text-[#555] font-mono text-xs select-none">
-          <Train className="w-8 h-8 text-[#222] mb-3 animate-pulse" />
-          <span>Awaiting predictions — run demo to activate</span>
+        <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-12 px-6 text-center select-none">
+          <Train className="w-10 h-10 text-[#222222] mb-3" />
+          <span className="text-sm text-[#888888] font-medium mb-1">No predictions yet</span>
+          <span className="text-xs text-[#555555] mb-4 max-w-[260px] leading-relaxed">
+            Run the demo scenario to see real-time delay predictions and corridor warnings
+          </span>
+          {!demoRunning && (
+            <button
+              onClick={startDemo}
+              className="flex items-center gap-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs font-medium px-4 py-2 rounded-lg transition-all duration-150 active:scale-[0.98]"
+            >
+              <Play className="w-3 h-3" />
+              Start Demo
+            </button>
+          )}
         </div>
       ) : (
         <>
           {/* Train Selector Tabs */}
-          <div className="flex border-b border-[#222222] mb-4 overflow-x-auto scrollbar-none">
+          <div className="flex border-b border-border-default mb-4 overflow-x-auto scrollbar-none">
             {trains.map(train => {
               const isActive = selectedTrainId === train.id;
               const hasDelay = train.predictedDelay > 0;
@@ -136,7 +140,7 @@ export const DelayChart: React.FC = () => {
           </div>
 
           {/* Recharts AreaChart Area */}
-          <div className="flex-1 w-full h-[220px] bg-[#111111] border border-[#222222] rounded-xl p-3 mb-4">
+          <div className="flex-1 w-full h-[220px] bg-bg-card border border-border-default rounded-xl p-3 mb-4">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
@@ -216,21 +220,21 @@ export const DelayChart: React.FC = () => {
 
           {/* Active Predictions List */}
           <div className="flex flex-col flex-1 min-h-[140px] max-h-[220px]">
-            <h3 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium mb-2 border-b border-[#222222] pb-1.5">
+            <h3 className="text-xs uppercase tracking-[0.12em] text-text-tertiary font-medium mb-2 border-b border-border-default pb-1.5">
               Active Corridor Warnings ({predictions.length})
             </h3>
 
             <div className="flex-1 overflow-y-auto pr-0.5 flex flex-col gap-2 scrollbar-thin">
               {activePredsList.map((pred, idx) => {
                 // Color delay based on severity
-                let severityColor = 'text-[#22c55e]'; // safe
-                if (pred.delayMinutes > 30) severityColor = 'text-[#ef4444]'; // red
-                else if (pred.delayMinutes >= 10) severityColor = 'text-[#f59e0b]'; // amber
+                let severityColor = 'text-accent-green'; // safe
+                if (pred.delayMinutes > 30) severityColor = 'text-accent-red'; // red
+                else if (pred.delayMinutes >= 10) severityColor = 'text-accent-amber'; // amber
 
                 return (
                   <div
                     key={`${pred.trainId}-${pred.affectedStation}-${idx}`}
-                    className="bg-[#111111] border border-[#222222] rounded-lg p-2.5 flex flex-col gap-1.5 hover:border-[#333333] transition-colors duration-150 animate-prediction-row"
+                    className="bg-bg-card border border-border-default rounded-lg p-2.5 flex flex-col gap-1.5 hover:border-border-hover transition-colors duration-150 animate-prediction-row"
                   >
                     <div className="flex items-center justify-between font-mono text-[10px]">
                       <div className="flex items-center gap-1.5">

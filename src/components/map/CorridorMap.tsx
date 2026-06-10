@@ -6,47 +6,66 @@ declare global {
   const maplibregl: any;
 }
 
+// Train color mapping - each train has a unique color for its route line and marker
+const TRAIN_COLORS: Record<string, string> = {
+  '12301': '#3b82f6', // blue
+  '12303': '#f59e0b', // amber
+  '12305': '#22c55e', // green
+  '13005': '#a855f7', // purple
+  '12273': '#ef4444', // red
+};
+
+// Short train names for map labels
+const TRAIN_SHORT_NAMES: Record<string, string> = {
+  '12301': 'Rajdhani',
+  '12303': 'Poorva',
+  '12305': 'Rajdhani',
+  '13005': 'Mail',
+  '12273': 'Duronto',
+};
+
+// Station code to full name mapping for labels
+const STATION_FULL_NAMES: Record<string, string> = {
+  'NDLS': 'New Delhi',
+  'CNB': 'Kanpur',
+  'ALD': 'Prayagraj',
+  'BSB': 'Varanasi',
+  'PNBE': 'Patna',
+  'DHN': 'Dhanbad',
+  'HWH': 'Howrah',
+};
+
 // Helper function to generate a circle polygon in GeoJSON format
 function createGeoJSONCircle(center: [number, number], radiusInKm: number, points = 64) {
   const [lng, lat] = center;
   const coords: number[][] = [];
   const km = radiusInKm;
-
-  // 1 degree of latitude is ~110.57km
-  // 1 degree of longitude is ~111.32km * cos(latitude)
   const distanceX = km / (111.32 * Math.cos((lat * Math.PI) / 180));
   const distanceY = km / 110.57;
-
   for (let i = 0; i < points; i++) {
     const theta = (i / points) * (2 * Math.PI);
     const x = distanceX * Math.cos(theta);
     const y = distanceY * Math.sin(theta);
     coords.push([lng + x, lat + y]);
   }
-  coords.push(coords[0]); // Close the polygon
-
+  coords.push(coords[0]);
   return {
     type: 'Feature',
     properties: {},
-    geometry: {
-      type: 'Polygon',
-      coordinates: [coords]
-    }
+    geometry: { type: 'Polygon', coordinates: [coords] }
   };
 }
 
-// Function to generate the stations GeoJSON features styled by risk
+// Generate stations GeoJSON with risk colors
 const getStationsGeoJSON = (stationRisks: any) => {
   return {
     type: 'FeatureCollection',
     features: CORRIDOR.stations.map(station => {
       const risks = stationRisks[station.id] || { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 };
-      // Map crowdRisk to the designated colors
-      let color = '#22c55e'; // low
-      if (risks.crowdRisk === 'moderate') color = '#f59e0b'; // amber
-      else if (risks.crowdRisk === 'high') color = '#f97316'; // orange
-      else if (risks.crowdRisk === 'critical') color = '#ef4444'; // red
-
+      let color = '#22c55e';
+      if (risks.crowdRisk === 'moderate') color = '#f59e0b';
+      else if (risks.crowdRisk === 'high') color = '#f97316';
+      else if (risks.crowdRisk === 'critical') color = '#ef4444';
       return {
         type: 'Feature',
         properties: {
@@ -59,10 +78,7 @@ const getStationsGeoJSON = (stationRisks: any) => {
           conflicts: risks.platformConflicts,
           color: color
         },
-        geometry: {
-          type: 'Point',
-          coordinates: station.coordinates
-        }
+        geometry: { type: 'Point', coordinates: station.coordinates }
       };
     })
   };
@@ -74,61 +90,47 @@ export const CorridorMap: React.FC = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [maplibReady, setMaplibReady] = useState(false);
 
-  // Subscribe to store updates
   const trains = useDemoStore(state => state.trains);
   const stationRisks = useDemoStore(state => state.stationRisks);
   const weatherAlert = useDemoStore(state => state.weatherAlert);
   const activePanel = useDemoStore(state => state.activePanel);
   const demoTime = useDemoStore(state => state.demoTime);
 
-  // References to track markers
-  const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement }>>({});
-  // References to track previous delays
+  const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
 
   // Poll for maplibregl script load
   useEffect(() => {
-    if (typeof maplibregl !== 'undefined') {
-      setMaplibReady(true);
-      return;
-    }
-
+    if (typeof maplibregl !== 'undefined') { setMaplibReady(true); return; }
     const interval = setInterval(() => {
-      if (typeof maplibregl !== 'undefined') {
-        setMaplibReady(true);
-        clearInterval(interval);
-      }
+      if (typeof maplibregl !== 'undefined') { setMaplibReady(true); clearInterval(interval); }
     }, 100);
-
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize map
   useEffect(() => {
     if (!maplibReady || !mapContainer.current) return;
 
-    // Initialize MapLibre Map
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: 'https://tiles.openfreemap.org/styles/dark',
       center: [84.0, 25.5],
       zoom: 5.5,
-      attributionControl: false // Hide attribution
+      attributionControl: false
     });
 
     mapRef.current = map;
 
-    // Disable scroll zoom on mobile
-    if (window.innerWidth <= 768) {
-      map.scrollZoom.disable();
-    }
+    if (window.innerWidth <= 768) { map.scrollZoom.disable(); }
 
     map.on('load', () => {
       setMapLoaded(true);
-
-      // --- LAYER 1: Corridor Route Line ---
       const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
-      const routeCoordinates = sortedStations.map(s => s.coordinates);
 
+      // ═══════════════════════════════════════════════════════════
+      // LAYER 1: Main Corridor Route Line (thick, bright blue)
+      // ═══════════════════════════════════════════════════════════
       map.addSource('corridor-route', {
         type: 'geojson',
         data: {
@@ -136,31 +138,39 @@ export const CorridorMap: React.FC = () => {
           properties: {},
           geometry: {
             type: 'LineString',
-            coordinates: routeCoordinates
+            coordinates: sortedStations.map(s => s.coordinates)
           }
         }
       });
 
+      // Glow layer (wider, more transparent)
+      map.addLayer({
+        id: 'route-line-glow',
+        type: 'line',
+        source: 'corridor-route',
+        paint: {
+          'line-color': '#3b82f6',
+          'line-width': 8,
+          'line-opacity': 0.12,
+        }
+      });
+
+      // Main corridor line
       map.addLayer({
         id: 'route-line',
         type: 'line',
         source: 'corridor-route',
         paint: {
           'line-color': '#3b82f6',
-          'line-width': 2,
-          'line-opacity': 0.6,
+          'line-width': 3,
+          'line-opacity': 0.8,
           'line-dasharray': [4, 3]
         }
       });
 
-      // --- LAYER 1b: Individual Train Route Paths ---
-      const trainColors: Record<string, string> = {
-        '12301': '#3b82f6',
-        '12303': '#f59e0b',
-        '12305': '#22c55e',
-        '13005': '#a855f7',
-        '12273': '#ef4444'
-      };
+      // ═══════════════════════════════════════════════════════════
+      // LAYER 1b: Individual Train Route Paths (colored per train)
+      // ═══════════════════════════════════════════════════════════
       const initialTrains = useDemoStore.getState().trains;
       const trainRouteFeatures = initialTrains.map(train => {
         const fromStation = sortedStations.find(s => s.id === train.currentStation);
@@ -168,7 +178,7 @@ export const CorridorMap: React.FC = () => {
         if (!fromStation || !toStation) return null;
         return {
           type: 'Feature' as const,
-          properties: { trainId: train.id, color: trainColors[train.id] || '#3b82f6' },
+          properties: { trainId: train.id, color: TRAIN_COLORS[train.id] || '#3b82f6' },
           geometry: {
             type: 'LineString' as const,
             coordinates: [fromStation.coordinates, toStation.coordinates]
@@ -178,9 +188,18 @@ export const CorridorMap: React.FC = () => {
 
       map.addSource('train-routes', {
         type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: trainRouteFeatures as any[]
+        data: { type: 'FeatureCollection', features: trainRouteFeatures as any[] }
+      });
+
+      // Glow for train routes
+      map.addLayer({
+        id: 'train-route-glow',
+        type: 'line',
+        source: 'train-routes',
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 10,
+          'line-opacity': 0.08,
         }
       });
 
@@ -190,18 +209,34 @@ export const CorridorMap: React.FC = () => {
         source: 'train-routes',
         paint: {
           'line-color': ['get', 'color'],
-          'line-width': 2.5,
-          'line-opacity': 0.4,
-          'line-dasharray': [6, 4]
+          'line-width': 4,
+          'line-opacity': 0.6,
+          'line-dasharray': [8, 5]
         }
       });
 
-      // --- LAYER 2: Station Circle Layer ---
+      // ═══════════════════════════════════════════════════════════
+      // LAYER 2: Station Circle Markers (outer ring)
+      // ═══════════════════════════════════════════════════════════
       map.addSource('stations', {
         type: 'geojson',
         data: getStationsGeoJSON(useDemoStore.getState().stationRisks)
       });
 
+      // Outer glow ring
+      map.addLayer({
+        id: 'station-glow',
+        type: 'circle',
+        source: 'stations',
+        paint: {
+          'circle-radius': 14,
+          'circle-color': ['get', 'color'],
+          'circle-opacity': 0.15,
+          'circle-blur': 0.8
+        }
+      });
+
+      // Main station circle
       map.addLayer({
         id: 'station-circles',
         type: 'circle',
@@ -210,375 +245,408 @@ export const CorridorMap: React.FC = () => {
           'circle-radius': 8,
           'circle-color': ['get', 'color'],
           'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 2
+          'circle-stroke-width': 2.5,
+          'circle-stroke-opacity': 0.9
         }
       });
 
-      // Station code labels below marker
+      // Station code labels (bold, with halo)
       map.addLayer({
         id: 'station-labels',
         type: 'symbol',
         source: 'stations',
         layout: {
           'text-field': ['get', 'code'],
-          'text-size': 11,
-          'text-offset': [0, 1.3],
-          'text-anchor': 'top'
+          'text-size': 12,
+          'text-offset': [0, 1.8],
+          'text-anchor': 'top',
+          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold']
         },
         paint: {
           'text-color': '#ffffff',
-          'text-halo-width': 0
+          'text-halo-color': '#0a0a0a',
+          'text-halo-width': 2,
+          'text-halo-blur': 1
         }
       });
 
-      // Click event for station popups
+      // Station full name labels (smaller, below code)
+      map.addLayer({
+        id: 'station-fullnames',
+        type: 'symbol',
+        source: 'stations',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-size': 9,
+          'text-offset': [0, 3.0],
+          'text-anchor': 'top',
+          'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
+        },
+        paint: {
+          'text-color': '#666666',
+          'text-halo-color': '#0a0a0a',
+          'text-halo-width': 1.5,
+          'text-halo-blur': 0.5
+        }
+      });
+
+      // ═══════════════════════════════════════════════════════════
+      // Station click popup
+      // ═══════════════════════════════════════════════════════════
       map.on('click', 'station-circles', (e: any) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const { name, crowdRisk, conflicts, platforms } = e.features[0].properties;
+        const { name, code, crowdRisk, conflicts, platforms } = e.features[0].properties;
+        const riskColor = crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e';
 
         const html = `
-          <div style="background-color: #111111; color: #ffffff; font-family: 'Geist Mono', monospace; font-size: 11px; border: 1px solid #222222; padding: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-            <div style="font-weight: bold; margin-bottom: 6px; color: #3b82f6; border-bottom: 1px solid #222222; padding-bottom: 4px;">${name}</div>
-            <div style="margin-bottom: 3px;">Crowd Risk: <span style="color: ${
-              crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e'
-            }; font-weight: bold;">${crowdRisk.toUpperCase()}</span></div>
-            <div style="margin-bottom: 3px;">Active Conflicts: <span style="font-weight: bold; color: ${conflicts > 0 ? '#ef4444' : '#22c55e'}">${conflicts}</span></div>
-            <div>Platforms: <span style="color: #ffffff;">${platforms}</span></div>
+          <div style="background:#0a0a0a; color:#fff; font-family:system-ui,sans-serif; font-size:12px; border:1px solid #222; padding:14px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.7); min-width:180px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:#3b82f6;">${name}</div>
+            <div style="font-size:10px; color:#555; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#888;">Crowd Risk</span>
+                <span style="color:${riskColor}; font-weight:700; font-size:11px; background:${riskColor}15; padding:2px 8px; border-radius:4px;">${crowdRisk.toUpperCase()}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#888;">Platform Conflicts</span>
+                <span style="font-weight:700; color:${conflicts > 0 ? '#ef4444' : '#22c55e'}; font-size:11px;">${conflicts}</span>
+              </div>
+            </div>
           </div>
         `;
-
-        new maplibregl.Popup({ closeButton: false, offset: 10 })
-          .setLngLat(coordinates)
-          .setHTML(html)
-          .addTo(map);
+        new maplibregl.Popup({ closeButton: false, offset: 12, maxWidth: '240px' })
+          .setLngLat(coordinates).setHTML(html).addTo(map);
       });
 
-      // Cursor adjustments on station hover
-      map.on('mouseenter', 'station-circles', () => {
-        map.getCanvas().style.cursor = 'pointer';
-      });
-      map.on('mouseleave', 'station-circles', () => {
-        map.getCanvas().style.cursor = '';
-      });
+      map.on('mouseenter', 'station-circles', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'station-circles', () => { map.getCanvas().style.cursor = ''; });
     });
 
     return () => {
-      // Remove map elements and cleanup
       Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
       markersRef.current = {};
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
   }, []);
 
-  // Sync Station risks on updates
+  // Sync station risks
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-
     const source = map.getSource('stations');
-    if (source) {
-      source.setData(getStationsGeoJSON(stationRisks));
-    }
+    if (source) { source.setData(getStationsGeoJSON(stationRisks)); }
   }, [stationRisks, mapLoaded]);
 
-  // Trigger smooth flyTo animations at key demo moments
+  // Fly-to animations at demo milestones
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-
     if (demoTime === 4) {
-      // t=4: flyTo Patna Junction (zoom to 8, 1500ms)
-      const pnbeStation = CORRIDOR.stations.find(s => s.id === 'pnbe');
-      if (pnbeStation) {
-        map.flyTo({
-          center: pnbeStation.coordinates,
-          zoom: 8.0,
-          duration: 1500
-        });
-      }
+      const pnbe = CORRIDOR.stations.find(s => s.id === 'pnbe');
+      if (pnbe) { map.flyTo({ center: pnbe.coordinates, zoom: 8.0, duration: 1500 }); }
     } else if (demoTime === 12) {
-      // t=12: flyTo center corridor (zoom back to 5.5, 1000ms)
-      map.flyTo({
-        center: [84.0, 25.5],
-        zoom: 5.5,
-        duration: 1000
-      });
+      map.flyTo({ center: [84.0, 25.5], zoom: 5.5, duration: 1000 });
     } else if (demoTime === 42) {
-      // t=42: flyTo Patna (zoom 7, to show resolved state, 1200ms)
-      const pnbeStation = CORRIDOR.stations.find(s => s.id === 'pnbe');
-      if (pnbeStation) {
-        map.flyTo({
-          center: pnbeStation.coordinates,
-          zoom: 7.0,
-          duration: 1200
-        });
-      }
+      const pnbe = CORRIDOR.stations.find(s => s.id === 'pnbe');
+      if (pnbe) { map.flyTo({ center: pnbe.coordinates, zoom: 7.0, duration: 1200 }); }
     }
   }, [demoTime, mapLoaded]);
 
-  // Resize and zoom map based on activePanel configuration
+  // Resize/zoom based on panel
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-
     setTimeout(() => {
       map.resize();
-      
-      // Prevent easeTo conflicts with our timeline flyTo animations at t=12
       const currentDemoTime = useDemoStore.getState().demoTime;
       const currentDemoRunning = useDemoStore.getState().demoRunning;
-      if (currentDemoRunning && currentDemoTime === 12) {
-        return;
-      }
-
+      if (currentDemoRunning && currentDemoTime === 12) return;
       if (activePanel !== 'map') {
-        map.easeTo({
-          zoom: 5.0,
-          center: [84.0, 25.5],
-          duration: 350
-        });
+        map.easeTo({ zoom: 5.0, center: [84.0, 25.5], duration: 350 });
       } else {
-        map.easeTo({
-          zoom: 5.5,
-          center: [84.0, 25.5],
-          duration: 350
-        });
+        map.easeTo({ zoom: 5.5, center: [84.0, 25.5], duration: 350 });
       }
     }, 150);
   }, [activePanel, mapLoaded]);
 
-  // Sync Train positions and styles
+  // ═══════════════════════════════════════════════════════════════
+  // Train Marker Rendering (pill shape with name label)
+  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
+    const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
     trains.forEach(train => {
       let markerEntry = markersRef.current[train.id];
+      const trainColor = TRAIN_COLORS[train.id] || '#3b82f6';
+      const trainName = TRAIN_SHORT_NAMES[train.id] || train.name;
 
       if (!markerEntry) {
-        // Create new HTML Marker element
+        // Create container (holds pill + label)
         const el = document.createElement('div');
-        el.style.width = '28px';
-        el.style.height = '28px';
-        el.style.position = 'relative';
-        el.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        el.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer;';
 
-        const inner = document.createElement('div');
-        inner.className = 'flex items-center justify-center rounded-full text-white font-mono text-[9px] font-bold shadow-lg transition-all duration-300 cursor-pointer w-full h-full';
-        inner.style.backgroundColor = '#111111';
-        inner.innerText = train.id;
-        el.appendChild(inner);
+        // ── Pill marker ──
+        const pill = document.createElement('div');
+        pill.style.cssText = `
+          display:flex; align-items:center; justify-content:center; gap:4px;
+          height:26px; padding:0 8px 0 6px;
+          border-radius:13px;
+          background:#0f0f0f;
+          border:2px solid ${trainColor};
+          box-shadow: 0 0 12px ${trainColor}40, 0 2px 8px rgba(0,0,0,0.5);
+          font-family: 'Geist Mono', monospace;
+          transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        `;
 
-        // Direction indicator arrow
-        const arrow = document.createElement('div');
-        arrow.className = 'absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-[#3b82f6] transition-all duration-300';
-        arrow.style.opacity = '0';
-        el.appendChild(arrow);
+        // Color dot inside pill
+        const dot = document.createElement('div');
+        dot.style.cssText = `width:6px; height:6px; border-radius:50%; background:${trainColor}; flex-shrink:0;`;
+        pill.appendChild(dot);
 
-        const popup = new maplibregl.Popup({ closeButton: false, offset: 15 });
+        // Train ID text
+        const idText = document.createElement('span');
+        idText.style.cssText = `color:#fff; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
+        idText.innerText = train.id;
+        pill.appendChild(idText);
+
+        el.appendChild(pill);
+
+        // ── Name label below pill ──
+        const label = document.createElement('div');
+        label.style.cssText = `
+          font-family: system-ui, sans-serif;
+          font-size:9px; font-weight:600;
+          color:${trainColor};
+          text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+          white-space:nowrap;
+          line-height:1;
+          opacity:0.9;
+        `;
+        label.innerText = trainName;
+        el.appendChild(label);
+
+        const popup = new maplibregl.Popup({ closeButton: false, offset: 24, maxWidth: '260px' });
 
         const marker = new maplibregl.Marker({ element: el })
           .setLngLat(train.coordinates)
           .setPopup(popup)
           .addTo(map);
 
-        markerEntry = { marker, element: el, inner: inner };
+        markerEntry = { marker, element: el, inner: pill, label };
         markersRef.current[train.id] = markerEntry;
       } else {
-        // Reposition active marker with smooth transition
         markerEntry.marker.setLngLat(train.coordinates);
       }
 
-      // Update styling states
-      const inner = markerEntry.inner || markerEntry.element.querySelector('div');
-      if (inner) {
+      // ── Update delay styling ──
+      const pill = markerEntry.inner;
+      if (pill) {
         if (train.predictedDelay > 30) {
-          inner.style.border = '2px solid #ef4444';
-          inner.classList.remove('pulse-amber');
-          inner.classList.add('pulse-red');
+          pill.style.borderColor = '#ef4444';
+          pill.style.boxShadow = '0 0 16px rgba(239,68,68,0.5), 0 2px 8px rgba(0,0,0,0.5)';
+          pill.classList.remove('pulse-amber');
+          pill.classList.add('pulse-red');
         } else if (train.predictedDelay > 0) {
-          inner.style.border = '2px solid #f59e0b';
-          inner.classList.remove('pulse-red');
-          inner.classList.add('pulse-amber');
+          pill.style.borderColor = '#f59e0b';
+          pill.style.boxShadow = '0 0 12px rgba(245,158,11,0.4), 0 2px 8px rgba(0,0,0,0.5)';
+          pill.classList.remove('pulse-red');
+          pill.classList.add('pulse-amber');
         } else {
-          inner.style.border = '2px solid #3b82f6';
-          inner.classList.remove('pulse-amber', 'pulse-red');
+          pill.style.borderColor = trainColor;
+          pill.style.boxShadow = `0 0 12px ${trainColor}40, 0 2px 8px rgba(0,0,0,0.5)`;
+          pill.classList.remove('pulse-amber', 'pulse-red');
         }
 
-        // Trigger bounce animation when delay updates
+        // Bounce on delay change
         const prevDelay = prevDelaysRef.current[train.id];
         if (prevDelay !== undefined && prevDelay !== train.predictedDelay) {
-          inner.classList.add('bounce-marker');
-          setTimeout(() => {
-            inner.classList.remove('bounce-marker');
-          }, 600);
+          pill.classList.add('bounce-marker');
+          setTimeout(() => pill.classList.remove('bounce-marker'), 500);
         }
         prevDelaysRef.current[train.id] = train.predictedDelay;
       }
 
-      // Setup/update popup contents
-      const statusText = train.predictedDelay > 0
-        ? `Delayed +${train.predictedDelay}m`
-        : 'On Schedule';
-      const delayColor = train.predictedDelay > 30
-        ? '#ef4444'
-        : train.predictedDelay > 0
-        ? '#f59e0b'
-        : '#22c55e';
+      // ── Update name label color on delay ──
+      const label = markerEntry.label;
+      if (label) {
+        if (train.predictedDelay > 30) {
+          label.style.color = '#ef4444';
+        } else if (train.predictedDelay > 0) {
+          label.style.color = '#f59e0b';
+        } else {
+          label.style.color = trainColor;
+        }
+      }
+
+      // ── Popup content ──
+      const statusText = train.predictedDelay > 0 ? `Delayed +${train.predictedDelay}m` : 'On Schedule';
+      const delayColor = train.predictedDelay > 30 ? '#ef4444' : train.predictedDelay > 0 ? '#f59e0b' : '#22c55e';
+      const occupancy = Math.round((train.passengerCount / train.capacity) * 100);
+
+      const fromStation = sortedStations.find(s => s.id === train.currentStation);
+      const toStation = sortedStations.find(s => s.id === train.nextStation);
+      const fromName = fromStation ? STATION_FULL_NAMES[fromStation.code] || fromStation.code : train.currentStation.toUpperCase();
+      const toName = toStation ? STATION_FULL_NAMES[toStation.code] || toStation.code : train.nextStation.toUpperCase();
 
       const popupContent = `
-        <div style="background-color: #111111; color: #ffffff; font-family: 'Geist Mono', monospace; font-size: 11px; border: 1px solid #222222; padding: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-          <div style="font-weight: bold; color: #3b82f6; margin-bottom: 6px; border-bottom: 1px solid #222222; padding-bottom: 4px;">${train.name} (${train.id})</div>
-          <div style="margin-bottom: 3px;">Type: <span style="text-transform: capitalize; color: #888888;">${train.type}</span></div>
-          <div style="margin-bottom: 3px;">Speed: <span style="color: #ffffff;">${train.speed} km/h</span></div>
-          <div style="margin-bottom: 3px;">Route: <span style="color: #888888;">${train.currentStation.toUpperCase()}</span> → <span style="color: #888888;">${train.nextStation.toUpperCase()}</span></div>
-          <div style="margin-bottom: 3px;">Status: <span style="color: ${delayColor}; font-weight: bold;">${statusText}</span></div>
-          <div>Occupancy: <span style="color: #ffffff;">${train.passengerCount} / ${train.capacity} (${Math.round((train.passengerCount / train.capacity) * 100)}%)</span></div>
+        <div style="background:#0a0a0a; color:#fff; font-family:system-ui,sans-serif; font-size:12px; border:1px solid #222; padding:14px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.7); min-width:200px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #1a1a1a;">
+            <div style="width:10px; height:10px; border-radius:50%; background:${trainColor}; flex-shrink:0;"></div>
+            <div>
+              <div style="font-weight:700; font-size:13px; color:${trainColor};">${train.name}</div>
+              <div style="font-size:10px; color:#555; font-family:monospace;">${train.id} · ${train.type}</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#666;">Route</span>
+              <span style="color:#aaa; font-size:11px;">${fromName} → ${toName}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#666;">Speed</span>
+              <span style="color:#fff; font-weight:600;">${train.speed} km/h</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#666;">Status</span>
+              <span style="color:${delayColor}; font-weight:700; font-size:11px; background:${delayColor}15; padding:2px 8px; border-radius:4px;">${statusText}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#666;">Occupancy</span>
+              <span style="color:#fff;">
+                <span style="font-weight:600;">${occupancy}%</span>
+                <span style="color:#555; font-size:10px;"> (${train.passengerCount.toLocaleString()}/${train.capacity.toLocaleString()})</span>
+              </span>
+            </div>
+          </div>
         </div>
       `;
       markerEntry.marker.getPopup().setHTML(popupContent);
     });
   }, [trains, mapLoaded]);
 
-  // Sync Weather Overlay alert
+  // ═══════════════════════════════════════════════════════════════
+  // Weather Overlay
+  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-
     const sourceId = 'weather-circle';
     const fillLayerId = 'weather-fill';
     const borderLayerId = 'weather-border';
 
-    // Remove layer/source if existing
     const cleanupLayers = () => {
       if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
       if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
       if (map.getSource(sourceId)) map.removeSource(sourceId);
     };
-
     cleanupLayers();
 
     if (weatherAlert && weatherAlert.station === 'pnbe') {
       const pnbeStation = CORRIDOR.stations.find(s => s.id === 'pnbe');
       if (pnbeStation) {
-        const circleData = createGeoJSONCircle(pnbeStation.coordinates, 20);
-
-        map.addSource(sourceId, {
-          type: 'geojson',
-          data: circleData
-        });
-
+        map.addSource(sourceId, { type: 'geojson', data: createGeoJSONCircle(pnbeStation.coordinates, 20) });
         map.addLayer({
-          id: fillLayerId,
-          type: 'fill',
-          source: sourceId,
-          paint: {
-            'fill-color': '#ef4444',
-            'fill-opacity': 0.15
-          }
+          id: fillLayerId, type: 'fill', source: sourceId,
+          paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.15 }
         });
-
         map.addLayer({
-          id: borderLayerId,
-          type: 'line',
-          source: sourceId,
-          paint: {
-            'line-color': '#ef4444',
-            'line-width': 1,
-            'line-opacity': 0.8
-          }
+          id: borderLayerId, type: 'line', source: sourceId,
+          paint: { 'line-color': '#ef4444', 'line-width': 1.5, 'line-opacity': 0.8 }
         });
 
-        // Cosine wave pulsing effect
         let startTime = Date.now();
         const pulseInterval = setInterval(() => {
-          if (!mapRef.current || !mapRef.current.getLayer(fillLayerId)) {
-            clearInterval(pulseInterval);
-            return;
-          }
+          if (!mapRef.current || !mapRef.current.getLayer(fillLayerId)) { clearInterval(pulseInterval); return; }
           const elapsed = Date.now() - startTime;
-          const opacity = 0.15 + 0.05 * Math.cos((elapsed / 2000) * 2 * Math.PI);
+          const opacity = 0.15 + 0.06 * Math.cos((elapsed / 2000) * 2 * Math.PI);
           mapRef.current.setPaintProperty(fillLayerId, 'fill-opacity', opacity);
         }, 50);
 
-        return () => {
-          clearInterval(pulseInterval);
-          cleanupLayers();
-        };
+        return () => { clearInterval(pulseInterval); cleanupLayers(); };
       }
     }
   }, [weatherAlert, mapLoaded]);
 
   return (
     <div className="relative w-full h-full">
-      {/* Styles insertion for train markers animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes train-pulse-amber {
-          0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
-          70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-        @keyframes train-pulse-red {
-          0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-          70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .pulse-amber {
-          animation: train-pulse-amber 2s infinite;
-        }
-        .pulse-red {
-          animation: train-pulse-red 1.5s infinite;
-        }
-        @keyframes marker-bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .bounce-marker {
-          animation: marker-bounce 0.6s ease-out;
-        }
-      ` }} />
-
-      {/* Mapbox/MapLibre container */}
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* Map Legend */}
-      <div className="absolute bottom-4 right-4 bg-[#111111]/90 border border-[#222222] rounded-lg p-3 font-mono text-[11px] text-white pointer-events-none select-none z-10">
-        <div className="font-bold border-b border-[#222222] pb-1.5 mb-1.5 text-text-secondary">Risk Level</div>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] inline-block border border-white/20" />
-            <span>Low Risk</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b] inline-block border border-white/20" />
-            <span>Moderate Risk</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#f97316] inline-block border border-white/20" />
-            <span>High Risk</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] inline-block border border-white/20" />
-            <span>Critical Risk</span>
+      {/* Loading skeleton */}
+      {!mapLoaded && (
+        <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center gap-3 z-20">
+          <div className="w-10 h-10 rounded-full border-2 border-[#222222] border-t-[#3b82f6] animate-spin" />
+          <span className="text-[11px] text-[#555555] font-mono">Loading map tiles...</span>
+        </div>
+      )}
+
+      {/* ═══ Map Header ═══ */}
+      <div className="absolute top-3 left-3 z-10 pointer-events-none">
+        <div className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-[#222222] rounded-xl px-4 py-2.5 shadow-lg">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
+            <div>
+              <div className="text-[11px] font-bold text-white tracking-wide">Delhi–Howrah Corridor</div>
+              <div className="text-[9px] text-[#555555] font-mono">1,531 km · 7 stations · 5 trains</div>
+            </div>
           </div>
         </div>
-        <div className="font-bold border-b border-[#222222] pb-1.5 mb-1.5 mt-2 pt-2 text-text-secondary">Train Routes</div>
-        <div className="flex flex-col gap-1">
-          {[
-            { id: '12301', name: 'Rajdhani', color: '#3b82f6' },
-            { id: '12303', name: 'Poorva', color: '#f59e0b' },
-            { id: '12305', name: 'Rajdhani', color: '#22c55e' },
-            { id: '13005', name: 'Mail', color: '#a855f7' },
-            { id: '12273', name: 'Duronto', color: '#ef4444' },
-          ].map(t => (
-            <div key={t.id} className="flex items-center gap-2">
-              <span className="w-4 h-0.5 inline-block rounded" style={{ backgroundColor: t.color }} />
-              <span className="text-[9px]">{t.id} {t.name}</span>
+      </div>
+
+      {/* ═══ Map Legend ═══ */}
+      <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
+        <div className="bg-[#0a0a0a]/92 backdrop-blur-sm border border-[#1a1a1a] rounded-xl p-3.5 shadow-xl max-w-[200px]">
+          {/* Station risk section */}
+          <div className="mb-3">
+            <div className="text-[9px] font-bold text-[#555] uppercase tracking-[0.12em] mb-2">Station Risk</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+              {[
+                { color: '#22c55e', label: 'Low' },
+                { color: '#f59e0b', label: 'Moderate' },
+                { color: '#f97316', label: 'High' },
+                { color: '#ef4444', label: 'Critical' },
+              ].map(r => (
+                <div key={r.label} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 6px ${r.color}40` }} />
+                  <span className="text-[10px] text-[#999]">{r.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-[#1a1a1a] my-2.5" />
+
+          {/* Train routes section */}
+          <div>
+            <div className="text-[9px] font-bold text-[#555] uppercase tracking-[0.12em] mb-2">Trains</div>
+            <div className="flex flex-col gap-1.5">
+              {[
+                { id: '12301', name: 'Rajdhani', color: '#3b82f6', dir: '→' },
+                { id: '12303', name: 'Poorva', color: '#f59e0b', dir: '→' },
+                { id: '12305', name: 'Rajdhani', color: '#22c55e', dir: '→' },
+                { id: '13005', name: 'Mail', color: '#a855f7', dir: '→' },
+                { id: '12273', name: 'Duronto', color: '#ef4444', dir: '→' },
+              ].map(t => (
+                <div key={t.id} className="flex items-center gap-2">
+                  <span className="w-4 h-[2.5px] rounded-full flex-shrink-0" style={{ background: t.color }} />
+                  <span className="text-[10px] text-[#999] flex-1 truncate">{t.name}</span>
+                  <span className="text-[9px] text-[#444] font-mono">{t.id}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Direction hint */}
+          <div className="mt-2.5 pt-2 border-t border-[#1a1a1a]">
+            <div className="flex items-center gap-1.5 text-[9px] text-[#444]">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0">
+                <path d="M1 3H9M7 1L9 3L7 5" stroke="#555" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>Direction of travel</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

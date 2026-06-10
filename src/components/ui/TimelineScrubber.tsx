@@ -40,7 +40,7 @@ export const TimelineScrubber: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#111111] border border-[#222222] rounded-xl p-3 select-none">
+    <div className="bg-bg-card border border-border-default rounded-xl p-3 select-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] text-[#555] font-mono uppercase tracking-wider">Timeline Control</span>
@@ -149,7 +149,7 @@ export const TimelineScrubber: React.FC = () => {
       </div>
 
       {/* Event Legend */}
-      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-[#222222]">
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-border-default">
         {eventMarkers.filter((m, i, arr) => arr.findIndex(x => x.label === m.label) === i).map(marker => (
           <div key={marker.label} className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: marker.color }} />

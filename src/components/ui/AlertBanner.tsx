@@ -45,17 +45,7 @@ export const AlertBanner: React.FC = () => {
   if (!visible || !weatherAlert) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-[#1a0000] border-b-2 border-[#ef4444] z-[100] px-4 py-2.5 select-none shadow-lg animate-banner-down">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes banner-slide-down {
-          from { transform: translateY(-100%); }
-          to { transform: translateY(0); }
-        }
-        .animate-banner-down {
-          animation: banner-slide-down 300ms ease-out forwards;
-        }
-      ` }} />
-
+    <div className="fixed top-0 left-0 w-full bg-[#1a0000] border-b-2 border-accent-red z-[100] px-4 py-2.5 select-none shadow-lg animate-banner-down">
       <div className="flex items-center justify-between gap-3 max-w-[1400px] mx-auto relative">
         {/* Left Side: Pulse Dot & Message */}
         <div className="flex items-center gap-3">

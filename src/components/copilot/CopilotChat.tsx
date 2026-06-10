@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Bot, Send, User } from 'lucide-react';
+import { Bot, Send, User, Info } from 'lucide-react';
 
 // Subcomponent to typewriter reasoning traces line-by-line
 interface ReasoningTraceProps {
@@ -135,24 +135,20 @@ export const CopilotChat: React.FC = () => {
 [REASONING] Hold at ALD resolves conflict without further cascade`;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-48px)] bg-[#0a0a0a] text-white">
-      {/* Dynamic animations for staggered bouncing dots */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes bounce-dot {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        .bounce-1 { animation: bounce-dot 0.6s infinite 0.1s; }
-        .bounce-2 { animation: bounce-dot 0.6s infinite 0.2s; }
-        .bounce-3 { animation: bounce-dot 0.6s infinite 0.3s; }
-      ` }} />
-
+    <div className="flex flex-col h-[calc(100vh-48px)] bg-bg-page text-text-primary">
       {/* Chat History Container */}
       <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin">
         {!hasUserMessages && (
           <div className="flex flex-col items-center justify-center py-8 text-[#555] select-none">
-            <Bot className="w-8 h-8 text-[#222] mb-2 animate-breath" />
-            <span className="font-mono text-xs">Ask me anything about the corridor</span>
+            <Bot className="w-10 h-10 text-[#222222] mb-3" />
+            <span className="text-sm text-[#888888] font-medium mb-1">Ask about corridor status</span>
+            <span className="text-xs text-[#555555] max-w-[280px] text-center leading-relaxed mb-3">
+              Use the preset questions below or type your own query about the Delhi-Howrah corridor
+            </span>
+            <div className="flex items-center gap-1.5 text-[10px] text-[#444444] bg-[#111111] border border-[#222222] rounded-lg px-3 py-1.5">
+              <Info className="w-3 h-3" />
+              <span>Demo responses — not live AI</span>
+            </div>
           </div>
         )}
 
@@ -201,7 +197,7 @@ export const CopilotChat: React.FC = () => {
                 <span className="text-xs font-semibold text-[#a855f7]">RailTwin Copilot</span>
                 <span className="text-[10px] text-[#444] font-mono">{timeLabel}</span>
               </div>
-              <div className="bg-[#0f0a1a] border border-[#2d1b6b] rounded-lg rounded-tl-sm p-3 text-sm text-white select-text selection:bg-[#a855f7]/30 selection:text-white leading-relaxed">
+              <div className="bg-[#0f0a1a] border border-[#2d1b6b] rounded-lg rounded-tl-sm p-3 text-sm text-text-primary select-text selection:bg-[#a855f7]/30 selection:text-white leading-relaxed">
                 {msg.message}
                 {isRecMessage && <ReasoningTrace trace={reasoningText} />}
               </div>
@@ -233,7 +229,7 @@ export const CopilotChat: React.FC = () => {
       </div>
 
       {/* Preset Questions and Input Form */}
-      <div className="border-t border-[#222222] p-4 bg-[#0d0d0d]">
+      <div className="border-t border-border-default p-4 bg-bg-card">
         {/* Presets pills (hide if user has messages) */}
         {!hasUserMessages && (
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Zap, Bot, ArrowDown, CloudRain, CheckCircle } from 'lucide-react';
+import { Zap, Bot, ArrowDown, CloudRain, CheckCircle, Play } from 'lucide-react';
 
 export const SimulationPanel: React.FC = () => {
   const simulation = useDemoStore(state => state.simulation);
@@ -8,6 +8,8 @@ export const SimulationPanel: React.FC = () => {
   const resolved = useDemoStore(state => state.resolved);
   const copilot = useDemoStore(state => state.copilot);
   const acceptRecommendation = useDemoStore(state => state.acceptRecommendation);
+  const startDemo = useDemoStore(state => state.startDemo);
+  const demoRunning = useDemoStore(state => state.demoRunning);
 
   const isSimulationActive = !!simulation;
   const isResolved = !!resolved;
@@ -26,37 +28,9 @@ export const SimulationPanel: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white select-none">
-      {/* CSS Animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.4s ease-out forwards;
-        }
-
-        @keyframes box-red-flash {
-          from { background-color: #111111; border-color: #222222; color: #888888; }
-          to { background-color: #1a0000; border-color: #ef4444; color: #ffffff; }
-        }
-        .animate-turn-red-0 {
-          animation: box-red-flash 0.3s ease-out forwards;
-          animation-delay: 0s;
-        }
-        .animate-turn-red-400 {
-          animation: box-red-flash 0.3s ease-out forwards;
-          animation-delay: 0.4s;
-        }
-        .animate-turn-red-800 {
-          animation: box-red-flash 0.3s ease-out forwards;
-          animation-delay: 0.8s;
-        }
-      ` }} />
-
+    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
       {/* SECTION A — Simulation Header */}
-      <div className="flex items-center justify-between border-b border-[#222222] pb-2.5 mb-4">
+      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-4">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-[#a855f7]" />
           <h2 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium">
@@ -64,7 +38,7 @@ export const SimulationPanel: React.FC = () => {
           </h2>
         </div>
         <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
-          isSimulationActive ? 'text-[#f59e0b]' : 'text-[#555555]'
+          isSimulationActive ? 'text-accent-amber' : 'text-text-tertiary'
         }`}>
           {isSimulationActive ? 'Monsoon Disruption — Patna' : 'No active scenario'}
         </span>
@@ -111,8 +85,8 @@ export const SimulationPanel: React.FC = () => {
 
       {/* SECTION C — Station Impact Flow */}
       {isSimulationActive ? (
-        <div className="flex flex-col items-center bg-[#111111]/30 border border-[#222222] rounded-xl p-4 mb-5 max-h-[300px] overflow-y-auto">
-          <h3 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium mb-3 w-full border-b border-[#222222] pb-1.5 text-center">
+        <div className="flex flex-col items-center bg-bg-card/30 border border-border-default rounded-xl p-4 mb-5 max-h-[300px] overflow-y-auto">
+          <h3 className="text-xs uppercase tracking-[0.12em] text-text-tertiary font-medium mb-3 w-full border-b border-border-default pb-1.5 text-center">
             Disruption Propagation Chain
           </h3>
           <div className="flex flex-col items-center gap-1.5 w-full">
@@ -176,9 +150,21 @@ export const SimulationPanel: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center border border-[#222222] border-dashed rounded-xl py-12 px-4 text-center text-[#555555] font-mono text-xs mb-5 select-none">
-          <Zap className="w-8 h-8 text-[#222222] mb-2 animate-pulse" />
-          <span>No active scenarios</span>
+        <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-12 px-6 text-center select-none mb-5">
+          <Zap className="w-10 h-10 text-[#222222] mb-3" />
+          <span className="text-sm text-[#888888] font-medium mb-1">No active simulation</span>
+          <span className="text-xs text-[#555555] mb-4 max-w-[260px] leading-relaxed">
+            The demo triggers a monsoon disruption at Patna, causing cascading delays across the corridor
+          </span>
+          {!demoRunning && (
+            <button
+              onClick={startDemo}
+              className="flex items-center gap-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs font-medium px-4 py-2 rounded-lg transition-all duration-150 active:scale-[0.98]"
+            >
+              <Play className="w-3 h-3" />
+              Start Demo
+            </button>
+          )}
         </div>
       )}
 
@@ -200,7 +186,7 @@ export const SimulationPanel: React.FC = () => {
       {/* SECTION D — AI Recommendations */}
       {isSimulationActive && recommendations.length > 0 && (
         <div className="flex flex-col flex-1 pb-4">
-          <div className="flex items-center gap-1.5 border-b border-[#222222] pb-1.5 mb-2.5">
+          <div className="flex items-center gap-1.5 border-b border-border-default pb-1.5 mb-2.5">
             <Bot className="w-4 h-4 text-[#a855f7]" />
             <h3 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium">
               AI Copilot Recommendations

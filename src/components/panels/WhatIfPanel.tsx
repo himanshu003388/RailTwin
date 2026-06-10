@@ -22,9 +22,9 @@ export const WhatIfPanel: React.FC = () => {
   const selectedStation = CORRIDOR.stations.find(s => s.id === whatIfStation);
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white select-none">
+    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#222222] pb-2.5 mb-4">
+      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-4">
         <div className="flex items-center gap-2">
           <TestTube className="w-4 h-4 text-[#f59e0b]" />
           <h2 className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium">
@@ -76,7 +76,7 @@ export const WhatIfPanel: React.FC = () => {
       </div>
 
       {/* Scenario Description */}
-      <div className="bg-[#111111] border border-[#222222] rounded-lg p-3 mb-4">
+      <div className="bg-bg-card border border-border-default rounded-lg p-3 mb-4">
         <div className="flex items-start gap-2">
           <span className="text-lg">{SCENARIOS.find(s => s.id === whatIfScenario)?.icon}</span>
           <div className="flex flex-col gap-1">
@@ -103,23 +103,23 @@ export const WhatIfPanel: React.FC = () => {
         <div className="flex flex-col gap-3 animate-slide-up">
           {/* Impact Metrics */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-[#111111] border border-[#222222] p-2.5 rounded-lg text-center">
-              <Clock className="w-3.5 h-3.5 text-[#ef4444] mx-auto mb-1" />
-              <span className="text-[9px] text-[#888] font-mono uppercase block">Cascade</span>
+            <div className="bg-bg-card border border-border-default p-2.5 rounded-lg text-center">
+              <Clock className="w-3.5 h-3.5 text-accent-red mx-auto mb-1" />
+              <span className="text-[9px] text-text-secondary font-mono uppercase block">Cascade</span>
               <span className="text-sm font-mono font-bold text-[#ef4444]" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 +{whatIfResult.cascadeDelay}m
               </span>
             </div>
-            <div className="bg-[#111111] border border-[#222222] p-2.5 rounded-lg text-center">
-              <Zap className="w-3.5 h-3.5 text-[#f59e0b] mx-auto mb-1" />
-              <span className="text-[9px] text-[#888] font-mono uppercase block">Conflicts</span>
+            <div className="bg-bg-card border border-border-default p-2.5 rounded-lg text-center">
+              <Zap className="w-3.5 h-3.5 text-accent-amber mx-auto mb-1" />
+              <span className="text-[9px] text-text-secondary font-mono uppercase block">Conflicts</span>
               <span className="text-sm font-mono font-bold text-[#f59e0b]" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {whatIfResult.conflictsGenerated}
               </span>
             </div>
-            <div className="bg-[#111111] border border-[#222222] p-2.5 rounded-lg text-center">
-              <Users className="w-3.5 h-3.5 text-[#a855f7] mx-auto mb-1" />
-              <span className="text-[9px] text-[#888] font-mono uppercase block">Passengers</span>
+            <div className="bg-bg-card border border-border-default p-2.5 rounded-lg text-center">
+              <Users className="w-3.5 h-3.5 text-accent-purple mx-auto mb-1" />
+              <span className="text-[9px] text-text-secondary font-mono uppercase block">Passengers</span>
               <span className="text-sm font-mono font-bold text-[#a855f7]" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {(whatIfResult.passengersAtRisk / 1000).toFixed(0)}K
               </span>
@@ -127,8 +127,8 @@ export const WhatIfPanel: React.FC = () => {
           </div>
 
           {/* Affected Trains */}
-          <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
-            <span className="text-[10px] text-[#555] font-mono uppercase tracking-wider block mb-2">
+          <div className="bg-bg-card border border-border-default rounded-lg p-3">
+            <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider block mb-2">
               Affected Trains ({whatIfResult.affectedTrains.length})
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -147,8 +147,8 @@ export const WhatIfPanel: React.FC = () => {
           </div>
 
           {/* Station Risk Cascade */}
-          <div className="bg-[#111111] border border-[#222222] rounded-lg p-3">
-            <span className="text-[10px] text-[#555] font-mono uppercase tracking-wider block mb-2">
+          <div className="bg-bg-card border border-border-default rounded-lg p-3">
+            <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider block mb-2">
               Risk Cascade Propagation
             </span>
             <div className="flex flex-col gap-1.5">
@@ -159,7 +159,7 @@ export const WhatIfPanel: React.FC = () => {
                   <div
                     key={stationId}
                     className={`flex items-center justify-between px-2 py-1.5 rounded text-[10px] font-mono ${
-                      isSource ? 'bg-[#1a0000] border border-[#ef4444]/30' : 'bg-[#1a1a1a] border border-[#222222]'
+                      isSource ? 'bg-[#1a0000] border border-[#ef4444]/30' : 'bg-bg-elevated border border-border-default'
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -188,14 +188,16 @@ export const WhatIfPanel: React.FC = () => {
 
       {/* Empty state */}
       {!whatIfResult && (
-        <div className="flex-1 flex flex-col items-center justify-center border border-[#222222] border-dashed rounded-xl py-8 text-center text-[#555]">
-          <TestTube className="w-8 h-8 text-[#222] mb-2 animate-pulse" />
-          <span className="font-mono text-xs">Configure and run a scenario</span>
-          <span className="text-[10px] text-[#333] mt-1">Select a station and disruption type above</span>
+        <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-8 text-center select-none">
+          <TestTube className="w-10 h-10 text-[#222222] mb-3" />
+          <span className="text-sm text-[#888888] font-medium mb-1">No scenario results</span>
+          <span className="text-xs text-[#555555] max-w-[260px] leading-relaxed">
+            Select a station and disruption type above, then click "Run Simulation Analysis" to see projected cascade impact
+          </span>
         </div>
       )}
 
-      <div className="mt-3 text-[9px] text-[#333] text-center font-mono uppercase tracking-wider">
+      <div className="mt-3 text-[10px] text-text-tertiary text-center font-mono uppercase tracking-wider">
         What-If Simulator · Cascade Impact Analysis
       </div>
     </div>
