@@ -20,6 +20,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<'idle' | 'success' | 'failed'>('idle');
+  const [testMessage, setTestMessage] = useState('');
 
   // Synchronize internal state when store values change
   useEffect(() => {
@@ -49,9 +50,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     if (!key.trim()) return;
     setTesting(true);
     setTestResult('idle');
-    const isWorking = await testApiKey(key.trim(), host.trim());
+    setTestMessage('');
+    const result = await testApiKey(key.trim(), host.trim());
     setTesting(false);
-    setTestResult(isWorking ? 'success' : 'failed');
+    setTestResult(result.ok ? 'success' : 'failed');
+    setTestMessage(result.message);
   };
 
   return (
@@ -167,7 +170,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                       : testResult === 'success'
                       ? 'Connection verified'
                       : testResult === 'failed'
-                      ? 'Invalid credentials'
+                      ? testMessage || 'Invalid credentials'
                       : 'Test API Connection'}
                   </span>
                 </div>

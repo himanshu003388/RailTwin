@@ -12,39 +12,65 @@ const STATION_CODE_MAP: Record<string, string> = {
   'HWH': 'hwh'
 };
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 export async function fetchLiveTrainStatus(
   trainId: string,
   apiKey: string,
   apiHost: string = 'irctc1.p.rapidapi.com'
 ): Promise<any> {
   const url = `https://${apiHost}/api/v1/liveTrainStatus?trainNo=${trainId}&startDay=0`;
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'x-rapidapi-key': apiKey,
-      'x-rapidapi-host': apiHost,
-      'Content-Type': 'application/json'
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': apiHost
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const msg = body?.message || body?.error || body?.detail || `HTTP ${response.status}`;
+      throw new ApiError(msg, response.status);
     }
-  });
 
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+    return body;
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e instanceof ApiError) throw e;
+    if (e.name === 'AbortError') throw new ApiError('Request timed out', 408);
+    throw new ApiError(e.message || 'Network error', 0);
   }
-
-  return response.json();
 }
 
 export async function testApiKey(
   apiKey: string,
   apiHost: string = 'irctc1.p.rapidapi.com'
-): Promise<boolean> {
+): Promise<{ ok: boolean; message: string }> {
   try {
-    // Fetch live status for train 12301 (Howrah Rajdhani) as a verification test
     const data = await fetchLiveTrainStatus('12301', apiKey, apiHost);
-    return data && (data.status === true || data.status === 'OK' || data.success === true || !!data.data);
+    if (data && typeof data === 'object') {
+      return { ok: true, message: 'Connection verified' };
+    }
+    return { ok: false, message: 'Empty response from API' };
   } catch (e) {
-    console.error('API key test failed', e);
-    return false;
+    const msg = e instanceof ApiError ? e.message : 'Network error';
+    return { ok: false, message: msg };
   }
 }
 
