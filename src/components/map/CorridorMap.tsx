@@ -84,11 +84,20 @@ const getStationsGeoJSON = (stationRisks: any) => {
   };
 };
 
+// Tile style URLs in priority order (most reliable first)
+const TILE_STYLES = [
+  'https://tiles.openfreemap.org/styles/dark',
+  'https://demotiles.maplibre.org/style.json',
+];
+
 export const CorridorMap: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
+  const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
+  const styleIndexRef = useRef(0);
 
   const trains = useDemoStore(state => state.trains);
   const stationRisks = useDemoStore(state => state.stationRisks);
@@ -108,25 +117,62 @@ export const CorridorMap: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize map
+  // Initialize map with error + timeout handling
   useEffect(() => {
     if (!maplibReady || !mapContainer.current) return;
 
-    const map = new maplibregl.Map({
-      container: mapContainer.current,
-      style: 'https://tiles.openfreemap.org/styles/dark',
-      center: [84.0, 25.5],
-      zoom: 5.5,
-      attributionControl: false
-    });
+    const initMap = (styleUrl: string) => {
+      // Clean up any existing map
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
 
-    mapRef.current = map;
+      setLoadingText('Loading map tiles...');
+      setMapError(false);
 
-    if (window.innerWidth <= 768) { map.scrollZoom.disable(); }
+      const map = new maplibregl.Map({
+        container: mapContainer.current!,
+        style: styleUrl,
+        center: [84.0, 25.5],
+        zoom: 5.5,
+        attributionControl: false,
+        transformRequest: (url: string) => ({ url }),
+      });
 
-    map.on('load', () => {
-      setMapLoaded(true);
-      const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
+      mapRef.current = map;
+      if (window.innerWidth <= 768) { map.scrollZoom.disable(); }
+
+      // Timeout — if tiles don't load in 12s, try fallback
+      const timeoutId = setTimeout(() => {
+        if (!mapLoaded) {
+          const nextIdx = styleIndexRef.current + 1;
+          if (nextIdx < TILE_STYLES.length) {
+            styleIndexRef.current = nextIdx;
+            setLoadingText(`Retrying with fallback tiles...`);
+            initMap(TILE_STYLES[nextIdx]);
+          } else {
+            setMapError(true);
+          }
+        }
+      }, 12000);
+
+      map.on('error', (e: any) => {
+        // Ignore tile 404s which are non-fatal; only catch style load errors
+        if (e?.error?.status === 404 || e?.sourceId) return;
+        clearTimeout(timeoutId);
+        const nextIdx = styleIndexRef.current + 1;
+        if (nextIdx < TILE_STYLES.length) {
+          styleIndexRef.current = nextIdx;
+          setLoadingText('Switching tile source...');
+          setTimeout(() => initMap(TILE_STYLES[nextIdx]), 500);
+        } else {
+          setMapError(true);
+        }
+      });
+
+      map.on('load', () => {
+        clearTimeout(timeoutId);
+        setMapLoaded(true);
+        setMapError(false);
+        const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
       // ═══════════════════════════════════════════════════════════
       // LAYER 1: Main Corridor Route Line (thick, bright blue)
@@ -320,14 +366,19 @@ export const CorridorMap: React.FC = () => {
 
       map.on('mouseenter', 'station-circles', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'station-circles', () => { map.getCanvas().style.cursor = ''; });
-    });
+    }); // end map.on('load')
+    }; // end initMap
+
+    // Start with first style
+    initMap(TILE_STYLES[0]);
 
     return () => {
       Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
       markersRef.current = {};
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
-  }, []);
+  }, [maplibReady]);
+
 
   // Sync station risks
   useEffect(() => {
@@ -574,10 +625,73 @@ export const CorridorMap: React.FC = () => {
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* Loading skeleton */}
-      {!mapLoaded && (
-        <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center gap-3 z-20">
-          <div className="w-10 h-10 rounded-full border-2 border-[#222222] border-t-[#3b82f6] animate-spin" />
-          <span className="text-[11px] text-[#555555] font-mono">Loading map tiles...</span>
+      {!mapLoaded && !mapError && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-20"
+          style={{ background: 'var(--color-bg-page)' }}
+        >
+          {/* Animated grid pattern */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: 'linear-gradient(var(--color-border-default) 1px, transparent 1px), linear-gradient(90deg, var(--color-border-default) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }} />
+          <div className="relative flex flex-col items-center gap-3">
+            {/* Spinner */}
+            <div
+              className="w-10 h-10 rounded-full animate-spin"
+              style={{ border: '2px solid var(--color-border-default)', borderTopColor: 'var(--color-accent-blue)' }}
+            />
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-tertiary)' }}>
+                {loadingText}
+              </span>
+              <span className="text-[9px] font-mono uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
+                Delhi–Howrah Corridor
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {mapError && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-20"
+          style={{ background: 'var(--color-bg-page)' }}
+        >
+          <div
+            className="flex flex-col items-center gap-3 p-6 rounded-xl border"
+            style={{
+              background: 'var(--color-bg-card)',
+              borderColor: 'var(--color-border-default)',
+              boxShadow: 'var(--shadow-elevated)',
+              maxWidth: 300,
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+              style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)' }}
+            >
+              ⚠
+            </div>
+            <div className="text-center">
+              <div className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Map tiles unavailable</div>
+              <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-tertiary)' }}>
+                Could not reach tile servers. Check your network connection.
+              </div>
+            </div>
+            <button
+              onClick={() => { styleIndexRef.current = 0; setMapError(false); setMapLoaded(false); setMaplibReady(false); setTimeout(() => setMaplibReady(true), 100); }}
+              className="px-4 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-colors"
+              style={{
+                background: 'var(--color-accent-blue)',
+                color: '#fff',
+                boxShadow: 'var(--glow-blue)',
+              }}
+            >
+              Retry
+            </button>
+          </div>
         </div>
       )}
 
