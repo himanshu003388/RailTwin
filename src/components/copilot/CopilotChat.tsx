@@ -2,6 +2,23 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { Bot, Send, User } from 'lucide-react';
 
+const CLIENT_TIMEOUT_MS = 65_000;
+
+async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = CLIENT_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function getBaseUrl() {
+  const base = import.meta.env.BASE_URL || '/';
+  return base.endsWith('/') ? base : `${base}/`;
+}
+
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
   const messages = copilot.messages;
@@ -15,9 +32,7 @@ export const CopilotChat: React.FC = () => {
   useEffect(() => {
     const checkBackendKey = async () => {
       try {
-        const baseUrl = import.meta.env.BASE_URL || '/';
-        const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-        const res = await fetch(`${normalizedBase}api/chat`);
+        const res = await fetchWithTimeout(`${getBaseUrl()}api/chat`);
         if (res.ok) {
           const data = await res.json();
           setIsLiveActive(!!data.hasKey);
@@ -91,9 +106,7 @@ export const CopilotChat: React.FC = () => {
       let replyMessage = '';
 
       // Always route through the server API — GEMINI_API_KEY is in Vercel environment, never sent from client
-      const baseUrl = import.meta.env.BASE_URL || '/';
-      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      const response = await fetch(`${normalizedBase}api/chat`, {
+      const response = await fetchWithTimeout(`${getBaseUrl()}api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -123,6 +136,16 @@ export const CopilotChat: React.FC = () => {
     } catch (err: any) {
       console.error('Error generating AI reply:', err);
       setIsLiveActive(false);
+
+      let errorMsg: string;
+      if (err.name === 'AbortError') {
+        errorMsg = '⚠️ **Request Timed Out**\n\nThe Gemini model took too long to respond. This usually means high API load — please try again in a moment.';
+      } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+        errorMsg = '⚠️ **Connection Failed**\n\nCould not reach the AI server. The Vercel serverless function may be cold-starting or the GEMINI_API_KEY environment variable may not be set in your Vercel project settings.';
+      } else {
+        errorMsg = `⚠️ **AI Copilot Unavailable**\n\n${err.message || 'Could not reach the AI service.'}`;
+      }
+
       useDemoStore.setState(s => ({
         copilot: {
           ...s.copilot,
@@ -130,7 +153,7 @@ export const CopilotChat: React.FC = () => {
           messages: [...s.copilot.messages, {
             id: `copilot-msg-${Date.now()}`,
             sender: 'copilot' as const,
-            message: `⚠️ **AI Copilot Unavailable**\n\n${err.message || 'Could not reach the AI service.'}\n\nThe server-side Gemini API is configured in Vercel environment variables. Please check deployment logs if this persists.`,
+            message: errorMsg,
             timestamp: new Date()
           }]
         }
