@@ -58,6 +58,7 @@ export const HealthDashboard: React.FC = () => {
   const networkHealth = useDemoStore(state => state.networkHealth);
   const trains        = useDemoStore(state => state.trains);
   const stationRisks  = useDemoStore(state => state.stationRisks);
+  const stations      = useDemoStore(state => state.stations) || [];
   const simulation    = useDemoStore(state => state.simulation);
   const weatherAlert  = useDemoStore(state => state.weatherAlert);
   const predictions   = useDemoStore(state => state.predictions);
@@ -157,7 +158,7 @@ export const HealthDashboard: React.FC = () => {
           Station Risk Summary
         </span>
         <div className="flex flex-col gap-0">
-          {CORRIDOR.stations.map(station => {
+          {stations.map(station => {
             const risk = stationRisks[station.id];
             const rc = RISK_COLOR(risk.crowdRisk);
             return (

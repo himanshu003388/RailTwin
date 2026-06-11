@@ -96,6 +96,7 @@ export interface DemoState {
   rapidApiHost: string;
   apiStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
   geminiApiKey: string;
+  stations: any[];
 
   // Actions
   startDemo: () => void;
@@ -127,9 +128,10 @@ let eventTimeouts: any[] = [];
 // Concurrency guard for live API updates
 let liveApiUpdating = false;
 
-const createInitialStationRisks = (): Record<string, StationRisk> => {
+const createInitialStationRisks = (stationsList?: any[]): Record<string, StationRisk> => {
   const risks: Record<string, StationRisk> = {};
-  CORRIDOR.stations.forEach(station => {
+  const list = stationsList || CORRIDOR.stations;
+  list.forEach(station => {
     risks[station.id] = {
       crowdRisk: 'low',
       delayRisk: 'low',
@@ -170,8 +172,9 @@ const initialStoreState = {
   isPaused: false,
   playbackSpeed: 1,
   weatherAlert: null,
+  stations: JSON.parse(JSON.stringify(CORRIDOR.stations)),
   trains: JSON.parse(JSON.stringify(TRAINS)),
-  stationRisks: createInitialStationRisks(),
+  stationRisks: createInitialStationRisks(CORRIDOR.stations),
   predictions: [],
   simulation: null,
   copilot: {
@@ -365,8 +368,9 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const current = get();
     set({
       ...initialStoreState,
-      trains: JSON.parse(JSON.stringify(TRAINS)),
-      stationRisks: createInitialStationRisks(),
+      stations: current.stations,
+      trains: JSON.parse(JSON.stringify(current.trains)),
+      stationRisks: createInitialStationRisks(current.stations),
       demoRunning: true,
       isPaused: false,
       activePanel: 'map',
@@ -394,11 +398,11 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
         // Advance train positions
         const updatedTrains = state.trains.map(train => {
-          const distance = getCorridorDistance(train.currentStation, train.nextStation);
+          const distance = getCorridorDistance(train.currentStation, train.nextStation, state.stations);
           const speedKmPerSec = train.speed / 3600;
           const progressIncrement = distance > 0 ? (speedKmPerSec / distance) : 0;
           const newProgress = Math.min(train.routeProgress + progressIncrement, 1);
-          const newCoords = interpolateTrainPosition({ ...train, routeProgress: newProgress });
+          const newCoords = interpolateTrainPosition({ ...train, routeProgress: newProgress }, state.stations);
           return { ...train, routeProgress: newProgress, coordinates: newCoords };
         });
 
@@ -455,10 +459,12 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     if (timerInterval) clearInterval(timerInterval);
     eventTimeouts.forEach(clearTimeout);
     eventTimeouts = [];
+    const current = get();
     set({
       ...initialStoreState,
-      trains: JSON.parse(JSON.stringify(TRAINS)),
-      stationRisks: createInitialStationRisks(),
+      stations: current.stations,
+      trains: JSON.parse(JSON.stringify(current.trains)),
+      stationRisks: createInitialStationRisks(current.stations),
       theme: get().theme,
       liveApiEnabled: get().liveApiEnabled,
       rapidApiKey: get().rapidApiKey,
@@ -480,72 +486,74 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     set({ whatIfScenario: scenario, whatIfResult: null });
   },
 
-  runWhatIf: () => {
+  runWhatIf: async () => {
     const state = get();
     const stationId = state.whatIfStation;
     const scenario = state.whatIfScenario;
-    const station = CORRIDOR.stations.find(s => s.id === stationId);
+    const station = state.stations.find(s => s.id === stationId);
     if (!station) return;
 
-    // Find trains that pass through or near this station
-    const affectedTrains = state.trains.filter(t =>
-      t.currentStation === stationId || t.nextStation === stationId
-    ).map(t => t.id);
+    try {
+      const response = await fetch('/api/trains/simulation/cascade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stationId, scenario })
+      });
 
-    // Also affect trains downstream
-    const stationIdx = SORTED_STATIONS.findIndex(s => s.id === stationId);
-    const downstreamIds = SORTED_STATIONS.slice(stationIdx + 1).map(s => s.id);
-    const downstreamTrains = state.trains.filter(t =>
-      downstreamIds.includes(t.nextStation) && !affectedTrains.includes(t.id)
-    ).map(t => t.id);
+      if (!response.ok) throw new Error("Cascade simulation failed");
+      const resultData = await response.json();
 
-    const allAffected = [...affectedTrains, ...downstreamTrains];
+      // Find trains that pass through or near this station
+      const affectedTrains = state.trains.filter(t =>
+        t.currentStation === stationId || t.nextStation === stationId
+      ).map(t => t.id);
 
-    // Calculate cascade impact based on scenario
-    let cascadeDelay = 0;
-    let passengersAtRisk = 0;
-    let conflictsGenerated = 0;
+      // Also affect trains downstream
+      const sortedStations = [...state.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
+      const stationIdx = sortedStations.findIndex(s => s.id === stationId);
+      const downstreamIds = sortedStations.slice(stationIdx + 1).map(s => s.id);
+      const downstreamTrains = state.trains.filter(t =>
+        downstreamIds.includes(t.nextStation) && !affectedTrains.includes(t.id)
+      ).map(t => t.id);
 
-    const scenarioMultipliers: Record<string, { delay: number; passengers: number; conflicts: number }> = {
-      rainfall: { delay: 38, passengers: 19000, conflicts: 3 },
-      signal_failure: { delay: 55, passengers: 25000, conflicts: 5 },
-      track_damage: { delay: 90, passengers: 35000, conflicts: 8 },
-      fog: { delay: 25, passengers: 12000, conflicts: 2 }
-    };
+      const allAffected = [...affectedTrains, ...downstreamTrains];
 
-    const mult = scenarioMultipliers[scenario];
-    cascadeDelay = Math.round(mult.delay * (allAffected.length / state.trains.length));
-    passengersAtRisk = Math.round(mult.passengers * (allAffected.length / state.trains.length));
-    conflictsGenerated = Math.round(mult.conflicts * (allAffected.length / state.trains.length));
+      // Compute risk levels for affected stations
+      const riskLevels: Record<string, { crowdRisk: string; delayRisk: string }> = {};
+      const impactedStationIds = [stationId, ...downstreamIds];
+      impactedStationIds.forEach(id => {
+        const isSource = id === stationId;
+        riskLevels[id] = {
+          crowdRisk: isSource ? 'critical' : downstreamIds.indexOf(id) < 2 ? 'high' : 'moderate',
+          delayRisk: isSource ? 'critical' : 'high'
+        };
+      });
 
-    // Compute risk levels for affected stations
-    const riskLevels: Record<string, { crowdRisk: string; delayRisk: string }> = {};
-    const impactedStationIds = [stationId, ...downstreamIds];
-    impactedStationIds.forEach(id => {
-      const isSource = id === stationId;
-      riskLevels[id] = {
-        crowdRisk: isSource ? 'critical' : downstreamIds.indexOf(id) < 2 ? 'high' : 'moderate',
-        delayRisk: isSource ? 'critical' : 'high'
+      const result: WhatIfResult = {
+        station: stationId,
+        scenario,
+        affectedTrains: allAffected,
+        cascadeDelay: resultData.cascadeDelay,
+        passengersAtRisk: resultData.passengersAffected,
+        conflictsGenerated: resultData.conflictsDetected,
+        riskLevels
       };
-    });
 
-    const result: WhatIfResult = {
-      station: stationId,
-      scenario,
-      affectedTrains: allAffected,
-      cascadeDelay,
-      passengersAtRisk,
-      conflictsGenerated,
-      riskLevels
-    };
+      set({ whatIfResult: result });
 
-    set({ whatIfResult: result });
-
-    get().addToast({
-      type: 'info',
-      title: 'What-If Analysis Complete',
-      message: `${scenario.replace('_', ' ')} at ${station.name}: ${cascadeDelay}min cascade, ${allAffected.length} trains affected`
-    });
+      get().addToast({
+        type: 'info',
+        title: 'What-If Analysis Complete',
+        message: `${scenario.replace('_', ' ')} at ${station.name}: ${resultData.cascadeDelay}min cascade, ${allAffected.length} trains affected`
+      });
+    } catch (e) {
+      console.error(e);
+      get().addToast({
+        type: 'error',
+        title: 'Simulation Error',
+        message: 'Could not communicate with the cascade simulation server.'
+      });
+    }
   },
 
   acceptRecommendation: (id) => {
@@ -583,14 +591,15 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       if (!get().demoRunning) return;
       if (get().resolved) return;
 
-      const resolvedTrains = get().trains.map(t => {
+      const state = get();
+      const resolvedTrains = state.trains.map(t => {
         if (t.id === '12303') {
           return {
             ...t,
             currentStation: 'ald',
             predictedDelay: 18,
             routeProgress: 0.5,
-            coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 })
+            coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 }, state.stations)
           };
         }
         if (t.id === '12301') {
@@ -823,14 +832,15 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           message: 'Intervention applied. 33 minutes saved.'
         });
 
-        const resolvedTrains = get().trains.map(t => {
+        const state = get();
+        const resolvedTrains = state.trains.map(t => {
           if (t.id === '12303') {
             return {
               ...t,
               currentStation: 'ald',
               predictedDelay: 18,
               routeProgress: 0.5,
-              coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 })
+              coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 }, state.stations)
             };
           }
           if (t.id === '12301') {
@@ -875,3 +885,41 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 export const initDemoStore = () => {
   useDemoStore.getState().resetDemo();
 };
+
+// Fetch network data dynamically on initialization
+export const fetchInitialData = async () => {
+  try {
+    const stationsRes = await fetch('/api/trains/stations');
+    const trainsRes = await fetch('/api/trains');
+    if (stationsRes.ok && trainsRes.ok) {
+      const stations = await stationsRes.json();
+      const trains = await trainsRes.json();
+      
+      const risks: Record<string, StationRisk> = {};
+      stations.forEach((station: any) => {
+        risks[station.id] = {
+          crowdRisk: 'low',
+          delayRisk: 'low',
+          platformConflicts: 0
+        };
+      });
+
+      useDemoStore.setState({
+        stations,
+        trains,
+        stationRisks: risks
+      });
+
+      // Update network health
+      const state = useDemoStore.getState();
+      const health = computeNetworkHealth(trains, risks, state.simulation, state.weatherAlert);
+      useDemoStore.setState({ networkHealth: health });
+    }
+  } catch (err) {
+    console.error("Failed to load network data dynamically, using fallback state:", err);
+  }
+};
+
+if (typeof window !== 'undefined') {
+  fetchInitialData();
+}

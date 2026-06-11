@@ -123,9 +123,10 @@ export const TRAINS: Train[] = [
 export const SORTED_STATIONS = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
 // Interpolate train position along corridor based on routeProgress
-export function interpolateTrainPosition(train: Train): [number, number] {
-  const fromStation = SORTED_STATIONS.find(s => s.id === train.currentStation);
-  const toStation = SORTED_STATIONS.find(s => s.id === train.nextStation);
+export function interpolateTrainPosition(train: Train, stationsList?: Station[]): [number, number] {
+  const list = stationsList || SORTED_STATIONS;
+  const fromStation = list.find(s => s.id === train.currentStation);
+  const toStation = list.find(s => s.id === train.nextStation);
   if (!fromStation || !toStation) return train.coordinates;
 
   const t = Math.min(Math.max(train.routeProgress, 0), 1);
@@ -136,9 +137,10 @@ export function interpolateTrainPosition(train: Train): [number, number] {
 }
 
 // Get corridor distance between two stations
-export function getCorridorDistance(fromId: string, toId: string): number {
-  const from = SORTED_STATIONS.find(s => s.id === fromId);
-  const to = SORTED_STATIONS.find(s => s.id === toId);
+export function getCorridorDistance(fromId: string, toId: string, stationsList?: Station[]): number {
+  const list = stationsList || SORTED_STATIONS;
+  const from = list.find(s => s.id === fromId);
+  const to = list.find(s => s.id === toId);
   if (!from || !to) return 0;
   return Math.abs(to.kmFromOrigin - from.kmFromOrigin);
 }

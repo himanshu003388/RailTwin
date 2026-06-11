@@ -10,19 +10,43 @@ export const SimulationPanel: React.FC = () => {
   const acceptRecommendation = useDemoStore(state => state.acceptRecommendation);
   const startDemo     = useDemoStore(state => state.startDemo);
   const demoRunning   = useDemoStore(state => state.demoRunning);
+  const stations      = useDemoStore(state => state.stations) || [];
 
   const isSimulationActive = !!simulation;
   const isResolved         = !!resolved;
   const recommendations    = copilot.recommendations || [];
 
-  const flowStations = [
-    { id: 'ndls', name: 'New Delhi',      code: 'NDLS',    status: 'ok',      delay: null },
-    { id: 'cnb',  name: 'Kanpur Central', code: 'CNB',     status: 'ok',      delay: null },
-    { id: 'alld', name: 'Prayagraj Jt',   code: 'ALD',     status: 'ok',      delay: null },
-    { id: 'pnbe', name: 'Patna Jt',       code: 'impact',  delay: '+38m' },
-    { id: 'dhn',  name: 'Dhanbad Jt',     code: 'cascade', delay: '+52m' },
-    { id: 'hwh',  name: 'Howrah Jt',      code: 'cascade', delay: '+52m' },
-  ];
+  const flowStations = stations.map(station => {
+    const isImpacted = simulation?.stationsImpacted.includes(station.id);
+    const isFirstImpacted = simulation?.stationsImpacted[0] === station.id;
+    
+    let status = 'ok';
+    let delay = null;
+    
+    if (isImpacted) {
+      status = isFirstImpacted ? 'impact' : 'cascade';
+      if (isResolved && resolved) {
+        if (isFirstImpacted) {
+          delay = `+${resolved.newCascadeDelay}m`;
+        } else {
+          delay = 'nominal';
+        }
+      } else if (simulation) {
+        const delayMins = isFirstImpacted 
+          ? Math.round(simulation.cascadeDelay * 0.7) 
+          : simulation.cascadeDelay;
+        delay = `+${delayMins}m`;
+      }
+    }
+    
+    return {
+      id: station.id,
+      name: station.name,
+      code: station.code,
+      status,
+      delay
+    };
+  });
 
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
@@ -81,20 +105,21 @@ export const SimulationPanel: React.FC = () => {
               let textClass = 'text-text-tertiary';
               let delayLabel = station.delay;
 
+              const isFirstImpacted = simulation?.stationsImpacted[0] === station.id;
+
               if (isNormal) {
                 cardStyle = { background: 'var(--color-bg-elevated)', borderColor: 'var(--color-border-default)', color: 'var(--color-text-tertiary)' };
               } else if (isResolved) {
                 cardStyle = { background: 'var(--color-risk-low-bg)', borderColor: 'var(--color-risk-low)', color: 'var(--color-text-primary)' };
                 textClass = 'text-text-primary';
-                if (station.id === 'pnbe') delayLabel = '+19m';
-                else delayLabel = 'nominal';
               } else {
-                const animClass = station.id === 'pnbe' ? 'animate-turn-red-0' : station.id === 'dhn' ? 'animate-turn-red-400' : 'animate-turn-red-800';
+                const impactIdx = simulation?.stationsImpacted.indexOf(station.id) ?? 0;
+                const animClass = impactIdx === 0 ? 'animate-turn-red-0' : impactIdx === 1 ? 'animate-turn-red-400' : 'animate-turn-red-800';
                 return (
                   <React.Fragment key={station.id}>
                     {idx > 0 && <ArrowDown className="w-3.5 h-3.5 text-border-active" />}
                     <div className={`w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm ${animClass}`}>
-                      {station.id === 'pnbe' && !isResolved && (
+                      {isFirstImpacted && !isResolved && (
                         <CloudRain className="absolute top-1 right-1.5 w-3 h-3 text-accent-red animate-pulse" />
                       )}
                       <span className="text-[11px] font-bold font-mono uppercase tracking-widest" style={{ color: 'var(--color-text-tertiary)' }}>{station.code}</span>
@@ -116,7 +141,7 @@ export const SimulationPanel: React.FC = () => {
                     className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300"
                     style={cardStyle}
                   >
-                    {station.id === 'pnbe' && !isResolved && (
+                    {isFirstImpacted && !isResolved && (
                       <CloudRain className="absolute top-1 right-1.5 w-3 h-3 text-accent-red animate-pulse" />
                     )}
                     <span className={`text-[11px] font-bold font-mono uppercase tracking-widest ${textClass}`}>{station.code}</span>

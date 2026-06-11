@@ -34,8 +34,9 @@ export const WhatIfPanel: React.FC = () => {
   const setWhatIfScenario = useDemoStore(state => state.setWhatIfScenario);
   const runWhatIf      = useDemoStore(state => state.runWhatIf);
   const trains         = useDemoStore(state => state.trains);
+  const stations       = useDemoStore(state => state.stations) || [];
 
-  const selectedStation = CORRIDOR.stations.find(s => s.id === whatIfStation);
+  const selectedStation = stations.find(s => s.id === whatIfStation);
   const activeScenario  = SCENARIOS.find(s => s.id === whatIfScenario);
 
   return (
@@ -64,7 +65,7 @@ export const WhatIfPanel: React.FC = () => {
               onFocus={e  => (e.currentTarget.style.borderColor = 'var(--color-accent-amber)')}
               onBlur={e   => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
             >
-              {CORRIDOR.stations.map(s => (
+              {stations.map(s => (
                 <option key={s.id} value={s.id}>{s.code} — {s.name}</option>
               ))}
             </select>
@@ -168,7 +169,7 @@ export const WhatIfPanel: React.FC = () => {
             </span>
             <div className="flex flex-col gap-1.5">
               {Object.entries(whatIfResult.riskLevels).map(([stationId, risks]) => {
-                const station  = CORRIDOR.stations.find(s => s.id === stationId);
+                const station  = stations.find(s => s.id === stationId);
                 const isSource = stationId === whatIfStation;
                 const riskColor = risks.crowdRisk === 'critical' ? 'var(--color-risk-critical)'  :
                                   risks.crowdRisk === 'high'     ? 'var(--color-risk-high)'       :

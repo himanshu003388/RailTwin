@@ -57,10 +57,11 @@ function createGeoJSONCircle(center: [number, number], radiusInKm: number, point
 }
 
 // Generate stations GeoJSON with risk colors
-const getStationsGeoJSON = (stationRisks: any) => {
+const getStationsGeoJSON = (stationRisks: any, stationsList?: any[]) => {
+  const list = stationsList || CORRIDOR.stations;
   return {
     type: 'FeatureCollection',
-    features: CORRIDOR.stations.map(station => {
+    features: list.map(station => {
       const risks = stationRisks[station.id] || { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 };
       let color = '#22c55e';
       if (risks.crowdRisk === 'moderate') color = '#f59e0b';
@@ -113,6 +114,7 @@ export const CorridorMap: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
   const demoTime = useDemoStore(state => state.demoTime);
   const theme = useDemoStore(state => state.theme);
+  const stations = useDemoStore(state => state.stations) || [];
 
   const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
@@ -185,7 +187,7 @@ export const CorridorMap: React.FC = () => {
         mapLoadedRef.current = true;
         setMapLoaded(true);
         setMapError(false);
-        const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
+        const sortedStations = [...stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
       // ═══════════════════════════════════════════════════════════
       // LAYER 1: Main Corridor Route Line (thick, bright blue)
@@ -279,7 +281,7 @@ export const CorridorMap: React.FC = () => {
       // ═══════════════════════════════════════════════════════════
       map.addSource('stations', {
         type: 'geojson',
-        data: getStationsGeoJSON(useDemoStore.getState().stationRisks)
+        data: getStationsGeoJSON(useDemoStore.getState().stationRisks, useDemoStore.getState().stations)
       });
 
       // Outer glow ring
@@ -400,23 +402,23 @@ export const CorridorMap: React.FC = () => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
     const source = map.getSource('stations');
-    if (source) { source.setData(getStationsGeoJSON(stationRisks)); }
-  }, [stationRisks, mapLoaded]);
+    if (source) { source.setData(getStationsGeoJSON(stationRisks, stations)); }
+  }, [stationRisks, mapLoaded, stations]);
 
   // Fly-to animations at demo milestones
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
     if (demoTime === 4) {
-      const pnbe = CORRIDOR.stations.find(s => s.id === 'pnbe');
+      const pnbe = stations.find(s => s.id === 'pnbe');
       if (pnbe) { map.flyTo({ center: pnbe.coordinates, zoom: 8.0, duration: 1500 }); }
     } else if (demoTime === 12) {
       map.flyTo({ center: [84.0, 25.5], zoom: 5.5, duration: 1000 });
     } else if (demoTime === 42) {
-      const pnbe = CORRIDOR.stations.find(s => s.id === 'pnbe');
+      const pnbe = stations.find(s => s.id === 'pnbe');
       if (pnbe) { map.flyTo({ center: pnbe.coordinates, zoom: 7.0, duration: 1200 }); }
     }
-  }, [demoTime, mapLoaded]);
+  }, [demoTime, mapLoaded, stations]);
 
   // Resize/zoom based on panel
   useEffect(() => {
@@ -441,7 +443,7 @@ export const CorridorMap: React.FC = () => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
+    const sortedStations = [...stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
     trains.forEach(train => {
       let markerEntry = markersRef.current[train.id];
@@ -553,8 +555,8 @@ export const CorridorMap: React.FC = () => {
 
       const fromStation = sortedStations.find(s => s.id === train.currentStation);
       const toStation = sortedStations.find(s => s.id === train.nextStation);
-      const fromName = fromStation ? STATION_FULL_NAMES[fromStation.code] || fromStation.code : train.currentStation.toUpperCase();
-      const toName = toStation ? STATION_FULL_NAMES[toStation.code] || toStation.code : train.nextStation.toUpperCase();
+      const fromName = fromStation ? STATION_FULL_NAMES[fromStation.code] || fromStation.name : train.currentStation.toUpperCase();
+      const toName = toStation ? STATION_FULL_NAMES[toStation.code] || toStation.name : train.nextStation.toUpperCase();
 
       const popupContent = `
         <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#171717' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#ebebeb' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 12px 32px rgba(0,0,0,0.1)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:200px;">
@@ -609,10 +611,10 @@ export const CorridorMap: React.FC = () => {
     };
     cleanupLayers();
 
-    if (weatherAlert && weatherAlert.station === 'pnbe') {
-      const pnbeStation = CORRIDOR.stations.find(s => s.id === 'pnbe');
-      if (pnbeStation) {
-        map.addSource(sourceId, { type: 'geojson', data: createGeoJSONCircle(pnbeStation.coordinates, 20) });
+    if (weatherAlert) {
+      const weatherStation = stations.find(s => s.id === weatherAlert.station);
+      if (weatherStation) {
+        map.addSource(sourceId, { type: 'geojson', data: createGeoJSONCircle(weatherStation.coordinates, 20) });
         map.addLayer({
           id: fillLayerId, type: 'fill', source: sourceId,
           paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.15 }

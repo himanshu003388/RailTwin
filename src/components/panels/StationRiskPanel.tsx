@@ -114,6 +114,7 @@ export const StationRiskPanel: React.FC = () => {
   const predictions = useDemoStore(state => state.predictions);
   const weatherAlert = useDemoStore(state => state.weatherAlert);
   const trains = useDemoStore(state => state.trains);
+  const stations = useDemoStore(state => state.stations) || [];
   const simulation = useDemoStore(state => state.simulation);
 
   // Compute live dot state
@@ -123,7 +124,7 @@ export const StationRiskPanel: React.FC = () => {
 
   // Stats Card Calculations
   const activeTrainsCount = trains.length;
-  const stationsCount = CORRIDOR.stations.length;
+  const stationsCount = stations.length;
   const totalPredictedDelay = trains.reduce((acc, t) => acc + (t.predictedDelay || 0), 0);
   const passengersAtRisk = simulation?.passengersAffected || 0;
 
@@ -183,7 +184,7 @@ export const StationRiskPanel: React.FC = () => {
 
       {/* Scrollable list */}
       <div className="flex-1 overflow-y-auto max-h-[calc(100vh-320px)] pr-0.5 scrollbar-thin">
-        {CORRIDOR.stations.map(station => {
+        {stations.map(station => {
           const risks = stationRisks[station.id] || {
             crowdRisk: 'low',
             delayRisk: 'low',

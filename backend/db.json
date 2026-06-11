@@ -1,0 +1,97 @@
+{
+  "stations": [
+    { "id": "ndls", "name": "New Delhi", "code": "NDLS", "coordinates": [77.2217, 28.6419], "kmFromOrigin": 0, "platforms": 16 },
+    { "id": "cnb", "name": "Kanpur Central", "code": "CNB", "coordinates": [80.3514, 26.4536], "kmFromOrigin": 440, "platforms": 8 },
+    { "id": "ald", "name": "Prayagraj Junction", "code": "ALD", "coordinates": [81.8284, 25.4497], "kmFromOrigin": 630, "platforms": 7 },
+    { "id": "bsb", "name": "Varanasi Junction", "code": "BSB", "coordinates": [82.9739, 25.3263], "kmFromOrigin": 760, "platforms": 9 },
+    { "id": "pnbe", "name": "Patna Junction", "code": "PNBE", "coordinates": [85.1376, 25.6023], "kmFromOrigin": 990, "platforms": 10 },
+    { "id": "dhn", "name": "Dhanbad Junction", "code": "DHN", "coordinates": [86.4278, 23.7925], "kmFromOrigin": 1270, "platforms": 6 },
+    { "id": "hwh", "name": "Howrah Junction", "code": "HWH", "coordinates": [88.3416, 22.5849], "kmFromOrigin": 1531, "platforms": 15 }
+  ],
+  "trains": [
+    {
+      "id": "12301",
+      "name": "Howrah Rajdhani Express",
+      "type": "rajdhani",
+      "capacity": 1000,
+      "passengerCount": 920,
+      "speed": 110,
+      "currentStation": "pnbe",
+      "nextStation": "dhn",
+      "routeProgress": 0.3,
+      "coordinates": [85.78, 24.69]
+    },
+    {
+      "id": "12303",
+      "name": "Poorva Express",
+      "type": "express",
+      "capacity": 1200,
+      "passengerCount": 1150,
+      "speed": 95,
+      "currentStation": "ald",
+      "nextStation": "bsb",
+      "routeProgress": 0.4,
+      "coordinates": [82.40, 25.38]
+    },
+    {
+      "id": "12305",
+      "name": "Rajendra Nagar Patna Rajdhani",
+      "type": "rajdhani",
+      "capacity": 900,
+      "passengerCount": 850,
+      "speed": 120,
+      "currentStation": "cnb",
+      "nextStation": "ald",
+      "routeProgress": 0.5,
+      "coordinates": [81.09, 25.95]
+    },
+    {
+      "id": "13005",
+      "name": "Amritsar Mail",
+      "type": "mail",
+      "capacity": 1500,
+      "passengerCount": 1400,
+      "speed": 75,
+      "currentStation": "dhn",
+      "nextStation": "hwh",
+      "routeProgress": 0.2,
+      "coordinates": [87.38, 23.18]
+    },
+    {
+      "id": "12273",
+      "name": "Howrah Duronto",
+      "type": "express",
+      "capacity": 800,
+      "passengerCount": 720,
+      "speed": 115,
+      "currentStation": "ndls",
+      "nextStation": "cnb",
+      "routeProgress": 0.6,
+      "coordinates": [78.78, 27.54]
+    }
+  ],
+  "schedules": [
+    {
+      "trainId": "12301",
+      "stops": [
+        { "stationCode": "NDLS", "scheduledArrival": "16:55", "actualArrival": "16:55", "scheduledDeparture": "16:55", "actualDeparture": "16:55", "km": 0 },
+        { "stationCode": "CNB", "scheduledArrival": "21:35", "actualArrival": "21:40", "scheduledDeparture": "21:40", "actualDeparture": "21:45", "km": 440 },
+        { "stationCode": "ALD", "scheduledArrival": "23:43", "actualArrival": "23:45", "scheduledDeparture": "23:45", "actualDeparture": "23:47", "km": 630 },
+        { "stationCode": "PNBE", "scheduledArrival": "03:50", "actualArrival": "04:28", "scheduledDeparture": "04:00", "actualDeparture": "04:38", "km": 990 },
+        { "stationCode": "DHN", "scheduledArrival": "07:35", "actualArrival": "08:27", "scheduledDeparture": "07:40", "actualDeparture": "08:32", "km": 1270 },
+        { "stationCode": "HWH", "scheduledArrival": "09:55", "actualArrival": "10:47", "scheduledDeparture": "09:55", "actualDeparture": "10:47", "km": 1531 }
+      ]
+    },
+    {
+      "trainId": "12303",
+      "stops": [
+        { "stationCode": "NDLS", "scheduledArrival": "16:10", "actualArrival": "16:10", "scheduledDeparture": "16:10", "actualDeparture": "16:10", "km": 0 },
+        { "stationCode": "CNB", "scheduledArrival": "20:55", "actualArrival": "20:55", "scheduledDeparture": "21:00", "actualDeparture": "21:00", "km": 440 },
+        { "stationCode": "ALD", "scheduledArrival": "22:50", "actualArrival": "22:50", "scheduledDeparture": "22:55", "actualDeparture": "22:55", "km": 630 },
+        { "stationCode": "BSB", "scheduledArrival": "00:55", "actualArrival": "01:17", "scheduledDeparture": "01:05", "actualDeparture": "01:27", "km": 760 },
+        { "stationCode": "PNBE", "scheduledArrival": "05:10", "actualArrival": "05:32", "scheduledDeparture": "05:20", "actualDeparture": "05:42", "km": 990 },
+        { "stationCode": "HWH", "scheduledArrival": "11:25", "actualArrival": "11:47", "scheduledDeparture": "11:25", "actualDeparture": "11:47", "km": 1531 }
+      ]
+    }
+  ]
+}

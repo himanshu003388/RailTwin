@@ -17,10 +17,11 @@ export const DelayChart: React.FC = () => {
   const predictions = useDemoStore(state => state.predictions);
   const startDemo   = useDemoStore(state => state.startDemo);
   const demoRunning = useDemoStore(state => state.demoRunning);
+  const stations    = useDemoStore(state => state.stations) || [];
 
   const [selectedTrainId, setSelectedTrainId] = useState('12301');
 
-  const sortedStations = [...CORRIDOR.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
+  const sortedStations = [...stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
   const getChartData = () => {
     const selectedTrain = trains.find(t => t.id === selectedTrainId);
@@ -34,7 +35,7 @@ export const DelayChart: React.FC = () => {
         confidence = directPred.confidence;
       } else {
         const earlierPred = trainPredictions.find(p => {
-          const predStation = CORRIDOR.stations.find(s => s.id === p.affectedStation);
+          const predStation = stations.find(s => s.id === p.affectedStation);
           return predStation && predStation.kmFromOrigin <= station.kmFromOrigin;
         });
         if (earlierPred) { delay = earlierPred.delayMinutes; confidence = earlierPred.confidence; }
@@ -53,7 +54,7 @@ export const DelayChart: React.FC = () => {
   const activePredsList = predictions.map(pred => ({
     ...pred,
     trainName:   trains.find(t => t.id === pred.trainId)?.name ?? `Train ${pred.trainId}`,
-    stationName: CORRIDOR.stations.find(s => s.id === pred.affectedStation)?.name ?? pred.affectedStation,
+    stationName: stations.find(s => s.id === pred.affectedStation)?.name ?? pred.affectedStation,
   }));
 
   return (
