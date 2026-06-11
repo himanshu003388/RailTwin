@@ -100,8 +100,12 @@ export interface DemoState {
   apiStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
   geminiApiKey: string;
   stations: any[];
+  mobileLeftOpen: boolean;
+  mobileRightOpen: boolean;
 
   // Actions
+  setMobileLeftOpen: (open: boolean) => void;
+  setMobileRightOpen: (open: boolean) => void;
   startDemo: () => void;
   resetDemo: () => void;
   pauseDemo: () => void;
@@ -209,7 +213,7 @@ const initialStoreState = {
     messages: [
       {
         id: 'init-msg',
-        sender: 'system',
+        sender: 'system' as const,
         message: 'RailTwin Operations Center Initialized. Awaiting weather data...',
         timestamp: new Date()
       }
@@ -225,12 +229,14 @@ const initialStoreState = {
   whatIfResult: null,
   networkHealth: { efficiency: 100, onTimePerf: 100, platformUtil: 73, signalStatus: 'operational' as const, activeAlerts: 0 },
   audioEnabled: false,
-  theme: (typeof window !== 'undefined' && localStorage.getItem('theme') === 'light') ? 'light' : 'dark',
+  theme: ((typeof window !== 'undefined' && localStorage.getItem('theme') === 'light') ? 'light' : 'dark') as 'dark' | 'light',
   liveApiEnabled: typeof window !== 'undefined' ? localStorage.getItem('railtwin-api-enabled') === 'true' : false,
   rapidApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-key') || '' : '',
   rapidApiHost: typeof window !== 'undefined' ? localStorage.getItem('railtwin-rapidapi-host') || 'irctc1.p.rapidapi.com' : 'irctc1.p.rapidapi.com',
   apiStatus: 'disconnected' as const,
-  geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : ''
+  geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
+  mobileLeftOpen: false,
+  mobileRightOpen: false
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -245,6 +251,9 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   removeToast: (id) => {
     set(state => ({ toasts: state.toasts.filter(t => t.id !== id) }));
   },
+
+  setMobileLeftOpen: (open) => set({ mobileLeftOpen: open }),
+  setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
 
   toggleAudio: () => {
     set(state => ({ audioEnabled: !state.audioEnabled }));
@@ -502,7 +511,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   },
 
   setActivePanel: (panel) => {
-    set({ activePanel: panel });
+    set({ activePanel: panel, mobileLeftOpen: false, mobileRightOpen: false });
   },
 
   setWhatIfStation: (station) => {

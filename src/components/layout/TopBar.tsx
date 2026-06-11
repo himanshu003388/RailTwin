@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings } from 'lucide-react';
+import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List } from 'lucide-react';
 import { HelpModal } from '../ui/HelpModal';
 import { SettingsModal } from '../ui/SettingsModal';
 
@@ -12,6 +12,10 @@ export const TopBar: React.FC = () => {
   const toggleTheme = useDemoStore(state => state.toggleTheme);
   const liveApiEnabled = useDemoStore(state => state.liveApiEnabled);
   const apiStatus = useDemoStore(state => state.apiStatus);
+  const mobileLeftOpen = useDemoStore(state => state.mobileLeftOpen);
+  const setMobileLeftOpen = useDemoStore(state => state.setMobileLeftOpen);
+  const mobileRightOpen = useDemoStore(state => state.mobileRightOpen);
+  const setMobileRightOpen = useDemoStore(state => state.setMobileRightOpen);
   const [timeStr, setTimeStr] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -63,6 +67,15 @@ export const TopBar: React.FC = () => {
       >
         {/* ── Breadcrumb Left ── */}
         <div className="flex items-center gap-3">
+          {/* Hamburger button on < lg */}
+          <button
+            onClick={() => setMobileLeftOpen(!mobileLeftOpen)}
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            title="Toggle Menu"
+          >
+            <Menu className="w-3.5 h-3.5" />
+          </button>
+
           <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[11px] uppercase tracking-widest">
             <span>Ops Center</span>
             <span className="text-border-active">/</span>
@@ -92,7 +105,7 @@ export const TopBar: React.FC = () => {
         <div className="flex items-center gap-2">
           {/* Passenger Count */}
           <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
             style={{
               background: 'var(--color-bg-sunken)',
               border: '1px solid var(--color-border-subtle)',
@@ -105,7 +118,7 @@ export const TopBar: React.FC = () => {
 
           {/* Corridor Length */}
           <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
             style={{
               background: 'var(--color-bg-sunken)',
               border: '1px solid var(--color-border-subtle)',
@@ -137,6 +150,15 @@ export const TopBar: React.FC = () => {
 
         {/* ── Right Controls ── */}
         <div className="flex items-center gap-2">
+          {/* Timeline & Station Risks toggle button on < lg */}
+          <button
+            onClick={() => setMobileRightOpen(!mobileRightOpen)}
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            title="Toggle Stations & Timeline"
+          >
+            <List className="w-3.5 h-3.5" />
+          </button>
+
           {/* Help Button */}
           <button
             onClick={() => setShowHelp(true)}

@@ -17,7 +17,7 @@ export const MainPanel: React.FC = () => {
         className={`w-full relative transition-all duration-300 ease-in-out ${
           activePanel === 'map'
             ? 'flex-1 h-full'
-            : 'h-[180px] border-b border-border-default shrink-0'
+            : 'h-[180px] border-b border-border-default shrink-0 max-md:hidden'
         }`}
       >
         <CorridorMap />

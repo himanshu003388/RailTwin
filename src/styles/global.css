@@ -548,18 +548,4 @@ select option {
   .right-sidebar { width: 280px !important; }
 }
 
-@media (max-width: 768px) {
-  .dashboard-body { flex-direction: column; }
-  .sidebar-left {
-    width: 100% !important;
-    height: auto !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-  }
-  .right-sidebar {
-    width: 100% !important;
-    height: auto !important;
-    border-left: none !important;
-    border-top: 1px solid #1e1e1e;
-  }
-}
+

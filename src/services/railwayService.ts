@@ -50,11 +50,12 @@ export async function fetchLiveTrainStatus(
     }
 
     return body;
-  } catch (e) {
+  } catch (e: unknown) {
     clearTimeout(timeout);
     if (e instanceof ApiError) throw e;
-    if (e.name === 'AbortError') throw new ApiError('Request timed out', 408);
-    throw new ApiError(e.message || 'Network error', 0);
+    const err = e instanceof Error ? e : new Error(String(e));
+    if (err.name === 'AbortError') throw new ApiError('Request timed out', 408);
+    throw new ApiError(err.message || 'Network error', 0);
   }
 }
 

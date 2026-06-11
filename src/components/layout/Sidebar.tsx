@@ -12,6 +12,8 @@ export const Sidebar: React.FC = () => {
   const pauseDemo = useDemoStore(state => state.pauseDemo);
   const resumeDemo = useDemoStore(state => state.resumeDemo);
   const setActivePanel = useDemoStore(state => state.setActivePanel);
+  const mobileLeftOpen = useDemoStore(state => state.mobileLeftOpen);
+  const setMobileLeftOpen = useDemoStore(state => state.setMobileLeftOpen);
 
   const [showComplete, setShowComplete] = React.useState(false);
 
@@ -91,144 +93,154 @@ export const Sidebar: React.FC = () => {
     : 'var(--color-accent-blue)';
 
   return (
-    <aside className="w-[240px] sidebar-left h-screen bg-bg-card border-r border-border-default flex flex-col justify-between select-none shrink-0">
-      {/* ── Brand Header ── */}
-      <div className="flex flex-col gap-5 p-4">
-        <div className="flex items-center gap-2.5 pt-1">
-          {/* Logo Icon with glow ring */}
-          <div
-            className="w-8 h-8 rounded-lg bg-bg-elevated border border-border-default flex items-center justify-center text-accent-blue shrink-0 transition-all duration-300"
-            style={{ boxShadow: '0 0 0 3px rgba(59,130,246,0.08), 0 0 12px rgba(59,130,246,0.2)' }}
-          >
-            <Train className="w-4 h-4" />
-          </div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-sans font-semibold text-text-primary tracking-tight text-[15px] leading-tight">
-              RailTwin
-            </span>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-accent-purple/10 text-accent-purple border border-accent-purple/20 uppercase tracking-wider leading-none">
-              AI
-            </span>
-          </div>
-        </div>
-
-        {/* ── Navigation ── */}
-        <nav className="flex flex-col gap-0.5">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activePanel === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActivePanel(item.id)}
-                className={`relative flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-md transition-all duration-150 text-left outline-none overflow-hidden ${
-                  isActive
-                    ? 'bg-bg-elevated text-text-primary'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated/60'
-                }`}
-              >
-                {/* Active left accent bar */}
-                {isActive && (
-                  <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full"
-                    style={{
-                      height: '60%',
-                      background: 'linear-gradient(180deg, var(--color-accent-blue), rgba(59,130,246,0.4))',
-                      boxShadow: '0 0 8px rgba(59,130,246,0.6)',
-                    }}
-                  />
-                )}
-                <Icon className={`w-4 h-4 shrink-0 transition-colors duration-150 ${isActive ? 'text-accent-blue' : 'text-text-tertiary'}`} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* ── Bottom Controls ── */}
-      <div
-        className="p-4 flex flex-col gap-3 border-t border-border-default"
-        style={{ background: 'linear-gradient(180deg, var(--color-bg-card) 0%, var(--color-bg-sunken) 100%)' }}
-      >
-        <div className="flex flex-col gap-1.5">
-          {/* Main action button */}
-          <button
-            onClick={buttonProps.onClick}
-            className={`w-full py-2.5 px-4 text-xs font-mono font-semibold rounded-lg transition-all duration-200 outline-none active:scale-[0.97] flex items-center justify-center gap-2 ${buttonProps.className}`}
-          >
-            {buttonProps.icon}
-            {buttonProps.text}
-          </button>
-
-          {/* Reset (only during demo) */}
-          {demoRunning && (
-            <button
-              onClick={resetDemo}
-              className="w-full py-1.5 px-3 text-[10px] font-mono text-text-tertiary hover:text-text-secondary bg-bg-sunken border border-border-subtle hover:border-border-default rounded-lg transition-all duration-150 outline-none flex items-center justify-center gap-1.5"
+    <>
+      {mobileLeftOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden cursor-pointer"
+          onClick={() => setMobileLeftOpen(false)}
+        />
+      )}
+      <aside className={`w-[240px] sidebar-left h-screen bg-bg-card border-r border-border-default flex flex-col justify-between select-none shrink-0 transition-transform duration-300 ease-in-out max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:left-0 max-lg:z-50 ${
+        mobileLeftOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
+      }`}>
+        {/* ── Brand Header ── */}
+        <div className="flex flex-col gap-5 p-4">
+          <div className="flex items-center gap-2.5 pt-1">
+            {/* Logo Icon with glow ring */}
+            <div
+              className="w-8 h-8 rounded-lg bg-bg-elevated border border-border-default flex items-center justify-center text-accent-blue shrink-0 transition-all duration-300"
+              style={{ boxShadow: '0 0 0 3px rgba(59,130,246,0.08), 0 0 12px rgba(59,130,246,0.2)' }}
             >
-              <RotateCcw className="w-3 h-3" />
-              Reset
-            </button>
-          )}
-
-          {/* Progress bar */}
-          {demoTime > 0 && (
-            <div className="w-full bg-bg-sunken h-[3px] rounded-full overflow-hidden border border-border-subtle/50 mt-0.5">
-              <div
-                className="h-full transition-all duration-300 ease-out rounded-full"
-                style={{
-                  width: `${progressPct}%`,
-                  backgroundColor: progressColor,
-                  boxShadow: `0 0 6px ${progressColor}`,
-                }}
-              />
+              <Train className="w-4 h-4" />
             </div>
-          )}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="font-sans font-semibold text-text-primary tracking-tight text-[15px] leading-tight">
+                RailTwin
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-accent-purple/10 text-accent-purple border border-accent-purple/20 uppercase tracking-wider leading-none">
+                AI
+              </span>
+            </div>
+          </div>
 
-          {/* SPACE to start hint */}
-          {!demoRunning && demoTime === 0 && (
-            <span className="text-[11px] text-text-muted mt-1 flex items-center justify-center gap-1.5 font-mono">
-              Press{' '}
-              <kbd className="px-1.5 py-0.5 rounded bg-bg-elevated border border-border-default text-text-tertiary text-[9px] font-mono shadow-sm">
-                SPACE
-              </kbd>
-              {' '}to start
-            </span>
-          )}
-
-          {/* Pause hint */}
-          {demoRunning && !isPaused && (
-            <span className="text-[10px] text-text-muted mt-0.5 flex items-center justify-center gap-2 font-mono">
-              <kbd className="px-1 py-0.5 rounded bg-bg-elevated border border-border-subtle text-text-tertiary text-[9px] font-mono">SPACE</kbd>
-              pause
-              <span className="text-border-active">·</span>
-              <kbd className="px-1 py-0.5 rounded bg-bg-elevated border border-border-subtle text-text-tertiary text-[9px] font-mono">R</kbd>
-              reset
-            </span>
-          )}
+          {/* ── Navigation ── */}
+          <nav className="flex flex-col gap-0.5">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activePanel === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActivePanel(item.id)}
+                  className={`relative flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-md transition-all duration-150 text-left outline-none overflow-hidden ${
+                    isActive
+                      ? 'bg-bg-elevated text-text-primary'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated/60'
+                  }`}
+                >
+                  {/* Active left accent bar */}
+                  {isActive && (
+                    <span
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full"
+                      style={{
+                        height: '60%',
+                        background: 'linear-gradient(180deg, var(--color-accent-blue), rgba(59,130,246,0.4))',
+                        boxShadow: '0 0 8px rgba(59,130,246,0.6)',
+                      }}
+                    />
+                  )}
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors duration-150 ${isActive ? 'text-accent-blue' : 'text-text-tertiary'}`} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Footer meta */}
-        <div className="flex flex-col gap-0.5 text-center mt-0.5">
-          <span className="text-text-muted font-mono-data text-[10px] uppercase tracking-wider">
-            Delhi–Howrah Corridor
-          </span>
-          <span className="text-[9px] text-text-muted font-mono opacity-50">
-            prototype v1.0
-          </span>
-          <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 mt-1.5">
-            <span className="text-[9px] text-text-muted font-mono">
-              <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">1–6</kbd>
-              {' '}panels
+        {/* ── Bottom Controls ── */}
+        <div
+          className="p-4 flex flex-col gap-3 border-t border-border-default"
+          style={{ background: 'linear-gradient(180deg, var(--color-bg-card) 0%, var(--color-bg-sunken) 100%)' }}
+        >
+          <div className="flex flex-col gap-1.5">
+            {/* Main action button */}
+            <button
+              onClick={buttonProps.onClick}
+              className={`w-full py-2.5 px-4 text-xs font-mono font-semibold rounded-lg transition-all duration-200 outline-none active:scale-[0.97] flex items-center justify-center gap-2 ${buttonProps.className}`}
+            >
+              {buttonProps.icon}
+              {buttonProps.text}
+            </button>
+
+            {/* Reset (only during demo) */}
+            {demoRunning && (
+              <button
+                onClick={resetDemo}
+                className="w-full py-1.5 px-3 text-[10px] font-mono text-text-tertiary hover:text-text-secondary bg-bg-sunken border border-border-subtle hover:border-border-default rounded-lg transition-all duration-150 outline-none flex items-center justify-center gap-1.5"
+              >
+                <RotateCcw className="w-3 h-3" />
+                Reset
+              </button>
+            )}
+
+            {/* Progress bar */}
+            {demoTime > 0 && (
+              <div className="w-full bg-bg-sunken h-[3px] rounded-full overflow-hidden border border-border-subtle/50 mt-0.5">
+                <div
+                  className="h-full transition-all duration-300 ease-out rounded-full"
+                  style={{
+                    width: `${progressPct}%`,
+                    backgroundColor: progressColor,
+                    boxShadow: `0 0 6px ${progressColor}`,
+                  }}
+                />
+              </div>
+            )}
+
+            {/* SPACE to start hint */}
+            {!demoRunning && demoTime === 0 && (
+              <span className="text-[11px] text-text-muted mt-1 flex items-center justify-center gap-1.5 font-mono">
+                Press{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-bg-elevated border border-border-default text-text-tertiary text-[9px] font-mono shadow-sm">
+                  SPACE
+                </kbd>
+                {' '}to start
+              </span>
+            )}
+
+            {/* Pause hint */}
+            {demoRunning && !isPaused && (
+              <span className="text-[10px] text-text-muted mt-0.5 flex items-center justify-center gap-2 font-mono">
+                <kbd className="px-1 py-0.5 rounded bg-bg-elevated border border-border-subtle text-text-tertiary text-[9px] font-mono">SPACE</kbd>
+                pause
+                <span className="text-border-active">·</span>
+                <kbd className="px-1 py-0.5 rounded bg-bg-elevated border border-border-subtle text-text-tertiary text-[9px] font-mono">R</kbd>
+                reset
+              </span>
+            )}
+          </div>
+
+          {/* Footer meta */}
+          <div className="flex flex-col gap-0.5 text-center mt-0.5">
+            <span className="text-text-muted font-mono-data text-[10px] uppercase tracking-wider">
+              Delhi–Howrah Corridor
             </span>
-            <span className="text-[9px] text-text-muted font-mono">
-              <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">M</kbd>
-              {' '}audio
+            <span className="text-[9px] text-text-muted font-mono opacity-50">
+              prototype v1.0
             </span>
+            <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 mt-1.5">
+              <span className="text-[9px] text-text-muted font-mono">
+                <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">1–6</kbd>
+                {' '}panels
+              </span>
+              <span className="text-[9px] text-text-muted font-mono">
+                <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">M</kbd>
+                {' '}audio
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
