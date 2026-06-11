@@ -16,6 +16,12 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.local
+
+# SQLite database
+railtwin.db
+railtwin.db-wal
+railtwin.db-shm
 
 # macOS-specific files
 .DS_Store

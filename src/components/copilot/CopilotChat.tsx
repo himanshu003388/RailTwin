@@ -32,7 +32,7 @@ export const CopilotChat: React.FC = () => {
   useEffect(() => {
     const checkBackendKey = async () => {
       try {
-        const res = await fetchWithTimeout(`${getBaseUrl()}api/chat`);
+        const res = await fetchWithTimeout(`${getBaseUrl()}api/copilot/chat`);
         if (res.ok) {
           const data = await res.json();
           setIsLiveActive(!!data.hasKey);
@@ -106,7 +106,7 @@ export const CopilotChat: React.FC = () => {
       let replyMessage = '';
 
       // Always route through the server API — GEMINI_API_KEY is in Vercel environment, never sent from client
-      const response = await fetchWithTimeout(`${getBaseUrl()}api/chat`, {
+      const response = await fetchWithTimeout(`${getBaseUrl()}api/copilot/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

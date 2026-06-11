@@ -1,20 +1,8 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
-import { TopBar } from '../components/layout/TopBar';
-import { Sidebar } from '../components/layout/Sidebar';
-import { MainPanel } from '../components/layout/MainPanel';
-import { RightSidebar } from '../components/layout/RightSidebar';
+import AppWrapper from '../components/AppWrapper';
 ---
 
 <DashboardLayout>
-  <div class="dashboard-shell">
-    <TopBar client:load />
-    <div class="dashboard-body">
-      <Sidebar client:load />
-      <main class="dashboard-main">
-        <MainPanel client:load />
-      </main>
-      <RightSidebar client:load />
-    </div>
-  </div>
+  <AppWrapper client:load />
 </DashboardLayout>

@@ -13,14 +13,6 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
-    server: {
-      proxy: {
-        '/api': {
-          target: 'http://localhost:3001',
-          changeOrigin: true,
-        }
-      }
-    }
   },
   output: isVercel ? 'server' : 'static',
   adapter: isVercel ? vercel() : undefined
