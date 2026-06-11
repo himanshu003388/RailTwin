@@ -87,14 +87,14 @@ const getStationsGeoJSON = (stationRisks: any, stationsList?: any[]) => {
 
 // Tile style URLs in priority order (most reliable first)
 const DARK_STYLES = [
-  'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
   'https://demotiles.maplibre.org/style.json',
+  'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
 ];
 
 const LIGHT_STYLES = [
+  'https://demotiles.maplibre.org/style.json',
   'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
-  'https://demotiles.maplibre.org/style.json',
 ];
 
 export const CorridorMap: React.FC = () => {
