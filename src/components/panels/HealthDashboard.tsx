@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { CORRIDOR } from '../../data/corridor';
 import { Activity, Train, Clock, Users, Gauge, AlertTriangle } from 'lucide-react';
 
 const GaugeBar: React.FC<{ value: number; max?: number; color: string; label: string; glow?: string }> = ({

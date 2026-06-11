@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { CORRIDOR } from '../../data/corridor';
 import { RiskBadge } from '../ui/RiskBadge';
 import { StatCard } from '../ui/StatCard';
 import { CloudRain } from 'lucide-react';

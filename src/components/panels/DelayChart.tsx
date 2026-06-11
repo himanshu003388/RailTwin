@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { CORRIDOR } from '../../data/corridor';
 import { Train, Play } from 'lucide-react';
 import {
   AreaChart,

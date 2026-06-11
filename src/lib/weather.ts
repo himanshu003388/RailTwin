@@ -155,25 +155,3 @@ export async function getWeatherAlert(): Promise<{
     source: 'fallback'
   };
 }
-
-export async function getStationWeather(stationCode: string) {
-  const cached = getCachedWeather(stationCode);
-  if (cached) return cached;
-
-  const live = await fetchLiveWeather(stationCode);
-  if (live) return live;
-
-  const fallback = FALLBACK_WEATHER[stationCode] || { rainfall: 0, description: 'Clear sky' };
-  return {
-    station: stationCode,
-    rainfall: fallback.rainfall,
-    description: fallback.description,
-    temperature: 25,
-    humidity: 70,
-    windSpeed: 10,
-    visibility: 10,
-    icon: '01d',
-    fetchedAt: new Date().toISOString(),
-    source: 'fallback'
-  };
-}

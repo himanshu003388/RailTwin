@@ -23,6 +23,9 @@ railtwin.db
 railtwin.db-wal
 railtwin.db-shm
 
+# Dead legacy backend (replaced by src/pages/api/)
+backend/
+
 # macOS-specific files
 .DS_Store
 

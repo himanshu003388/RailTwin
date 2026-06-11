@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { X, AlertTriangle } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const AlertBanner: React.FC = () => {
   const weatherAlert = useDemoStore(state => state.weatherAlert);

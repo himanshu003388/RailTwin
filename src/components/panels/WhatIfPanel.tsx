@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { CORRIDOR } from '../../data/corridor';
 import { TestTube, Zap, Users, Clock, ChevronDown } from 'lucide-react';
 
 const SCENARIOS = [

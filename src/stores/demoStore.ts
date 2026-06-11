@@ -958,10 +958,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   }
 }));
 
-export const initDemoStore = () => {
-  useDemoStore.getState().resetDemo();
-};
-
 // Fetch network data dynamically on initialization
 export const fetchInitialData = async () => {
   try {
