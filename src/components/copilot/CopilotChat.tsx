@@ -293,6 +293,12 @@ export const CopilotChat: React.FC = () => {
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleFormSubmit(e as any);
+              }
+            }}
             placeholder="Ask about corridor status..."
             className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10"
             style={{
