@@ -161,11 +161,18 @@ export const CopilotChat: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = () => {
+    if (!inputText.trim() || copilot.thinking) return;
     handleSendMessage(inputText);
     setInputText('');
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit();
   };
 
   const hasUserMessages = messages.some(m => m.sender === 'user');
@@ -272,8 +279,9 @@ export const CopilotChat: React.FC = () => {
             {['Which station is most at risk?', "What's the cascade impact?", 'Recommended actions?'].map(q => (
               <button
                 key={q}
-                onClick={() => handleSendMessage(q)}
-                className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer"
+                onClick={() => { setInputText(''); handleSendMessage(q); }}
+                disabled={copilot.thinking}
+                className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
                   background: 'var(--color-bg-elevated)',
                   border: '1px solid var(--color-border-default)',
@@ -290,17 +298,19 @@ export const CopilotChat: React.FC = () => {
 
         <form onSubmit={handleFormSubmit} className="flex gap-2 items-center relative">
           <input
+            ref={inputRef}
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleFormSubmit(e as any);
+                handleSubmit();
               }
             }}
-            placeholder="Ask about corridor status..."
-            className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10"
+            disabled={copilot.thinking}
+            placeholder={copilot.thinking ? "Analyzing corridor state..." : "Ask about corridor status..."}
+            className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-bg-elevated)',
               border: '1px solid var(--color-border-default)',
@@ -311,7 +321,8 @@ export const CopilotChat: React.FC = () => {
           />
           <button
             type="submit"
-            className="absolute right-1.5 text-white p-1.5 rounded-md transition-colors duration-200 outline-none active:scale-95 cursor-pointer"
+            disabled={copilot.thinking || !inputText.trim()}
+            className="absolute right-1.5 text-white p-1.5 rounded-md transition-all duration-200 outline-none active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110"
             style={{ background: 'var(--color-accent-purple)', boxShadow: '0 0 8px rgba(168,85,247,0.4)' }}
           >
             <Send className="w-3.5 h-3.5" />
