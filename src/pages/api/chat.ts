@@ -20,18 +20,18 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { messages, systemState, userApiKey } = await request.json();
+    const { messages, systemState } = await request.json();
 
-    // Determine the API key: prioritize user's key sent from client, fallback to server environment variable
-    const apiKey = (userApiKey || '').trim() || process.env.GEMINI_API_KEY;
+    // API key is exclusively read from Vercel environment — never sent from the client
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return new Response(
         JSON.stringify({
-          error: "API key missing. Please configure GEMINI_API_KEY in your Vercel project environment variables, or enter your Gemini API Key in the settings (cog icon in top bar)."
+          error: "AI Copilot is not configured. GEMINI_API_KEY environment variable is missing from Vercel project settings."
         }),
         {
-          status: 400,
+          status: 503,
           headers: { 'Content-Type': 'application/json' }
         }
       );

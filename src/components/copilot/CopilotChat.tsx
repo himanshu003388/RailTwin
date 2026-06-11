@@ -1,37 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Bot, Send, User, Info, Settings } from 'lucide-react';
-import { SettingsModal } from '../ui/SettingsModal';
+import { Bot, Send, User } from 'lucide-react';
 
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
-  const geminiApiKey = useDemoStore(state => state.geminiApiKey);
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
-  const [isLiveActive, setIsLiveActive] = useState(!!geminiApiKey);
+  // Always starts as true — the server reads GEMINI_API_KEY from Vercel env
+  const [isLiveActive, setIsLiveActive] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Verify that the server has GEMINI_API_KEY configured in Vercel env
   useEffect(() => {
     const checkBackendKey = async () => {
       try {
         const res = await fetch('/api/chat');
         if (res.ok) {
           const data = await res.json();
-          if (data.hasKey) {
-            setIsLiveActive(true);
-            return;
-          }
+          setIsLiveActive(!!data.hasKey);
+        } else {
+          setIsLiveActive(false);
         }
       } catch (e) {
-        console.warn("Could not fetch backend key status", e);
+        console.warn('Could not verify backend API key status', e);
+        setIsLiveActive(false);
       }
-      setIsLiveActive(!!geminiApiKey);
     };
 
     checkBackendKey();
-  }, [geminiApiKey]);
+  }, []);
 
   useEffect(() => {
     const currentMessages = useDemoStore.getState().copilot.messages;
@@ -57,96 +55,8 @@ export const CopilotChat: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, copilot.thinking]);
 
-  const callGeminiClientSide = async (msgs: any[], systemState: any, apiKey: string): Promise<string> => {
-    const weatherAlertText = systemState.weatherAlert
-      ? `Weather Alert: Severe ${systemState.weatherAlert.description} detected near ${systemState.weatherAlert.station.toUpperCase()} with ${systemState.weatherAlert.rainfall}mm/hr rainfall. Localized speed restrictions are active.`
-      : 'Corridor Weather: No active weather alerts. Clear weather along the entire Delhi–Howrah corridor.';
 
-    const simulationText = systemState.simulation
-      ? `Active Grid Simulation:
-- Conflicts Detected: ${systemState.simulation.conflictsDetected} conflicts
-- Projected Cascade Delay: ${systemState.simulation.cascadeDelay} minutes
-- Passenger Impact: ${systemState.simulation.passengersAffected.toLocaleString()} passengers at risk
-- Stations Impacted: ${systemState.simulation.stationsImpacted.join(', ').toUpperCase()}`
-      : 'Grid Simulation: No active simulation scenario running.';
 
-    let interventionText = 'Operational Status: No dispatch interventions applied yet.';
-    if (systemState.intervention) {
-      interventionText = `Operational Intervention Applied: Recommendation ID "${systemState.intervention.accepted}" executed by Operator "${systemState.intervention.operator}".`;
-      if (systemState.resolved) {
-        interventionText += `
-Recalculation Results:
-- Conflicts remaining: ${systemState.simulation ? systemState.simulation.conflictsDetected : 0}
-- Cascade delay: ${systemState.resolved.newCascadeDelay} minutes
-- Risk levels: ${systemState.resolved.riskReduction}
-- Minutes saved: ${systemState.resolved.minutesSaved} minutes`;
-      }
-    }
-
-    const stationRisksText = Object.entries(systemState.stationRisks || {})
-      .map(([id, r]: [string, any]) => `- ${id.toUpperCase()}: Crowd Risk = ${r.crowdRisk.toUpperCase()}, Delay Risk = ${r.delayRisk.toUpperCase()}, Conflicts = ${r.platformConflicts}`)
-      .join('\n');
-
-    const trainsText = (systemState.trains || [])
-      .map((t: any) => `- Train ${t.id} (${t.name}): Speed = ${t.speed} km/h, Current = ${t.currentStation.toUpperCase()}, Next = ${t.nextStation.toUpperCase()}, Delay = ${t.predictedDelay} mins, Passengers = ${t.passengerCount}`)
-      .join('\n');
-
-    const systemPrompt = `You are the RailTwin Copilot, an advanced digital twin assistant for train operations monitoring.
-You have real-time access to the railway digital twin telemetry.
-
-CURRENT TELEMETRY:
-[Weather] ${weatherAlertText}
-[Network Health]
-- Efficiency: ${systemState.networkHealth.efficiency}%
-- On-Time: ${systemState.networkHealth.onTimePerf}%
-- Platform Util: ${systemState.networkHealth.platformUtil}%
-- Signal Status: ${systemState.networkHealth.signalStatus.toUpperCase()}
-[Simulation]
-${simulationText}
-[Interventions]
-${interventionText}
-[Station Risks]
-${stationRisksText}
-[Active Trains]
-${trainsText}
-
-GUIDELINES:
-1. Keep responses professional, technical, and concise. No fluff.
-2. If the query is related to the railway network, use the exact telemetry numbers above. Determine active stations, train IDs, names, and routes dynamically from the telemetry list.
-3. If the query is unrelated to the active trains (e.g., general knowledge, math, calculations, or trivia), answer it directly and helpfully in a professional/technical manner.
-4. Suggest clear mitigations (e.g. holds, alerts) when asked.
-5. Use clean markdown formatting.
-`;
-
-    const contents = msgs
-      .filter(m => m.sender === 'user' || m.sender === 'copilot')
-      .map(m => ({
-        role: m.sender === 'copilot' ? 'model' : 'user',
-        parts: [{ text: m.message }]
-      }));
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents,
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 800
-        }
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || "Direct API call to Gemini failed.");
-    }
-
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated by the AI.";
-  };
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -178,42 +88,24 @@ GUIDELINES:
     try {
       let replyMessage = '';
 
-      try {
-        // Try calling Vercel/local Astro backend API first
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: currentMessages,
-            systemState,
-            userApiKey: state.geminiApiKey
-          })
-        });
+      // Always route through the server API — GEMINI_API_KEY is in Vercel environment, never sent from client
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: currentMessages,
+          systemState
+          // NOTE: userApiKey intentionally omitted — key lives server-side in Vercel env
+        })
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          replyMessage = data.message;
-          setIsLiveActive(true);
-        } else {
-          const errData = await response.json().catch(() => ({}));
-          console.warn("Server API returned error status:", response.status, errData);
-
-          if (state.geminiApiKey) {
-            // Fallback to client direct call
-            replyMessage = await callGeminiClientSide(currentMessages, systemState, state.geminiApiKey);
-            setIsLiveActive(true);
-          } else {
-            throw new Error(errData.error || "Gemini API key is not configured.");
-          }
-        }
-      } catch (fetchErr: any) {
-        console.warn("Failed to reach server API route or received error. Checking client-side key fallback...", fetchErr);
-        if (state.geminiApiKey) {
-          replyMessage = await callGeminiClientSide(currentMessages, systemState, state.geminiApiKey);
-          setIsLiveActive(true);
-        } else {
-          throw new Error(fetchErr.message || "Failed to reach server API route, and no client-side Gemini API key was configured.");
-        }
+      if (response.ok) {
+        const data = await response.json();
+        replyMessage = data.message;
+        setIsLiveActive(true);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned status ${response.status}`);
       }
 
       useDemoStore.setState(s => ({
@@ -225,7 +117,8 @@ GUIDELINES:
       }));
 
     } catch (err: any) {
-      console.error("Error generating AI reply:", err);
+      console.error('Error generating AI reply:', err);
+      setIsLiveActive(false);
       useDemoStore.setState(s => ({
         copilot: {
           ...s.copilot,
@@ -233,7 +126,7 @@ GUIDELINES:
           messages: [...s.copilot.messages, {
             id: `copilot-msg-${Date.now()}`,
             sender: 'copilot' as const,
-            message: `⚠️ **API Key Required**\n\n${err.message || "Gemini API key is missing or invalid."}\n\nPlease enter your Gemini API Key in the Settings panel (cog icon in top bar) to chat with the live Digital Twin Copilot.`,
+            message: `⚠️ **AI Copilot Unavailable**\n\n${err.message || 'Could not reach the AI service.'}\n\nThe server-side Gemini API is configured in Vercel environment variables. Please check deployment logs if this persists.`,
             timestamp: new Date()
           }]
         }
@@ -259,26 +152,19 @@ GUIDELINES:
             <Bot className="w-10 h-10 text-border-default mb-3 animate-breath" />
             <span className="text-sm text-text-secondary font-medium mb-1">Ask about corridor status</span>
             <span className="text-xs text-text-tertiary max-w-[280px] text-center leading-relaxed mb-3">
-              Ask queries about the Delhi-Howrah corridor trains, risks, weather impacts, or active simulations.
+              Ask queries about corridor trains, delays, weather impacts, cascade simulations, or general operations.
             </span>
-            {isLiveActive ? (
-              <div
-                className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
-                style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--color-accent-green)' }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
-                <span>Live AI Agent Mode (Gemini 2.5)</span>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowSettings(true)}
-                className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5 transition-colors duration-150 hover:bg-bg-hover cursor-pointer"
-                style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-default)', color: 'var(--color-text-tertiary)' }}
-              >
-                <Info className="w-3 h-3 text-accent-yellow" />
-                <span>Configure Gemini API Key to activate AI</span>
-              </button>
-            )}
+            <div
+              className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
+              style={{
+                background: isLiveActive ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
+                border: `1px solid ${isLiveActive ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                color: isLiveActive ? 'var(--color-accent-green)' : 'var(--color-accent-red)'
+              }}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isLiveActive ? 'bg-accent-green animate-pulse' : 'bg-accent-red'}`} />
+              <span>{isLiveActive ? 'Live AI Agent Mode (Gemini 2.5)' : 'AI Service Unavailable — Check Vercel Env'}</span>
+            </div>
           </div>
         )}
 
@@ -401,12 +287,10 @@ GUIDELINES:
 
         <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
           <span>RailTwin Copilot · Powered by Gemini Agent API</span>
-          <span className={`w-1 h-1 rounded-full ${isLiveActive ? 'bg-accent-green' : 'bg-accent-yellow'}`} />
-          <span className="text-[8px]">{isLiveActive ? 'LIVE ACTIVE' : 'KEY REQUIRED'}</span>
+          <span className={`w-1 h-1 rounded-full ${isLiveActive ? 'bg-accent-green animate-pulse' : 'bg-accent-red'}`} />
+          <span className="text-[8px]">{isLiveActive ? 'LIVE ACTIVE' : 'SERVER UNAVAILABLE'}</span>
         </div>
       </div>
-
-      <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 };
