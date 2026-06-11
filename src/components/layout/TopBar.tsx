@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List, LogOut } from 'lucide-react';
+import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List } from 'lucide-react';
 import { HelpModal } from '../ui/HelpModal';
 import { SettingsModal } from '../ui/SettingsModal';
-import { useAuth } from '../auth/AuthContext';
 
 export const TopBar: React.FC = () => {
-  const { user, logout } = useAuth();
   const demoRunning = useDemoStore(state => state.demoRunning);
   const audioEnabled = useDemoStore(state => state.audioEnabled);
   const toggleAudio = useDemoStore(state => state.toggleAudio);
@@ -152,20 +150,6 @@ export const TopBar: React.FC = () => {
 
         {/* ── Right Controls ── */}
         <div className="flex items-center gap-2">
-          {/* User & Logout */}
-          {user && (
-            <div className="hidden sm:flex items-center gap-2 mr-1">
-              <span className="text-[10px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{user.username}</span>
-              <button
-                onClick={logout}
-                className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-accent-red hover:border-accent-red/30 transition-all duration-150 outline-none cursor-pointer"
-                title="Sign out"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
           {/* Timeline & Station Risks toggle button on < lg */}
           <button
             onClick={() => setMobileRightOpen(!mobileRightOpen)}

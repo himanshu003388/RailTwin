@@ -1,13 +1,11 @@
 import type { APIRoute } from 'astro';
 import { runCascadeSimulation } from '../../../../lib/train-engine';
 import { getDb, logAudit } from '../../../../lib/db';
-import { authenticate } from '../../../../lib/auth';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const user = authenticate(request);
     const { stationId, scenario } = await request.json();
 
     if (!stationId || !scenario) {
@@ -25,19 +23,17 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Save scenario to DB
     try {
       const db = getDb();
       db.prepare(
-        'INSERT INTO scenarios (name, station, scenario_type, result_json, created_by) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO scenarios (name, station, scenario_type, result_json) VALUES (?, ?, ?, ?)'
       ).run(
         `${scenario} at ${stationId}`,
         stationId,
         scenario,
-        JSON.stringify(result),
-        user?.userId || null
+        JSON.stringify(result)
       );
-      if (user) logAudit('simulation', user.userId, { stationId, scenario, ...result });
+      logAudit('simulation', { stationId, scenario, ...result });
     } catch (e) {
       console.error('Failed to save scenario:', e);
     }

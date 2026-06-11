@@ -1,13 +1,11 @@
 import type { APIRoute } from 'astro';
 import { predictDelay } from '../../../lib/train-engine';
 import { getDb, logAudit } from '../../../lib/db';
-import { authenticate } from '../../../lib/auth';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const user = authenticate(request);
     const { trainNo, routeLength, stationCongestion, weatherCondition, rainfall } = await request.json();
 
     if (!trainNo) {
@@ -26,20 +24,18 @@ export const POST: APIRoute = async ({ request }) => {
       rainfall ? Number(rainfall) : undefined
     );
 
-    // Save prediction to DB
     try {
       const db = getDb();
       db.prepare(
-        'INSERT INTO predictions (train_id, predicted_delay, confidence, conditions_json, explanation, created_by) VALUES (?, ?, ?, ?, ?, ?)'
+        'INSERT INTO predictions (train_id, predicted_delay, confidence, conditions_json, explanation) VALUES (?, ?, ?, ?, ?)'
       ).run(
         trainNo,
         result.predictedDelay,
         result.confidence,
         JSON.stringify({ routeLength: length, stationCongestion, weatherCondition, rainfall }),
-        result.explanation,
-        user?.userId || null
+        result.explanation
       );
-      if (user) logAudit('predict', user.userId, { trainNo, predictedDelay: result.predictedDelay });
+      logAudit('predict', { trainNo, predictedDelay: result.predictedDelay });
     } catch (e) {
       console.error('Failed to save prediction:', e);
     }

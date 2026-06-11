@@ -1,14 +1,13 @@
 import type { APIRoute } from 'astro';
 import { getDb, logAudit } from '../../../lib/db';
-import { authenticate } from '../../../lib/auth';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async () => {
   try {
     const db = getDb();
     const scenarios = db.prepare(
-      'SELECT s.*, o.display_name as creator_name FROM scenarios s LEFT JOIN operators o ON s.created_by = o.id ORDER BY s.created_at DESC LIMIT 50'
+      'SELECT * FROM scenarios ORDER BY created_at DESC LIMIT 50'
     ).all();
 
     return new Response(JSON.stringify(scenarios), {
@@ -25,7 +24,6 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const user = authenticate(request);
     const { name, station, scenarioType, result } = await request.json();
 
     if (!name || !station || !scenarioType || !result) {
@@ -37,10 +35,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     const db = getDb();
     const info = db.prepare(
-      'INSERT INTO scenarios (name, station, scenario_type, result_json, created_by) VALUES (?, ?, ?, ?, ?)'
-    ).run(name, station, scenarioType, JSON.stringify(result), user?.userId || null);
+      'INSERT INTO scenarios (name, station, scenario_type, result_json) VALUES (?, ?, ?, ?)'
+    ).run(name, station, scenarioType, JSON.stringify(result));
 
-    if (user) logAudit('create_scenario', user.userId, { name, station, scenarioType });
+    logAudit('create_scenario', { name, station, scenarioType });
 
     return new Response(JSON.stringify({ id: info.lastInsertRowid, success: true }), {
       status: 201,
