@@ -44,8 +44,6 @@ export const WelcomeOverlay: React.FC = () => {
     setTimeout(() => setVisible(false), 300);
   };
 
-  if (!visible) return null;
-
   const handleNext = () => {
     if (step < STEPS.length - 1) {
       setStep(step + 1);
@@ -67,6 +65,8 @@ export const WelcomeOverlay: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [step]);
+
+  if (!visible) return null;
 
   const current = STEPS[step];
   const Icon = current.icon;

@@ -20,6 +20,7 @@ export const DelayChart: React.FC = () => {
   const stations    = useDemoStore(state => state.stations) || [];
 
   const [selectedTrainId, setSelectedTrainId] = useState('12301');
+  const [expandedPredId, setExpandedPredId] = useState<string | null>(null);
 
   const sortedStations = [...stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
 
@@ -163,14 +164,22 @@ export const DelayChart: React.FC = () => {
             </h3>
             <div className="flex-1 overflow-y-auto pr-0.5 flex flex-col gap-2 scrollbar-thin">
               {activePredsList.map((pred, idx) => {
+                const predId = `${pred.trainId}-${pred.affectedStation}-${idx}`;
+                const isExpanded = expandedPredId === predId;
                 const sevColor = pred.delayMinutes > 30 ? 'var(--color-accent-red)' : pred.delayMinutes >= 10 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)';
+                
                 return (
                   <div
-                    key={`${pred.trainId}-${pred.affectedStation}-${idx}`}
-                    className="rounded-lg p-2.5 flex flex-col gap-1.5 transition-colors duration-150 animate-prediction-row"
-                    style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-default)', boxShadow: 'var(--shadow-card)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-hover)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'}
+                    key={predId}
+                    onClick={() => setExpandedPredId(isExpanded ? null : predId)}
+                    className="rounded-lg p-2.5 flex flex-col gap-1.5 transition-all duration-200 cursor-pointer animate-prediction-row"
+                    style={{
+                      background: 'var(--color-bg-card)',
+                      border: isExpanded ? '1px solid var(--color-border-active)' : '1px solid var(--color-border-default)',
+                      boxShadow: isExpanded ? 'var(--shadow-card-elevated)' : 'var(--shadow-card)'
+                    }}
+                    onMouseEnter={e => { if (!isExpanded) (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-hover)'; }}
+                    onMouseLeave={e => { if (!isExpanded) (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'; }}
                   >
                     <div className="flex items-center justify-between font-mono text-[10px]">
                       <div className="flex items-center gap-1.5">
@@ -183,12 +192,28 @@ export const DelayChart: React.FC = () => {
                         <span className="text-text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>({Math.round(pred.confidence * 100)}%)</span>
                       </div>
                     </div>
-                    <div className="w-full h-[3px] rounded overflow-hidden" style={{ background: 'var(--color-bg-sunken)' }}>
+                    
+                    <div className="w-full h-[3px] rounded overflow-hidden mb-0.5" style={{ background: 'var(--color-bg-sunken)' }}>
                       <div
                         className="h-full transition-all duration-500 rounded"
                         style={{ width: `${pred.confidence * 100}%`, background: sevColor, boxShadow: `0 0 4px ${sevColor}` }}
                       />
                     </div>
+
+                    {isExpanded && pred.explanation && (
+                      <div 
+                        className="mt-2 p-2.5 rounded border text-text-secondary font-mono text-[9px] leading-relaxed whitespace-pre-wrap select-text animate-slide-down bg-[#141414] border-[#2a2a2a] text-[#8eecf5]"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {pred.explanation}
+                      </div>
+                    )}
+
+                    {!isExpanded && (
+                      <span className="text-[8px] text-text-muted self-end font-mono uppercase tracking-wider select-none">
+                        Click to explain prediction
+                      </span>
+                    )}
                   </div>
                 );
               })}

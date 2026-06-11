@@ -8,7 +8,9 @@ import type { StationData, TrainRoute, HistoricalDelay } from './types';
 export async function loadStationData(): Promise<StationData[]> {
   if (typeof window !== 'undefined') {
     // Client-side execution context: fetch from served JSON path
-    const response = await fetch('/data/station_data.json');
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    const response = await fetch(`${normalizedBase}data/station_data.json`);
     if (!response.ok) throw new Error('Failed to fetch station data from client');
     return response.json();
   }
@@ -26,7 +28,9 @@ export async function loadStationData(): Promise<StationData[]> {
  */
 export async function loadTrainRoutes(): Promise<TrainRoute[]> {
   if (typeof window !== 'undefined') {
-    const response = await fetch('/data/train_routes.json');
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    const response = await fetch(`${normalizedBase}data/train_routes.json`);
     if (!response.ok) throw new Error('Failed to fetch train routes from client');
     return response.json();
   }
@@ -43,7 +47,9 @@ export async function loadTrainRoutes(): Promise<TrainRoute[]> {
  */
 export async function loadHistoricalDelays(): Promise<HistoricalDelay[]> {
   if (typeof window !== 'undefined') {
-    const response = await fetch('/data/historical_delays.json');
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    const response = await fetch(`${normalizedBase}data/historical_delays.json`);
     if (!response.ok) throw new Error('Failed to fetch historical delays from client');
     return response.json();
   }

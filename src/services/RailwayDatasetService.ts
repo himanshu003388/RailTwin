@@ -94,7 +94,9 @@ export class RailwayDatasetService {
       return JSON.parse(raw) as T;
     } else {
       // ── Client-side: fetch over HTTP ────────────────────────────────────
-      const res = await fetch(`/${this.dataDir}/${filename}`);
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const res = await fetch(`${normalizedBase}data/${filename}`);
       if (!res.ok) {
         throw new Error(
           `RailwayDatasetService: failed to fetch ${filename} (${res.status} ${res.statusText})`

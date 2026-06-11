@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { CORRIDOR, TRAINS, SORTED_STATIONS, interpolateTrainPosition, getCorridorDistance, type Train } from '../data/corridor';
 import { DEMO_TIMELINE } from '../data/mockScenario';
 import { fetchLiveTrainStatus, normalizeLiveTrainData } from '../services/railwayService';
+import { HistoricalDelayPredictionEngine } from '../services/HistoricalDelayPredictionEngine';
+import { railwayDataset } from '../services/RailwayDatasetService';
 
 export interface CopilotMessage {
   id: string;
@@ -63,6 +65,7 @@ export interface DemoState {
     affectedStation: string;
     confidence: number;
     timestamp: number;
+    explanation?: string;
   }>;
   simulation: null | {
     conflictsDetected: number;
@@ -107,7 +110,7 @@ export interface DemoState {
   setPlaybackSpeed: (speed: number) => void;
   setActivePanel: (panel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health') => void;
   acceptRecommendation: (id: string) => void;
-  tickDemo: (second: number) => void;
+  tickDemo: (second: number) => void | Promise<void>;
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
   setWhatIfStation: (station: string) => void;
@@ -127,6 +130,30 @@ let eventTimeouts: any[] = [];
 
 // Concurrency guard for live API updates
 let liveApiUpdating = false;
+
+const nameToIdMap: Record<string, string> = {
+  'new delhi': 'ndls',
+  'kanpur central': 'cnb',
+  'kanpur': 'cnb',
+  'prayagraj junction': 'ald',
+  'allahabad': 'ald',
+  'prayagraj': 'ald',
+  'varanasi junction': 'bsb',
+  'varanasi': 'bsb',
+  'patna junction': 'pnbe',
+  'patna': 'pnbe',
+  'dhanbad junction': 'dhn',
+  'dhanbad': 'dhn',
+  'howrah junction': 'hwh',
+  'howrah': 'hwh',
+  'lucknow charbagh': 'lko',
+  'lucknow': 'lko'
+};
+
+function nameToId(name: string): string {
+  if (!name) return 'ndls';
+  return nameToIdMap[name.toLowerCase()] || 'ndls';
+}
 
 const createInitialStationRisks = (stationsList?: any[]): Record<string, StationRisk> => {
   const risks: Record<string, StationRisk> = {};
@@ -494,7 +521,9 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     if (!station) return;
 
     try {
-      const response = await fetch('/api/trains/simulation/cascade', {
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const response = await fetch(`${normalizedBase}api/trains/simulation/cascade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stationId, scenario })
@@ -646,7 +675,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     eventTimeouts.push(timeout);
   },
 
-  tickDemo: (second) => {
+  tickDemo: async (second) => {
     const event = DEMO_TIMELINE.find(e => e.time === second);
     if (!event) return;
 
@@ -681,17 +710,53 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         }));
         break;
 
-      case 'prediction':
+      case 'prediction': {
+        const trainId = payload.trainId;
+        const affectedStation = payload.affectedStation;
+
+        // Get train's route to calculate route length
+        const route = await railwayDataset.getRouteByTrainNo(trainId);
+        let routeLengthKm = 1531; // fallback
+        if (route) {
+          let length = 0;
+          for (let i = 0; i < route.route.length - 1; i++) {
+            const fromId = nameToId(route.route[i]);
+            const toId = nameToId(route.route[i+1]);
+            length += getCorridorDistance(fromId, toId, get().stations);
+          }
+          routeLengthKm = length || 1531;
+        }
+
+        // Get station congestion level from current risks state
+        const congestion = get().stationRisks[affectedStation]?.crowdRisk || 'low';
+
+        // Check if there is an active weather alert for this station
+        const weatherAlert = get().weatherAlert;
+        const isAlertActive = weatherAlert && weatherAlert.station === affectedStation;
+        const weatherCondition = isAlertActive
+          ? (weatherAlert.rainfall > 50 ? 'Heavy Rain' : 'Rain')
+          : 'Clear';
+        const rainfall = isAlertActive ? weatherAlert.rainfall : undefined;
+
+        // Run prediction dynamically using the engine
+        const pred = await HistoricalDelayPredictionEngine.predict({
+          trainNo: trainId,
+          routeLengthKm,
+          stationCongestion: congestion,
+          weatherCondition,
+          rainfallMmHr: rainfall
+        });
+
         set(state => {
           const updatedTrains = state.trains.map(t =>
-            t.id === payload.trainId ? { ...t, predictedDelay: payload.delayMinutes } : t
+            t.id === trainId ? { ...t, predictedDelay: pred.predictedDelay } : t
           );
-          const currentRisk = state.stationRisks[payload.affectedStation];
+          const currentRisk = state.stationRisks[affectedStation];
 
           get().addToast({
             type: 'warning',
             title: 'Delay Accumulation',
-            message: `${payload.trainId}: +${payload.delayMinutes} min predicted delay`
+            message: `${trainId}: +${pred.predictedDelay} min predicted delay (Dynamic)`
           });
 
           return {
@@ -699,16 +764,17 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             predictions: [
               ...state.predictions,
               {
-                trainId: payload.trainId,
-                delayMinutes: payload.delayMinutes,
-                affectedStation: payload.affectedStation,
-                confidence: payload.confidence,
-                timestamp: second
+                trainId,
+                delayMinutes: pred.predictedDelay,
+                affectedStation,
+                confidence: pred.confidence,
+                timestamp: second,
+                explanation: pred.explanation
               }
             ],
             stationRisks: {
               ...state.stationRisks,
-              [payload.affectedStation]: { ...currentRisk, delayRisk: 'high' }
+              [affectedStation]: { ...currentRisk, delayRisk: pred.predictedDelay > 30 ? 'high' : 'moderate' }
             },
             copilot: {
               ...state.copilot,
@@ -717,7 +783,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
                 {
                   id: `pred-msg-${Date.now()}`,
                   sender: 'system',
-                  message: `Predictive Alert: Train ${payload.trainId} expected to accumulate ${payload.delayMinutes} min delay at ${payload.affectedStation.toUpperCase()} (Confidence: ${Math.round(payload.confidence * 100)}%).`,
+                  message: `Predictive Alert: Train ${trainId} expected to accumulate ${pred.predictedDelay} min delay at ${affectedStation.toUpperCase()} (Confidence: ${Math.round(pred.confidence * 100)}%).`,
                   timestamp: new Date()
                 }
               ]
@@ -725,6 +791,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           };
         });
         break;
+      }
 
       case 'simulation':
         get().addToast({
@@ -889,8 +956,10 @@ export const initDemoStore = () => {
 // Fetch network data dynamically on initialization
 export const fetchInitialData = async () => {
   try {
-    const stationsRes = await fetch('/api/trains/stations');
-    const trainsRes = await fetch('/api/trains');
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    const stationsRes = await fetch(`${normalizedBase}api/trains/stations`);
+    const trainsRes = await fetch(`${normalizedBase}api/trains`);
     if (stationsRes.ok && trainsRes.ok) {
       const stations = await stationsRes.json();
       const trains = await trainsRes.json();

@@ -73,6 +73,162 @@ function nameToId(name) {
   return nameToIdMap[name.toLowerCase()] || 'ndls';
 }
 
+function getDelayStatsForTrain(trainNo, records) {
+  const trainRecords = records.filter(d => d.trainNo === trainNo);
+  if (trainRecords.length === 0) return null;
+
+  const byWeather = {};
+  const byMonth = {};
+
+  for (const r of trainRecords) {
+    if (!byWeather[r.weather]) byWeather[r.weather] = [];
+    byWeather[r.weather].push(r.avgDelay);
+
+    if (!byMonth[r.month]) byMonth[r.month] = [];
+    byMonth[r.month].push(r.avgDelay);
+  }
+
+  const avgOfGroup = (group) =>
+    Object.fromEntries(
+      Object.entries(group).map(([key, vals]) => [
+        key,
+        Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
+      ])
+    );
+
+  const weatherAvgs = avgOfGroup(byWeather);
+  const monthAvgs = avgOfGroup(byMonth);
+
+  const allDelays = trainRecords.map(r => r.avgDelay);
+  const overallAvg = Math.round(allDelays.reduce((a, b) => a + b, 0) / allDelays.length);
+
+  return {
+    trainNo,
+    recordCount: trainRecords.length,
+    avgDelay: overallAvg,
+    byWeather: weatherAvgs,
+    byMonth: monthAvgs
+  };
+}
+
+function predictDelay(trainNo, routeLength, stationCongestion, weatherCondition, rainfall) {
+  const delays = readRawDelays();
+  const stats = getDelayStatsForTrain(trainNo, delays);
+
+  let baseDelay = 15;
+  let recordCount = 0;
+  let baseSource = 'Global default baseline';
+
+  if (stats) {
+    recordCount = stats.recordCount;
+    const weatherLower = (weatherCondition || 'Clear').toLowerCase();
+    const matchedWeatherKey = Object.keys(stats.byWeather || {}).find(
+      key => key.toLowerCase() === weatherLower
+    );
+
+    if (matchedWeatherKey && stats.byWeather[matchedWeatherKey] !== undefined) {
+      baseDelay = stats.byWeather[matchedWeatherKey];
+      baseSource = `Historical avg for ${trainNo} under ${matchedWeatherKey}`;
+    } else {
+      baseDelay = stats.avgDelay;
+      baseSource = `Historical global average for train ${trainNo}`;
+    }
+  }
+
+  const histPoints = Math.min(100, Math.round((baseDelay / 60) * 100));
+  const histWeighted = histPoints * 0.40;
+
+  let weatherPoints = 0;
+  const weatherLower = (weatherCondition || 'Clear').toLowerCase();
+  if (weatherLower.includes('fog')) {
+    weatherPoints = 100;
+  } else if (weatherLower.includes('heavy') || (rainfall && rainfall > 50)) {
+    weatherPoints = 75;
+  } else if (weatherLower.includes('rain') || weatherLower.includes('monsoon')) {
+    weatherPoints = 40;
+  } else if (weatherLower.includes('clear') || weatherLower.includes('good')) {
+    weatherPoints = 0;
+  } else {
+    weatherPoints = 20;
+  }
+  const weatherWeighted = weatherPoints * 0.25;
+
+  let congestionPoints = 0;
+  const congLower = (stationCongestion || 'low').toLowerCase();
+  if (congLower === 'low') {
+    congestionPoints = 0;
+  } else if (congLower === 'moderate') {
+    congestionPoints = 30;
+  } else if (congLower === 'high') {
+    congestionPoints = 70;
+  } else if (congLower === 'critical') {
+    congestionPoints = 100;
+  } else {
+    congestionPoints = 20;
+  }
+  const congestionWeighted = congestionPoints * 0.20;
+
+  const routePoints = Math.min(100, Math.round((routeLength / 1500) * 100));
+  const routeWeighted = routePoints * 0.15;
+
+  const weightedScore = histWeighted + weatherWeighted + congestionWeighted + routeWeighted;
+  const predictedDelay = Math.round((weightedScore / 100) * 120);
+
+  let histPenalty = 0.25;
+  if (recordCount >= 10) {
+    histPenalty = 0.0;
+  } else if (recordCount >= 5) {
+    histPenalty = 0.05;
+  } else if (recordCount >= 1) {
+    histPenalty = 0.10;
+  }
+
+  let weatherPenalty = 0.0;
+  if (weatherLower.includes('fog')) {
+    weatherPenalty = 0.20;
+  } else if (weatherLower.includes('heavy')) {
+    weatherPenalty = 0.15;
+  } else if (weatherLower.includes('rain')) {
+    weatherPenalty = 0.08;
+  }
+
+  let congestionPenalty = 0.0;
+  if (congLower === 'critical') {
+    congestionPenalty = 0.18;
+  } else if (congLower === 'high') {
+    congestionPenalty = 0.12;
+  } else if (congLower === 'moderate') {
+    congestionPenalty = 0.05;
+  }
+
+  const distancePenalty = Math.min(0.15, (routeLength / 5000) * 0.15);
+  const totalPenalties = histPenalty + weatherPenalty + congestionPenalty + distancePenalty;
+  const confidence = Math.max(0.10, Math.round((1.0 - totalPenalties) * 100) / 100);
+
+  const explanation = 
+    `Prediction Engine Execution Report:\n` +
+    `-------------------------------------------\n` +
+    `1. Base Delay Score: ${histPoints} pts (Weight: 40% -> ${histWeighted.toFixed(1)} pts)\n` +
+    `   * Source: ${baseSource} (${baseDelay} min average)\n` +
+    `2. Weather Hazard Score: ${weatherPoints} pts (Weight: 25% -> ${weatherWeighted.toFixed(1)} pts)\n` +
+    `   * Condition: "${weatherCondition}"\n` +
+    `3. Node Congestion Score: ${congestionPoints} pts (Weight: 20% -> ${congestionWeighted.toFixed(1)} pts)\n` +
+    `   * Active Risk Level: "${congLower.toUpperCase()}"\n` +
+    `4. Route Propagation Score: ${routePoints} pts (Weight: 15% -> ${routeWeighted.toFixed(1)} pts)\n` +
+    `   * Distance: ${routeLength} km\n` +
+    `-------------------------------------------\n` +
+    `* Weighted Score Sum: ${weightedScore.toFixed(1)} / 100.0 pts\n` +
+    `* Delay Estimate Formula: Math.round(${weightedScore.toFixed(1)}% of 120 mins) = ${predictedDelay} mins\n` +
+    `* Confidence Level: ${Math.round(confidence * 100)}%\n` +
+    `  - Deductions: Historical Logs (-${Math.round(histPenalty * 100)}%), Weather Hazard (-${Math.round(weatherPenalty * 100)}%), Congestion Volatility (-${Math.round(congestionPenalty * 100)}%), Route Distance Variance (-${Math.round(distancePenalty * 100)}%)`;
+
+  return {
+    predictedDelay,
+    confidence,
+    explanation
+  };
+}
+
 function getEnrichedStations() {
   const stations = readRawStations();
   return stations.map(st => {
@@ -200,7 +356,6 @@ router.get('/', (req, res) => {
 router.get('/:id/schedule', (req, res) => {
   try {
     const routes = readRawRoutes();
-    const delays = readRawDelays();
     const trainId = req.params.id;
 
     const route = routes.find(r => r.trainNo === trainId);
@@ -220,16 +375,27 @@ router.get('/:id/schedule', (req, res) => {
     };
 
     const mergedStops = stops.map(stop => {
-      const delayRecord = delays.find(d => d.trainNo === trainId);
-      const delay = delayRecord ? delayRecord.avgDelay : 0;
+      // Use predictDelay dynamically based on stop's distance (km) and optional query params
+      const pred = predictDelay(
+        trainId,
+        stop.km,
+        req.query.congestion || 'low',
+        req.query.weather || 'Clear',
+        req.query.rainfall ? Number(req.query.rainfall) : undefined
+      );
 
       return {
         stationCode: stop.stationCode,
         scheduledArrival: stop.scheduledArrival,
         scheduledDeparture: stop.scheduledDeparture,
-        actualArrival: addMinutesToTime(stop.scheduledArrival, delay),
-        actualDeparture: addMinutesToTime(stop.scheduledDeparture, delay),
-        km: stop.km
+        actualArrival: addMinutesToTime(stop.scheduledArrival, pred.predictedDelay),
+        actualDeparture: addMinutesToTime(stop.scheduledDeparture, pred.predictedDelay),
+        km: stop.km,
+        prediction: {
+          predictedDelay: pred.predictedDelay,
+          confidence: pred.confidence,
+          explanation: pred.explanation
+        }
       };
     });
 
@@ -237,6 +403,29 @@ router.get('/:id/schedule', (req, res) => {
       trainId: route.trainNo,
       stops: mergedStops
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/trains/predict - Run weighted prediction on demand
+router.post('/predict', (req, res) => {
+  try {
+    const { trainNo, routeLength, stationCongestion, weatherCondition, rainfall } = req.body;
+    if (!trainNo) {
+      return res.status(400).json({ error: 'Missing trainNo parameter.' });
+    }
+    
+    // Fallbacks for optional inputs
+    const length = Number(routeLength) || 1531;
+    const result = predictDelay(
+      trainNo,
+      length,
+      stationCongestion || 'low',
+      weatherCondition || 'Clear',
+      rainfall ? Number(rainfall) : undefined
+    );
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
