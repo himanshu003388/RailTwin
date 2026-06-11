@@ -1,58 +1,50 @@
 [
   {
-    "id": "ndls",
-    "name": "New Delhi",
     "code": "NDLS",
-    "coordinates": [77.2217, 28.6419],
-    "kmFromOrigin": 0,
-    "platforms": 16
+    "name": "New Delhi",
+    "lat": 28.6428,
+    "lng": 77.2190
   },
   {
-    "id": "cnb",
-    "name": "Kanpur Central",
     "code": "CNB",
-    "coordinates": [80.3514, 26.4536],
-    "kmFromOrigin": 440,
-    "platforms": 8
+    "name": "Kanpur Central",
+    "lat": 26.4539,
+    "lng": 80.3512
   },
   {
-    "id": "ald",
+    "code": "PRYJ",
     "name": "Prayagraj Junction",
-    "code": "ALD",
-    "coordinates": [81.8284, 25.4497],
-    "kmFromOrigin": 630,
-    "platforms": 7
+    "lat": 25.4460,
+    "lng": 81.8289
   },
   {
-    "id": "bsb",
-    "name": "Varanasi Junction",
     "code": "BSB",
-    "coordinates": [82.9739, 25.3263],
-    "kmFromOrigin": 760,
-    "platforms": 9
+    "name": "Varanasi Junction",
+    "lat": 25.3269,
+    "lng": 82.9864
   },
   {
-    "id": "pnbe",
-    "name": "Patna Junction",
     "code": "PNBE",
-    "coordinates": [85.1376, 25.6023],
-    "kmFromOrigin": 990,
-    "platforms": 10
+    "name": "Patna Junction",
+    "lat": 25.6028,
+    "lng": 85.1375
   },
   {
-    "id": "dhn",
-    "name": "Dhanbad Junction",
     "code": "DHN",
-    "coordinates": [86.4278, 23.7925],
-    "kmFromOrigin": 1270,
-    "platforms": 6
+    "name": "Dhanbad Junction",
+    "lat": 23.7922,
+    "lng": 86.4283
   },
   {
-    "id": "hwh",
-    "name": "Howrah Junction",
     "code": "HWH",
-    "coordinates": [88.3416, 22.5849],
-    "kmFromOrigin": 1531,
-    "platforms": 15
+    "name": "Howrah Junction",
+    "lat": 22.5829,
+    "lng": 88.3428
+  },
+  {
+    "code": "LKO",
+    "name": "Lucknow Charbagh",
+    "lat": 26.8320,
+    "lng": 80.9190
   }
 ]

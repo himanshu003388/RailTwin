@@ -1,77 +1,14 @@
 [
-  {
-    "id": "del-001",
-    "trainId": "12301",
-    "stationCode": "PNBE",
-    "delayMinutes": 38,
-    "scheduledTime": "03:50",
-    "actualTime": "04:28",
-    "cause": "rainfall",
-    "severity": "moderate",
-    "weatherContext": {
-      "precipitation": 72,
-      "windSpeed": 24,
-      "visibility": 3500
-    }
-  },
-  {
-    "id": "del-002",
-    "trainId": "12303",
-    "stationCode": "PNBE",
-    "delayMinutes": 22,
-    "scheduledTime": "05:10",
-    "actualTime": "05:32",
-    "cause": "rainfall",
-    "severity": "moderate",
-    "weatherContext": {
-      "precipitation": 72,
-      "windSpeed": 24,
-      "visibility": 3500
-    }
-  },
-  {
-    "id": "del-003",
-    "trainId": "12305",
-    "stationCode": "ALD",
-    "delayMinutes": 15,
-    "scheduledTime": "23:55",
-    "actualTime": "00:10",
-    "cause": "signal_failure",
-    "severity": "minor",
-    "weatherContext": {
-      "precipitation": 5,
-      "windSpeed": 10,
-      "visibility": 8000
-    }
-  },
-  {
-    "id": "del-004",
-    "trainId": "13005",
-    "stationCode": "DHN",
-    "delayMinutes": 55,
-    "scheduledTime": "08:15",
-    "actualTime": "09:10",
-    "cause": "track_damage",
-    "severity": "severe",
-    "weatherContext": {
-      "precipitation": 0,
-      "windSpeed": 8,
-      "visibility": 10000
-    }
-  },
-  {
-    "id": "del-005",
-    "trainId": "12273",
-    "stationCode": "CNB",
-    "delayMinutes": 25,
-    "scheduledTime": "17:55",
-    "actualTime": "18:20",
-    "cause": "fog",
-    "severity": "moderate",
-    "weatherContext": {
-      "precipitation": 0,
-      "windSpeed": 5,
-      "visibility": 800
-    }
-  }
+  { "trainNo": "12301", "avgDelay": 22, "month": "July", "weather": "Rain" },
+  { "trainNo": "12303", "avgDelay": 35, "month": "July", "weather": "Rain" },
+  { "trainNo": "12305", "avgDelay": 12, "month": "July", "weather": "Rain" },
+  { "trainNo": "13005", "avgDelay": 48, "month": "July", "weather": "Rain" },
+  { "trainNo": "12273", "avgDelay": 15, "month": "July", "weather": "Rain" },
+  { "trainNo": "12002", "avgDelay": 18, "month": "July", "weather": "Rain" },
+  { "trainNo": "12301", "avgDelay": 42, "month": "December", "weather": "Fog" },
+  { "trainNo": "12303", "avgDelay": 65, "month": "December", "weather": "Fog" },
+  { "trainNo": "12305", "avgDelay": 28, "month": "December", "weather": "Fog" },
+  { "trainNo": "13005", "avgDelay": 90, "month": "December", "weather": "Fog" },
+  { "trainNo": "12273", "avgDelay": 30, "month": "December", "weather": "Fog" },
+  { "trainNo": "12002", "avgDelay": 25, "month": "December", "weather": "Fog" }
 ]
