@@ -53,6 +53,15 @@ export const WelcomeOverlay: React.FC = () => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    const activeEl = document.activeElement as HTMLElement;
+    if (activeEl && (
+      activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.isContentEditable
+    )) {
+      return;
+    }
+
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleNext();
@@ -62,9 +71,10 @@ export const WelcomeOverlay: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!visible) return;
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [step]);
+  }, [step, visible]);
 
   if (!visible) return null;
 
