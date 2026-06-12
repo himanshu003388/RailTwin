@@ -77,6 +77,9 @@ export const AlertBanner: React.FC = () => {
             <span className="font-bold text-[#ef4444]">⚠ WEATHER ALERT</span>
             <span>—</span>
             <span>{alertMessage}. Delay predictions active.</span>
+            <span className="text-[#aaa] text-xs font-mono">
+              {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
+            </span>
           </p>
         </div>
 

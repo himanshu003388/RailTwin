@@ -56,7 +56,7 @@ export interface DemoState {
   demoTime: number;
   isPaused: boolean;
   playbackSpeed: number;
-  weatherAlert: null | { station: string; rainfall: number; description: string };
+  weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number };
   weatherData: Record<string, {
     station: string;
     rainfall: number;
@@ -1280,17 +1280,26 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       let maxRainfall = 0;
       let minVisibility = 10;
       let worstDesc = '';
+      let worstTemp = 25;
+      let worstHumidity = 80;
+      let worstWind = 0;
 
       Object.entries(weatherData).forEach(([code, w]: [string, any]) => {
         if (w.rainfall > maxRainfall) {
           maxRainfall = w.rainfall;
           worstStation = code;
           worstDesc = w.description;
+          worstTemp = w.temperature;
+          worstHumidity = w.humidity;
+          worstWind = w.windSpeed;
         } else if (w.visibility < minVisibility) {
           minVisibility = w.visibility;
           if (maxRainfall === 0) {
             worstStation = code;
             worstDesc = w.description;
+            worstTemp = w.temperature;
+            worstHumidity = w.humidity;
+            worstWind = w.windSpeed;
           }
         }
       });
@@ -1300,7 +1309,10 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           weatherAlert: {
             station: worstStation,
             rainfall: maxRainfall,
-            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility')
+            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'),
+            temperature: worstTemp,
+            humidity: worstHumidity,
+            windSpeed: worstWind
           }
         });
       } else {

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import { StatCard } from '../ui/StatCard';
-import { CloudRain, CloudFog } from 'lucide-react';
+import { CloudRain, CloudFog, Wind } from 'lucide-react';
 
 interface StationCardProps {
   station: any;
@@ -116,6 +116,11 @@ const StationCard: React.FC<StationCardProps> = ({
               ) : (
                 <><span>🌫</span> {weather.visibility} km vis</>
               )}
+            </span>
+          )}
+          {weather && weather.windSpeed > 20 && (
+            <span className="text-accent-red font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
+              <Wind className="w-3 h-3" /> {weather.windSpeed} km/h
             </span>
           )}
         </div>

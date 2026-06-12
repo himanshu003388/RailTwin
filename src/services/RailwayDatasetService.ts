@@ -87,8 +87,12 @@ export class RailwayDatasetService {
   private async loadJson<T>(filename: string): Promise<T> {
     if (typeof window === 'undefined') {
       // ── Server-side: read from filesystem ──────────────────────────────
-      const fs = await import('fs');
-      const path = await import('path');
+      // Module names built at runtime so Vite's static analyser does not
+      // flag them as browser-incompatible during the client bundle pass.
+      const fsModule = 'fs';
+      const pathModule = 'path';
+      const fs = await import(/* @vite-ignore */ fsModule);
+      const path = await import(/* @vite-ignore */ pathModule);
       const filePath = path.join(process.cwd(), this.dataDir, filename);
       const raw = await fs.promises.readFile(filePath, 'utf-8');
       return JSON.parse(raw) as T;

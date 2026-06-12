@@ -14,6 +14,14 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      // Node built-ins used by RailwayDatasetService (server-side only)
+      external: ['fs', 'path'],
+      noExternal: [],
+    },
+    optimizeDeps: {
+      exclude: ['fs', 'path'],
+    },
   },
   output: 'server',
   adapter: isVercel ? vercel() : node({ mode: 'standalone' })

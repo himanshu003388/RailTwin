@@ -83,6 +83,7 @@ const getStationsGeoJSON = (stationRisks: any, stationsList: any[], weatherData:
           visibility: weather ? weather.visibility : 10,
           temperature: weather ? weather.temperature : 25,
           humidity: weather ? weather.humidity : 80,
+          windSpeed: weather ? weather.windSpeed : 0,
           description: weather ? weather.description : 'Clear sky',
           source: weather ? weather.source : 'fallback'
         },
@@ -421,7 +422,7 @@ export const CorridorMap: React.FC = () => {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const {
           name, code, crowdRisk, conflicts, platforms,
-          rainfall, visibility, temperature, humidity, description, source
+          rainfall, visibility, temperature, humidity, windSpeed, description, source
         } = e.features[0].properties;
         const riskColor = crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e';
 
@@ -456,6 +457,10 @@ export const CorridorMap: React.FC = () => {
                 <div style="display:flex; justify-content:space-between;">
                   <span style="color:${theme === 'light' ? '#888' : '#666'};">Temp / Humidity</span>
                   <span style="font-weight:500;">${temperature}°C / ${humidity}%</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Wind Speed</span>
+                  <span style="font-weight:500; color:${windSpeed > 40 ? '#dc2626' : 'inherit'};">${windSpeed} km/h</span>
                 </div>
               </div>
             </div>
