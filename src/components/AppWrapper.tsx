@@ -1,4 +1,3 @@
-import React from 'react';
 import { TopBar } from './layout/TopBar';
 import { Sidebar } from './layout/Sidebar';
 import { MainPanel } from './layout/MainPanel';

@@ -275,12 +275,6 @@ function buildOnnxModel(bias, weights) {
     return new Uint8Array(buf);
   }
 
-  function encodeInt64(value) {
-    const buf = new ArrayBuffer(8);
-    new BigInt64Array(buf)[0] = BigInt(value);
-    return new Uint8Array(buf);
-  }
-
   function encodeProtoField(fieldNum, wireType, data) {
     const tag = (fieldNum << 3) | wireType;
     return [...encodeVarint(tag), ...data];
@@ -315,7 +309,7 @@ function buildOnnxModel(bias, weights) {
     return concat(
       encodeVarintField(1, 1), // FLOAT type
       encodeVarintField(13, 0), // UNDEFINED data_location
-      ...dims.map((d, i) => encodeVarintField(6, d)), // dims (repeated)
+      ...dims.map((d) => encodeVarintField(6, d)), // dims (repeated)
       encodeBytes(7, data), // raw_data
     );
   }

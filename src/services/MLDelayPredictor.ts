@@ -29,21 +29,6 @@ export interface MLPredictionOutput {
   featureContributions: Record<string, number>;
 }
 
-const WEATHER_TYPES = ['Clear', 'Rain', 'Heavy Rain', 'Fog', 'Heavy Fog', 'Monsoon', 'Heatwave'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'];
-const TRAIN_TYPES = ['rajdhani', 'express', 'mail', 'passenger'];
-
-const TRAIN_TYPE_MAP: Record<string, string> = {
-  '12301': 'rajdhani', '12303': 'express', '12305': 'rajdhani', '13005': 'mail',
-  '12273': 'express', '12002': 'rajdhani', '12951': 'rajdhani', '12259': 'express',
-  '12434': 'mail', '12809': 'express', '12625': 'mail', '12137': 'express',
-  '12559': 'mail', '12367': 'express', '12903': 'rajdhani', '12267': 'express',
-  '12050': 'rajdhani', '12215': 'express', '12165': 'express', '12723': 'mail',
-  '12229': 'express', '12426': 'mail', '12826': 'express', '12101': 'rajdhani',
-  '12611': 'mail', '12433': 'express', '12877': 'express', '12269': 'express',
-};
-
 interface ModelWeights {
   version: string;
   model: string;
@@ -110,13 +95,6 @@ function dotProduct(a: number[], b: number[]): number {
   let sum = 0;
   for (let i = 0; i < a.length; i++) sum += a[i] * b[i];
   return sum;
-}
-
-function getSeasonLabel(month: number): string {
-  if (month >= 5 && month <= 8) return 'Monsoon';
-  if (month >= 9 && month <= 11) return 'Post-Monsoon';
-  if (month <= 1 || month === 12) return 'Winter';
-  return 'Summer';
 }
 
 export class MLDelayPredictor {

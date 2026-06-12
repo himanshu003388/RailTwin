@@ -68,10 +68,10 @@ export const TopBar: React.FC = () => {
   return (
     <>
       <header
-        className="h-12 border-b border-border-default px-2 sm:px-4 flex items-center justify-between text-sm select-none shrink-0"
+        className="h-12 border-b border-border-default px-2 sm:px-4 flex flex-wrap items-center justify-between gap-2 text-sm select-none shrink-0"
         style={{
-          background: 'linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 100%)',
-          boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3), inset 0 -1px 0 var(--color-accent-blue-soft)',
+          background: 'linear-gradient(90deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 50%, rgba(37,99,235,0.05) 100%)',
+          boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3), inset 0 -2px 0 var(--color-accent-blue-soft), inset 0 0 20px rgba(37,99,235,0.08)',
         }}
       >
         {/* ── Breadcrumb Left ── */}
@@ -116,9 +116,9 @@ export const TopBar: React.FC = () => {
           <div
             className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-text-secondary text-[10px] sm:text-[11px] font-mono"
             style={{
-              background: 'rgba(59,130,246,0.06)',
-              border: '1px solid rgba(59,130,246,0.2)',
-              boxShadow: '0 0 8px rgba(59,130,246,0.12)',
+              background: 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.06) 100%)',
+              border: '1px solid rgba(37,99,235,0.30)',
+              boxShadow: '0 0 12px rgba(37,99,235,0.18)',
             }}
           >
             <Clock className="w-3 h-3 text-accent-blue hidden sm:block" />
@@ -134,12 +134,12 @@ export const TopBar: React.FC = () => {
           <div
             className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
             style={{
-              background: 'var(--color-bg-sunken)',
-              border: '1px solid var(--color-border-subtle)',
-              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+              background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.03) 100%)',
+              border: '1px solid rgba(37,99,235,0.15)',
+              boxShadow: 'inset 0 1px 2px rgba(37,99,235,0.06)',
             }}
           >
-            <Users className="w-3 h-3 text-text-muted" />
+            <Users className="w-3 h-3 text-accent-blue" />
             <span>23M daily passengers</span>
           </div>
 
@@ -147,12 +147,12 @@ export const TopBar: React.FC = () => {
           <div
             className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
             style={{
-              background: 'var(--color-bg-sunken)',
-              border: '1px solid var(--color-border-subtle)',
-              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+              background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.03) 100%)',
+              border: '1px solid rgba(37,99,235,0.15)',
+              boxShadow: 'inset 0 1px 2px rgba(37,99,235,0.06)',
             }}
           >
-            <Compass className="w-3 h-3 text-text-muted" />
+            <Compass className="w-3 h-3 text-accent-blue" />
             <span>1,531 km corridor</span>
           </div>
         </div>

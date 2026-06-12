@@ -75,7 +75,7 @@ export async function testApiKey(
   }
 }
 
-export function normalizeLiveTrainData(trainId: string, apiResponse: any, existingTrain: Train): Partial<Train> {
+export function normalizeLiveTrainData(_trainId: string, apiResponse: any, existingTrain: Train): Partial<Train> {
   if (!apiResponse) return {};
 
   const data = apiResponse.data || apiResponse;

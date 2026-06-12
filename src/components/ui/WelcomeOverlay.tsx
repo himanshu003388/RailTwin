@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Train, MapPin, BarChart3, Bot, Zap, ArrowRight, X } from 'lucide-react';
+import { MapPin, BarChart3, Bot, Zap, ArrowRight, X } from 'lucide-react';
 
 const STORAGE_KEY = 'railtwin-welcome-seen';
 

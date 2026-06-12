@@ -25,10 +25,10 @@
   --color-text-tertiary:  #4a4a4a;
   --color-text-muted:     #333333;
 
-  /* Accent — Blue (primary interactive) */
-  --color-accent-blue:       #3b82f6;
-  --color-accent-blue-soft:  rgba(59, 130, 246, 0.12);
-  --color-accent-blue-glow:  rgba(59, 130, 246, 0.35);
+  /* Accent — Blue (primary interactive) - enhanced vibrant */
+  --color-accent-blue:       #2563eb;
+  --color-accent-blue-soft:  rgba(37, 99, 235, 0.15);
+  --color-accent-blue-glow:  rgba(37, 99, 235, 0.45);
 
   /* Accent — Green (success / nominal) */
   --color-accent-green:      #22c55e;
@@ -50,10 +50,10 @@
   --color-accent-purple-soft: rgba(168, 85, 247, 0.12);
   --color-accent-purple-glow: rgba(168, 85, 247, 0.30);
 
-  /* Accent — Cyan (info / data) */
-  --color-accent-cyan:       #22d3ee;
-  --color-accent-cyan-soft:  rgba(34, 211, 238, 0.12);
-  --color-accent-cyan-glow:  rgba(34, 211, 238, 0.30);
+  /* Accent — Cyan (info / data) - brighter */
+  --color-accent-cyan:       #06b6d4;
+  --color-accent-cyan-soft:  rgba(6, 182, 212, 0.15);
+  --color-accent-cyan-glow:  rgba(6, 182, 212, 0.40);
 
   /* Risk Semantic Tokens */
   --color-risk-low:           #22c55e;
@@ -101,123 +101,126 @@
                   0px 24px 48px rgba(0,0,0,0.30);
 
   /* Glow Utilities */
-  --glow-blue:   0 0 12px rgba(59, 130, 246, 0.4), 0 0 24px rgba(59, 130, 246, 0.15);
-  --glow-green:  0 0 10px rgba(34, 197, 94, 0.4),  0 0 20px rgba(34, 197, 94, 0.15);
-  --glow-amber:  0 0 10px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.15);
-  --glow-red:    0 0 12px rgba(239, 68, 68, 0.5),  0 0 24px rgba(239, 68, 68, 0.20);
-  --glow-purple: 0 0 10px rgba(168, 85, 247, 0.4), 0 0 20px rgba(168, 85, 247, 0.15);
-  --glow-cyan:   0 0 10px rgba(34, 211, 238, 0.4), 0 0 20px rgba(34, 211, 238, 0.15);
+  --glow-blue:   0 0 12px rgba(37, 99, 235, 0.5), 0 0 24px rgba(37, 99, 235, 0.25);
+  --glow-green:  0 0 10px rgba(34, 197, 94, 0.5),  0 0 20px rgba(34, 197, 94, 0.25);
+  --glow-amber:  0 0 10px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.25);
+  --glow-red:    0 0 12px rgba(239, 68, 68, 0.6),  0 0 24px rgba(239, 68, 68, 0.30);
+  --glow-purple: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.25);
+  --glow-cyan:   0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.25);
 }
 
 /* ── Light Mode Token Overrides ────────────────────────────── */
-/* Warm, paper-inspired palette for comfortable reading */
+/* Clean, blue-inspired palette with dark lines for clarity */
 html.light, .light {
-  /* Surface Ladder — warm off-white paper foundations */
-  --color-bg-page:     #f2efe8; /* Warm parchment */
-  --color-bg-card:     #fcfaf7; /* Creamy card surface */
-  --color-bg-elevated: #f7f4ee; /* Slightly deeper warm */
-  --color-bg-hover:    #efebe3; /* Warm hover state */
-  --color-bg-sunken:   #e6e1d7; /* Deepest warm inset */
+  /* Surface Ladder — clean light surfaces with blue undertone */
+  --color-bg-page:     #f8fafb; /* Clean light blue-tinted background */
+  --color-bg-card:     #ffffff; /* Pure white card surface */
+  --color-bg-elevated: #f5f7f9; /* Slightly deeper light blue */
+  --color-bg-hover:    #eef2f7; /* Light blue hover state */
+  --color-bg-sunken:   #e3eef5; /* Deeper light blue inset */
 
-  /* Border Ladder — soft warm grays with brown undertone */
-  --color-border-subtle:  #e5dfd4;
-  --color-border-default: #d6cec0;
-  --color-border-hover:   #c2b9a8;
-  --color-border-active:  #a39987;
-  --color-border-strong:  #847a68;
+  /* Border Ladder — darker blue-gray lines for clarity */
+  --color-border-subtle:  #d4dce6; /* Subtle blue-gray line */
+  --color-border-default: #bcc8db; /* Default dark blue line */
+  --color-border-hover:   #a8b5ce; /* Stronger blue line on hover */
+  --color-border-active:  #8fa1bf; /* Active blue line */
+  --color-border-strong:  #5a7ba8; /* Strong blue line for contrast */
+  --color-divider-dark:   #4a6b95; /* Very dark blue divider for panels */
 
-  /* Text Hierarchy — rich brown-black for readability */
-  --color-text-primary:   #1c1a17;
-  --color-text-secondary: #4a453e;
-  --color-text-tertiary:  #6b6559;
-  --color-text-muted:     #8d867a;
+  /* Text Hierarchy — dark blue-gray for readability */
+  --color-text-primary:   #0f172a; /* Dark blue-black */
+  --color-text-secondary: #3a4b5d; /* Mid-tone blue-gray */
+  --color-text-tertiary:  #5a6b7d; /* Light blue-gray */
+  --color-text-muted:     #8a9aad; /* Muted blue-gray */
 
-  /* Accent — Blue (warm, deep navy-leaning) */
-  --color-accent-blue:       #1a6dd4;
-  --color-accent-blue-soft:  rgba(26, 109, 212, 0.08);
-  --color-accent-blue-glow:  rgba(26, 109, 212, 0.2);
+  /* Accent — Blue (vibrant, primary) */
+  --color-accent-blue:       #0052cc; /* Strong vibrant blue */
+  --color-accent-blue-soft:  rgba(0, 82, 204, 0.12);
+  --color-accent-blue-glow:  rgba(0, 82, 204, 0.25);
 
   /* Accent — Green (rich forest) */
-  --color-accent-green:      #2d7d46;
-  --color-accent-green-soft: rgba(45, 125, 70, 0.08);
-  --color-accent-green-glow: rgba(45, 125, 70, 0.2);
+  --color-accent-green:      #0d8c47;
+  --color-accent-green-soft: rgba(13, 140, 71, 0.12);
+  --color-accent-green-glow: rgba(13, 140, 71, 0.25);
 
-  /* Accent — Amber (warm ochre) */
-  --color-accent-amber:      #b8631a;
-  --color-accent-amber-soft: rgba(184, 99, 26, 0.08);
-  --color-accent-amber-glow: rgba(184, 99, 26, 0.2);
+  /* Accent — Amber (warm orange) */
+  --color-accent-amber:      #d97706;
+  --color-accent-amber-soft: rgba(217, 119, 6, 0.12);
+  --color-accent-amber-glow: rgba(217, 119, 6, 0.25);
 
-  /* Accent — Red (brick) */
-  --color-accent-red:        #c1311e;
-  --color-accent-red-soft:   rgba(193, 49, 30, 0.08);
-  --color-accent-red-glow:   rgba(193, 49, 30, 0.2);
+  /* Accent — Red (vibrant red) */
+  --color-accent-red:        #dc2626;
+  --color-accent-red-soft:   rgba(220, 38, 38, 0.12);
+  --color-accent-red-glow:   rgba(220, 38, 38, 0.25);
 
   /* Accent — Purple */
   --color-accent-purple:      #7c3aed;
-  --color-accent-purple-soft: rgba(124, 58, 237, 0.08);
-  --color-accent-purple-glow: rgba(124, 58, 237, 0.2);
+  --color-accent-purple-soft: rgba(124, 58, 237, 0.12);
+  --color-accent-purple-glow: rgba(124, 58, 237, 0.25);
 
-  /* Accent — Cyan (teal-leaning) */
-  --color-accent-cyan:       #0a749b;
-  --color-accent-cyan-soft:  rgba(10, 116, 155, 0.08);
-  --color-accent-cyan-glow:  rgba(10, 116, 155, 0.2);
+  /* Accent — Cyan (vibrant teal) */
+  --color-accent-cyan:       #0891b2;
+  --color-accent-cyan-soft:  rgba(8, 145, 178, 0.12);
+  --color-accent-cyan-glow:  rgba(8, 145, 178, 0.25);
 
-  /* Risk Semantic Tokens — soft warm backgrounds */
-  --color-risk-low:           #2d7d46;
-  --color-risk-low-bg:        #eef5ea;
-  --color-risk-low-border:    #c6ddc0;
+  /* Risk Semantic Tokens — clean light backgrounds with darker accents */
+  --color-risk-low:           #0d8c47;
+  --color-risk-low-bg:        #ecfdf5;
+  --color-risk-low-border:    #a7d3c0;
 
-  --color-risk-moderate:      #b8631a;
-  --color-risk-moderate-bg:   #faf3e8;
-  --color-risk-moderate-border: #ecd4b0;
+  --color-risk-moderate:      #d97706;
+  --color-risk-moderate-bg:   #fffbeb;
+  --color-risk-moderate-border: #fcd34d;
 
-  --color-risk-high:          #c14f1e;
-  --color-risk-high-bg:       #fbf1ea;
-  --color-risk-high-border:   #edcbb8;
+  --color-risk-high:          #ea580c;
+  --color-risk-high-bg:       #fef3c7;
+  --color-risk-high-border:   #fbbf24;
 
-  --color-risk-critical:      #c1311e;
-  --color-risk-critical-bg:   #fbedea;
-  --color-risk-critical-border: #edc0b8;
+  --color-risk-critical:      #dc2626;
+  --color-risk-critical-bg:   #fee2e2;
+  --color-risk-critical-border: #fca5a5;
 
-  /* Shadows — warm brown undertone instead of cold black */
+  /* Shadows — soft blue undertone */
   --shadow-flat:  none;
-  --shadow-card:  0 0 0 1px rgba(120, 90, 60, 0.08) inset,
-                  0px 1px 2px rgba(80, 60, 40, 0.06),
-                  0px 2px 4px rgba(80, 60, 40, 0.04);
-  --shadow-card-elevated: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
-                          0px 2px 8px rgba(80, 60, 40, 0.10),
-                          0px 12px 24px rgba(80, 60, 40, 0.06);
-  --shadow-elevated: 0 0 0 1px rgba(120, 90, 60, 0.08) inset,
-                     0px 2px 6px rgba(60, 50, 30, 0.06),
-                     0px 8px 16px rgba(60, 50, 30, 0.04);
-  --shadow-float: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
-                  0px 2px 4px rgba(60, 50, 30, 0.04),
-                  0px 8px 24px rgba(60, 50, 30, 0.05),
-                  0px 24px 48px rgba(60, 50, 30, 0.03);
-  --shadow-modal: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
-                  0px 1px 3px rgba(60, 50, 30, 0.04),
-                  0px 8px 20px rgba(60, 50, 30, 0.06),
-                  0px 24px 48px rgba(60, 50, 30, 0.05);
+  --shadow-card:  0 0 0 1px #bcc8db inset,
+                  0px 1px 2px rgba(79, 103, 145, 0.08),
+                  0px 2px 4px rgba(79, 103, 145, 0.06);
+  --shadow-card-elevated: 0 0 0 1px #a8b5ce inset,
+                          0px 2px 8px rgba(79, 103, 145, 0.12),
+                          0px 12px 24px rgba(79, 103, 145, 0.08);
+  --shadow-elevated: 0 0 0 1px #bcc8db inset,
+                     0px 2px 6px rgba(79, 103, 145, 0.08),
+                     0px 8px 16px rgba(79, 103, 145, 0.06);
+  --shadow-float: 0 0 0 1px #a8b5ce inset,
+                  0px 2px 4px rgba(79, 103, 145, 0.06),
+                  0px 8px 24px rgba(79, 103, 145, 0.08),
+                  0px 24px 48px rgba(79, 103, 145, 0.05);
+  --shadow-modal: 0 0 0 1px #a8b5ce inset,
+                  0px 1px 3px rgba(79, 103, 145, 0.08),
+                  0px 8px 20px rgba(79, 103, 145, 0.10),
+                  0px 24px 48px rgba(79, 103, 145, 0.08);
 
   /* Glow Utilities */
-  --glow-blue:   0 0 12px rgba(26, 109, 212, 0.2), 0 0 24px rgba(26, 109, 212, 0.08);
-  --glow-green:  0 0 10px rgba(45, 125, 70, 0.2),  0 0 20px rgba(45, 125, 70, 0.08);
-  --glow-amber:  0 0 10px rgba(184, 99, 26, 0.2), 0 0 20px rgba(184, 99, 26, 0.08);
-  --glow-red:    0 0 12px rgba(193, 49, 30, 0.25),  0 0 24px rgba(193, 49, 30, 0.1);
-  --glow-purple: 0 0 10px rgba(124, 58, 237, 0.2), 0 0 20px rgba(124, 58, 237, 0.08);
+  --glow-blue:   0 0 12px rgba(0, 82, 204, 0.25), 0 0 24px rgba(0, 82, 204, 0.12);
+  --glow-green:  0 0 10px rgba(13, 140, 71, 0.25),  0 0 20px rgba(13, 140, 71, 0.12);
+  --glow-amber:  0 0 10px rgba(217, 119, 6, 0.25), 0 0 20px rgba(217, 119, 6, 0.12);
+  --glow-red:    0 0 12px rgba(220, 38, 38, 0.30),  0 0 24px rgba(220, 38, 38, 0.15);
+  --glow-purple: 0 0 10px rgba(124, 58, 237, 0.25), 0 0 20px rgba(124, 58, 237, 0.12);
 
   /* Additional light-specific tokens */
-  --color-divider:         #d6cec0;
-  --color-focus-ring:      rgba(26, 109, 212, 0.40);
-  --color-badge-bg:        rgba(26, 109, 212, 0.10);
-  --color-badge-text:      #1a6dd4;
-  --color-nav-active-bg:   rgba(26, 109, 212, 0.10);
-  --color-nav-active-text: #1a6dd4;
-  --color-input-bg:        #fcfaf7;
-  --color-input-border:    #d6cec0;
-  --color-input-focus:     #1a6dd4;
-  --color-scrollbar:       #c2b9a8;
-  --color-scrollbar-hover: #a39987;
+  --color-divider:         #bcc8db;
+  --color-focus-ring:      rgba(0, 82, 204, 0.50);
+  --color-badge-bg:        rgba(0, 82, 204, 0.15);
+  --color-badge-text:      #0052cc;
+  --color-nav-active-bg:   rgba(0, 82, 204, 0.12);
+  --color-nav-active-text: #0052cc;
+  --color-input-bg:        #ffffff;
+  --color-input-border:    #bcc8db;
+  --color-input-focus:     #0052cc;
+  --color-scrollbar:       #8fa1bf;
+  --color-scrollbar-hover: #5a7ba8;
+  --color-sidebar-bg:      #f5f7f9;
+  --color-sidebar-border:  #bcc8db;
 }
 
 /* ── Base Reset ─────────────────────────────────────────────── */
@@ -296,27 +299,115 @@ html.light ::selection, .light ::selection {
   background-color: var(--color-bg-page);
 }
 
+/* Responsive layout: stack sidebars and main content on narrower viewports */
+@media (max-width: 1280px) {
+  .dashboard-body { gap: 0.75rem; }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-body {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .dashboard-main { min-height: 0; }
+
+  /* Make sidebars behave as full-height overlay panels on tablet/phone when toggled */
+  .sidebar-left,
+  .right-sidebar {
+    max-height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .dashboard-shell { overflow-x: hidden; }
+}
+
+@media (max-width: 768px) {
+  .dashboard-body { padding: 0 0.5rem 0.75rem; }
+  .dashboard-main { order: 2; }
+
+  /* Force sidebars to full width on small screens */
+  .sidebar-left,
+  .right-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    z-index: 50 !important;
+    transform: translateX(-100%); /* default hidden; components toggle translate to 0 */
+  }
+
+  .sidebar-left.max-lg\:translate-x-0,
+  .right-sidebar.max-lg\:translate-x-0 {
+    transform: translateX(0) !important;
+  }
+}
+
+/* ── Light Mode Sidebar Overrides ────────────────────────────── */
+/* Desktop: Fully opaque in light mode */
+@media (min-width: 641px) {
+  html.light .right-sidebar, .light .right-sidebar {
+    background-color: #ffffff !important;
+    background-image: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,251,1) 100%) !important;
+  }
+
+  html.light .sidebar-left, .light .sidebar-left {
+    background-color: #ffffff !important;
+    background-image: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(245,247,249,1) 100%) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-shell { min-height: 100dvh; }
+  .dashboard-body { gap: 0.5rem; }
+
+  /* ── Light Mode Mobile Sidebar Overrides ────────────────────── */
+  /* Add 20% transparency to sidebars in light mode on mobile */
+  html.light .right-sidebar, .light .right-sidebar {
+    background-color: rgba(255, 255, 255, 0.80) !important;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.80) 0%, rgba(248,250,251,0.85) 100%) !important;
+  }
+
+  html.light .sidebar-left, .light .sidebar-left {
+    background-color: rgba(255, 255, 255, 0.80) !important;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.80) 0%, rgba(245,247,249,0.85) 100%) !important;
+  }
+}
+
 /* ── Sidebar Accent Overlay ─────────────────────────────────── */
-/* Adds a subtle blue glow to sidebars without changing base surface color */
+/* Adds a strong blue glow to sidebars with enhanced styling */
 .sidebar-accent {
   position: relative;
+  background: linear-gradient(135deg, 
+    rgba(37, 99, 235, 0.05) 0%, 
+    rgba(37, 99, 235, 0.02) 100%);
+  border-right: 2px solid rgba(37, 99, 235, 0.15);
 }
 .sidebar-accent::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 120% 50% at 50% -10%,
-    rgba(59, 130, 246, 0.08) 0%,
-    rgba(59, 130, 246, 0.03) 45%,
+  background: radial-gradient(ellipse 140% 60% at 50% -5%,
+    rgba(37, 99, 235, 0.12) 0%,
+    rgba(37, 99, 235, 0.05) 40%,
     transparent 70%);
   z-index: 0;
 }
 html.light .sidebar-accent::before, .light .sidebar-accent::before {
-  background: radial-gradient(ellipse 120% 50% at 50% -10%,
-    rgba(26, 109, 212, 0.06) 0%,
-    rgba(26, 109, 212, 0.02) 45%,
+  background: radial-gradient(ellipse 140% 60% at 50% -5%,
+    rgba(0, 82, 204, 0.10) 0%,
+    rgba(0, 82, 204, 0.04) 40%,
     transparent 70%);
+}
+html.light .sidebar-accent, .light .sidebar-accent {
+  background: linear-gradient(135deg, 
+    rgba(0, 82, 204, 0.04) 0%, 
+    rgba(0, 82, 204, 0.01) 100%);
+  border-right: 2px solid rgba(0, 82, 204, 0.20);
 }
 .sidebar-accent > * {
   position: relative;
@@ -622,6 +713,111 @@ html.light .animate-turn-red-800, .light .animate-turn-red-800 {
   0%   { opacity: 0.2; transform: scaleX(0.3); }
   50%  { opacity: 1;   transform: scaleX(1); }
   100% { opacity: 0.2; transform: scaleX(0.3); }
+}
+
+/* ── Button & UI Element Styling ────────────────────────────── */
+/* Enhanced button styling with blue theme for both modes */
+
+/* Light mode button enhancements */
+html.light button, .light button {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.light button:hover:not(:disabled), .light button:hover:not(:disabled) {
+  border-color: rgba(0, 82, 204, 0.25);
+  background-color: rgba(0, 82, 204, 0.06);
+}
+
+html.light button:active:not(:disabled), .light button:active:not(:disabled) {
+  border-color: rgba(0, 82, 204, 0.35);
+  background-color: rgba(0, 82, 204, 0.12);
+}
+
+/* Input field styling with blue focus in light mode */
+html.light input, html.light textarea, html.light select, .light input, .light textarea, .light select {
+  border-color: var(--color-border-default);
+  background-color: var(--color-input-bg);
+  transition: all 0.2s ease;
+}
+
+html.light input:focus, html.light textarea:focus, html.light select:focus, .light input:focus, .light textarea:focus, .light select:focus {
+  border-color: var(--color-input-focus);
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.12), inset 0 0 0 1px var(--color-input-focus);
+  background-color: var(--color-input-bg);
+}
+
+/* Dark mode button enhanced styling */
+button {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:hover:not(:disabled) {
+  border-color: rgba(37, 99, 235, 0.35);
+  background-color: rgba(37, 99, 235, 0.08);
+  box-shadow: inset 0 0 8px rgba(37, 99, 235, 0.06);
+}
+
+button:active:not(:disabled) {
+  border-color: rgba(37, 99, 235, 0.45);
+  background-color: rgba(37, 99, 235, 0.15);
+}
+
+/* Input styling with blue focus in dark mode */
+input, textarea, select {
+  border-color: var(--color-border-default);
+  background-color: var(--color-bg-card);
+  transition: all 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-accent-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), inset 0 0 0 1px var(--color-accent-blue);
+  background-color: var(--color-bg-elevated);
+}
+
+/* ── Card & Panel Blue Accent Styling ────────────────────────── */
+/* Enhanced card styling with subtle blue accents */
+
+.card-base, .bg-bg-card {
+  transition: all 0.2s ease;
+}
+
+.bg-bg-card:hover {
+  border-color: rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.06);
+}
+
+html.light .bg-bg-card:hover, .light .bg-bg-card:hover {
+  border-color: rgba(0, 82, 204, 0.18);
+  box-shadow: 0 0 12px rgba(0, 82, 204, 0.08);
+}
+
+/* Panel section headers with blue accent line */
+.panel-header {
+  border-bottom: 2px solid var(--color-border-default);
+  transition: border-color 0.2s ease;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.panel-header:hover {
+  border-bottom-color: rgba(37, 99, 235, 0.3);
+}
+
+html.light .panel-header:hover, .light .panel-header:hover {
+  border-bottom-color: rgba(0, 82, 204, 0.25);
+}
+
+/* Blue-tinted list items */
+.list-item-hover:hover {
+  background-color: rgba(37, 99, 235, 0.08);
+  border-left: 3px solid rgba(37, 99, 235, 0.4);
+  padding-left: calc(0.75rem - 3px);
+}
+
+html.light .list-item-hover:hover, .light .list-item-hover:hover {
+  background-color: rgba(0, 82, 204, 0.08);
+  border-left-color: rgba(0, 82, 204, 0.35);
 }
 .animate-scanner {
   animation: scanner-sweep 1.8s ease-in-out infinite;

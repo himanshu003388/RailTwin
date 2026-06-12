@@ -154,7 +154,7 @@ export const CopilotChat: React.FC = () => {
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSubmit();
   };
