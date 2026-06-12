@@ -71,7 +71,7 @@ export const TopBar: React.FC = () => {
         className="h-12 border-b border-border-default px-2 sm:px-4 flex items-center justify-between text-sm select-none shrink-0"
         style={{
           background: 'linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 100%)',
-          boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3)',
+          boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3), inset 0 -1px 0 var(--color-accent-blue-soft)',
         }}
       >
         {/* ── Breadcrumb Left ── */}

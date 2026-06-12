@@ -296,6 +296,33 @@ html.light ::selection, .light ::selection {
   background-color: var(--color-bg-page);
 }
 
+/* ── Sidebar Accent Overlay ─────────────────────────────────── */
+/* Adds a subtle blue glow to sidebars without changing base surface color */
+.sidebar-accent {
+  position: relative;
+}
+.sidebar-accent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 120% 50% at 50% -10%,
+    rgba(59, 130, 246, 0.08) 0%,
+    rgba(59, 130, 246, 0.03) 45%,
+    transparent 70%);
+  z-index: 0;
+}
+html.light .sidebar-accent::before, .light .sidebar-accent::before {
+  background: radial-gradient(ellipse 120% 50% at 50% -10%,
+    rgba(26, 109, 212, 0.06) 0%,
+    rgba(26, 109, 212, 0.02) 45%,
+    transparent 70%);
+}
+.sidebar-accent > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Custom Scrollbars ──────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;

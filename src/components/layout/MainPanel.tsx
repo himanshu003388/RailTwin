@@ -11,7 +11,9 @@ export const MainPanel: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden h-full bg-bg-page">
+    <div className="flex-1 flex flex-col overflow-hidden h-full bg-bg-page relative">
+      {/* Subtle blue accent bar at top of main content */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-blue/15 to-transparent pointer-events-none z-10" />
       {/* Map area (always rendered to keep MapLibre instance alive) */}
       <div
         className={`w-full relative transition-all duration-300 ease-in-out ${
