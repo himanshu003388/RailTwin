@@ -39,27 +39,6 @@ const STATION_FULL_NAMES: Record<string, string> = {
   'HWH': 'Howrah',
 };
 
-// Helper function to generate a circle polygon in GeoJSON format
-function createGeoJSONCircle(center: [number, number], radiusInKm: number, points = 64) {
-  const [lng, lat] = center;
-  const coords: number[][] = [];
-  const km = radiusInKm;
-  const distanceX = km / (111.32 * Math.cos((lat * Math.PI) / 180));
-  const distanceY = km / 110.57;
-  for (let i = 0; i < points; i++) {
-    const theta = (i / points) * (2 * Math.PI);
-    const x = distanceX * Math.cos(theta);
-    const y = distanceY * Math.sin(theta);
-    coords.push([lng + x, lat + y]);
-  }
-  coords.push(coords[0]);
-  return {
-    type: 'Feature',
-    properties: {},
-    geometry: { type: 'Polygon', coordinates: [coords] }
-  };
-}
-
 // Generate stations GeoJSON with risk colors and weather parameters
 const getStationsGeoJSON = (stationRisks: any, stationsList: any[], weatherData: any) => {
   const list = stationsList || CORRIDOR.stations;
@@ -95,47 +74,6 @@ const getStationsGeoJSON = (stationRisks: any, stationsList: any[], weatherData:
       };
     })
   };
-};
-
-// Generate polygons for active weather zones (rain or low visibility)
-const getWeatherZonesGeoJSON = (weatherData: any, stationsList: any[]) => {
-  const features: any[] = [];
-  if (!weatherData) return { type: 'FeatureCollection', features };
-
-  stationsList.forEach(station => {
-    const weather = weatherData[station.id];
-    if (!weather) return;
-
-    let hasWeather = false;
-    let radius = 20; // default km radius
-    let color = '#3b82f6'; // default blue for rain
-
-    if (weather.rainfall > 0) {
-      hasWeather = true;
-      radius = Math.min(45, 15 + weather.rainfall * 1.2); // scale radius by rainfall
-      color = '#3b82f6';
-    } else if (weather.visibility < 10) {
-      hasWeather = true;
-      radius = 20; // fixed size for fog/visibility disruption
-      color = '#64748b'; // slate/gray for visibility
-    }
-
-    if (hasWeather) {
-      const circleGeo = createGeoJSONCircle(station.coordinates, radius);
-      features.push({
-        type: 'Feature',
-        properties: {
-          stationId: station.id,
-          rainfall: weather.rainfall,
-          visibility: weather.visibility,
-          color: color
-        },
-        geometry: circleGeo.geometry
-      });
-    }
-  });
-
-  return { type: 'FeatureCollection', features };
 };
 
 // Tile style URLs in priority order (most reliable first)
@@ -703,54 +641,6 @@ export const CorridorMap: React.FC = () => {
       }
     });
   }, [trains, mapLoaded]);
-
-  // ═══════════════════════════════════════════════════════════════
-  // Weather Overlay
-  // ═══════════════════════════════════════════════════════════════
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded) return;
-    const sourceId = 'weather-zones';
-    const fillLayerId = 'weather-zones-fill';
-    const borderLayerId = 'weather-zones-border';
-
-    const cleanupLayers = () => {
-      if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
-      if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
-      if (map.getSource(sourceId)) map.removeSource(sourceId);
-    };
-    cleanupLayers();
-
-    const geojsonData = getWeatherZonesGeoJSON(weatherData, stations);
-    if (geojsonData.features.length > 0) {
-      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-      map.addLayer({
-        id: fillLayerId, type: 'fill', source: sourceId,
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': theme === 'light' ? 0.15 : 0.12
-        }
-      });
-      map.addLayer({
-        id: borderLayerId, type: 'line', source: sourceId,
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': theme === 'light' ? 1.8 : 1.2,
-          'line-opacity': 0.8
-        }
-      });
-
-      let startTime = Date.now();
-      const pulseInterval = setInterval(() => {
-        if (!mapRef.current || !mapRef.current.getLayer(fillLayerId)) { clearInterval(pulseInterval); return; }
-        const elapsed = Date.now() - startTime;
-        const opacity = (theme === 'light' ? 0.14 : 0.10) + 0.05 * Math.cos((elapsed / 2000) * 2 * Math.PI);
-        mapRef.current.setPaintProperty(fillLayerId, 'fill-opacity', opacity);
-      }, 50);
-
-      return () => { clearInterval(pulseInterval); cleanupLayers(); };
-    }
-  }, [weatherData, mapLoaded, stations, theme]);
 
   return (
     <div className="relative w-full h-full">
