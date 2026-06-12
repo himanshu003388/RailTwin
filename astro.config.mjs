@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from "@tailwindcss/vite";
 import vercel from '@astrojs/vercel';
+import node from '@astrojs/node';
 
 const isVercel = !!process.env.VERCEL;
 
@@ -14,6 +15,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  output: isVercel ? 'server' : 'static',
-  adapter: isVercel ? vercel() : undefined
+  output: 'server',
+  adapter: isVercel ? vercel() : node({ mode: 'standalone' })
 });
