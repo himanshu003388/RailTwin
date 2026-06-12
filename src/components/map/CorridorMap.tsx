@@ -270,7 +270,7 @@ export const CorridorMap: React.FC = () => {
         type: 'line',
         source: 'corridor-route',
         paint: {
-          'line-color': theme === 'light' ? '#2563eb' : '#3b82f6',
+          'line-color': theme === 'light' ? '#1a6dd4' : '#3b82f6',
           'line-width': theme === 'light' ? 10 : 8,
           'line-opacity': theme === 'light' ? 0.20 : 0.12,
         }
@@ -282,7 +282,7 @@ export const CorridorMap: React.FC = () => {
         type: 'line',
         source: 'corridor-route',
         paint: {
-          'line-color': theme === 'light' ? '#1d4ed8' : '#3b82f6',
+          'line-color': theme === 'light' ? '#1554b8' : '#3b82f6',
           'line-width': theme === 'light' ? 4 : 3,
           'line-opacity': theme === 'light' ? 0.95 : 0.8,
           'line-dasharray': [4, 3]
@@ -369,7 +369,7 @@ export const CorridorMap: React.FC = () => {
         paint: {
           'circle-radius': theme === 'light' ? 9 : 8,
           'circle-color': ['get', 'color'],
-          'circle-stroke-color': theme === 'light' ? '#e4e9f0' : '#ffffff',
+          'circle-stroke-color': theme === 'light' ? '#efebe3' : '#ffffff',
           'circle-stroke-width': theme === 'light' ? 3 : 2.5,
           'circle-stroke-opacity': 0.95
         }
@@ -388,8 +388,8 @@ export const CorridorMap: React.FC = () => {
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold']
         },
         paint: {
-          'text-color': theme === 'light' ? '#0c1220' : '#ffffff',
-          'text-halo-color': theme === 'light' ? '#f0f4f8' : '#0a0a0a',
+          'text-color': theme === 'light' ? '#1c1a17' : '#ffffff',
+          'text-halo-color': theme === 'light' ? '#f7f4ee' : '#0a0a0a',
           'text-halo-width': theme === 'light' ? 3 : 2,
           'text-halo-blur': 1
         }
@@ -408,8 +408,8 @@ export const CorridorMap: React.FC = () => {
           'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
         },
         paint: {
-          'text-color': theme === 'light' ? '#2d3748' : '#666666',
-          'text-halo-color': theme === 'light' ? '#f0f4f8' : '#0a0a0a',
+          'text-color': theme === 'light' ? '#4a453e' : '#666666',
+          'text-halo-color': theme === 'light' ? '#f7f4ee' : '#0a0a0a',
           'text-halo-width': theme === 'light' ? 2.5 : 1.5,
           'text-halo-blur': 0.5
         }
@@ -427,39 +427,39 @@ export const CorridorMap: React.FC = () => {
         const riskColor = crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e';
 
         const html = `
-          <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#0c1220' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#ebebeb' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(60,80,120,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:190px;">
-            <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:${theme === 'light' ? '#2563eb' : '#3b82f6'};">${name}</div>
-            <div style="font-size:10px; color:${theme === 'light' ? '#5a6578' : '#888'}; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
+          <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#1c1a17' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#e5dfd4' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(80,60,40,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:190px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:${theme === 'light' ? '#1a6dd4' : '#3b82f6'};">${name}</div>
+            <div style="font-size:10px; color:${theme === 'light' ? '#6b6559' : '#888'}; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
             <div style="display:flex; flex-direction:column; gap:5px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2px;">
-                <span style="color:${theme === 'light' ? '#5a6578' : '#888'};">Crowd Risk</span>
+                <span style="color:${theme === 'light' ? '#6b6559' : '#888'};">Crowd Risk</span>
                 <span style="color:${riskColor}; font-weight:700; font-size:11px; background:${riskColor}18; padding:2px 8px; border-radius:4px;">${crowdRisk.toUpperCase()}</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-                <span style="color:${theme === 'light' ? '#5a6578' : '#888'};">Platform Conflicts</span>
+                <span style="color:${theme === 'light' ? '#6b6559' : '#888'};">Platform Conflicts</span>
                 <span style="font-weight:700; color:${conflicts > 0 ? '#dc2626' : '#16a34a'}; font-size:11px;">${conflicts}</span>
               </div>
-              <div style="height:1px; background:${theme === 'light' ? '#ebebeb' : '#222'}; margin:6px 0;"></div>
-              <div style="font-weight:600; font-size:10px; color:${theme === 'light' ? '#4d4d4d' : '#888'}; text-transform:uppercase; tracking-wide; margin-bottom:2px;">Live Weather (${source})</div>
+              <div style="height:1px; background:${theme === 'light' ? '#e5dfd4' : '#222'}; margin:6px 0;"></div>
+              <div style="font-weight:600; font-size:10px; color:${theme === 'light' ? '#6b6559' : '#888'}; text-transform:uppercase; tracking-wide; margin-bottom:2px;">Live Weather (${source})</div>
               <div style="display:flex; flex-direction:column; gap:3px;">
                 <div style="display:flex; justify-content:space-between;">
-                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Condition</span>
+                  <span style="color:${theme === 'light' ? '#8d867a' : '#666'};">Condition</span>
                   <span style="font-weight:500;">${description}</span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
-                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Rainfall</span>
+                  <span style="color:${theme === 'light' ? '#8d867a' : '#666'};">Rainfall</span>
                   <span style="font-weight:500; color:${rainfall > 0 ? '#0284c7' : 'inherit'};">${rainfall} mm/h</span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
-                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Visibility</span>
+                  <span style="color:${theme === 'light' ? '#8d867a' : '#666'};">Visibility</span>
                   <span style="font-weight:500; color:${visibility < 10 ? '#d97706' : 'inherit'};">${visibility} km</span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
-                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Temp / Humidity</span>
+                  <span style="color:${theme === 'light' ? '#8d867a' : '#666'};">Temp / Humidity</span>
                   <span style="font-weight:500;">${temperature}°C / ${humidity}%</span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
-                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Wind Speed</span>
+                  <span style="color:${theme === 'light' ? '#8d867a' : '#666'};">Wind Speed</span>
                   <span style="font-weight:500; color:${windSpeed > 40 ? '#dc2626' : 'inherit'};">${windSpeed} km/h</span>
                 </div>
               </div>
@@ -555,7 +555,7 @@ export const CorridorMap: React.FC = () => {
           border-radius:13px;
           background:${theme === 'light' ? '#ffffff' : '#0f0f0f'};
           border:2.5px solid ${trainColor};
-          box-shadow: 0 0 14px ${trainColor}${theme === 'light' ? '55' : '40'}, 0 2px 10px ${theme === 'light' ? 'rgba(60,80,120,0.15)' : 'rgba(0,0,0,0.5)'};
+          box-shadow: 0 0 14px ${trainColor}${theme === 'light' ? '55' : '40'}, 0 2px 10px ${theme === 'light' ? 'rgba(80,60,40,0.15)' : 'rgba(0,0,0,0.5)'};
           font-family: 'Geist Mono', monospace;
           transition: box-shadow 0.3s ease, border-color 0.3s ease;
         `;
@@ -567,7 +567,7 @@ export const CorridorMap: React.FC = () => {
 
         // Train ID text
         const idText = document.createElement('span');
-        idText.style.cssText = `color:${theme === 'light' ? '#0c1220' : '#fff'}; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
+        idText.style.cssText = `color:${theme === 'light' ? '#1c1a17' : '#fff'}; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
         idText.innerText = train.id;
         pill.appendChild(idText);
 
@@ -579,7 +579,7 @@ export const CorridorMap: React.FC = () => {
           font-family: system-ui, sans-serif;
           font-size:9px; font-weight:700;
           color:${trainColor};
-          text-shadow: ${theme === 'light' ? '0 1px 3px rgba(240,244,248,0.95), 0 0 8px rgba(240,244,248,0.8)' : '0 1px 4px rgba(0,0,0,0.8)'};
+          text-shadow: ${theme === 'light' ? '0 1px 3px rgba(247,244,238,0.95), 0 0 8px rgba(247,244,238,0.8)' : '0 1px 4px rgba(0,0,0,0.8)'};
           white-space:nowrap;
           line-height:1;
           opacity:0.95;
@@ -605,17 +605,17 @@ export const CorridorMap: React.FC = () => {
       if (pill) {
         if (train.predictedDelay > 30) {
           pill.style.borderColor = '#dc2626';
-          pill.style.boxShadow = `0 0 18px rgba(220,38,38,${theme === 'light' ? '0.5' : '0.5'}), 0 2px 10px ${theme === 'light' ? 'rgba(60,80,120,0.15)' : 'rgba(0,0,0,0.5)'}`;
+          pill.style.boxShadow = `0 0 18px rgba(220,38,38,${theme === 'light' ? '0.5' : '0.5'}), 0 2px 10px ${theme === 'light' ? 'rgba(80,60,40,0.15)' : 'rgba(0,0,0,0.5)'}`;
           pill.classList.remove('pulse-amber');
           pill.classList.add('pulse-red');
         } else if (train.predictedDelay > 0) {
           pill.style.borderColor = '#d97706';
-          pill.style.boxShadow = `0 0 14px rgba(217,119,6,${theme === 'light' ? '0.45' : '0.4'}), 0 2px 10px ${theme === 'light' ? 'rgba(60,80,120,0.15)' : 'rgba(0,0,0,0.5)'}`;
+          pill.style.boxShadow = `0 0 14px rgba(217,119,6,${theme === 'light' ? '0.45' : '0.4'}), 0 2px 10px ${theme === 'light' ? 'rgba(80,60,40,0.15)' : 'rgba(0,0,0,0.5)'}`;
           pill.classList.remove('pulse-red');
           pill.classList.add('pulse-amber');
         } else {
           pill.style.borderColor = trainColor;
-          pill.style.boxShadow = `0 0 14px ${trainColor}${theme === 'light' ? '55' : '40'}, 0 2px 10px ${theme === 'light' ? 'rgba(60,80,120,0.15)' : 'rgba(0,0,0,0.5)'}`;
+          pill.style.boxShadow = `0 0 14px ${trainColor}${theme === 'light' ? '55' : '40'}, 0 2px 10px ${theme === 'light' ? 'rgba(80,60,40,0.15)' : 'rgba(0,0,0,0.5)'}`;
           pill.classList.remove('pulse-amber', 'pulse-red');
         }
 
@@ -651,32 +651,32 @@ export const CorridorMap: React.FC = () => {
       const toName = toStation ? STATION_FULL_NAMES[toStation.code] || toStation.name : train.nextStation.toUpperCase();
 
       const popupContent = `
-        <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#0c1220' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#b0b8c8' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(60,80,120,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:200px;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid ${theme === 'light' ? '#d4dbe6' : '#1a1a1a'};">
+        <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#1c1a17' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#c2b9a8' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(80,60,40,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:200px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid ${theme === 'light' ? '#d6cec0' : '#1a1a1a'};">
             <div style="width:10px; height:10px; border-radius:50%; background:${trainColor}; flex-shrink:0; box-shadow: 0 0 6px ${trainColor}55;"></div>
             <div>
               <div style="font-weight:700; font-size:13px; color:${trainColor};">${train.name}</div>
-              <div style="font-size:10px; color:${theme === 'light' ? '#5a6578' : '#555'}; font-family:monospace;">${train.id} · ${train.type}</div>
+              <div style="font-size:10px; color:${theme === 'light' ? '#6b6559' : '#555'}; font-family:monospace;">${train.id} · ${train.type}</div>
             </div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px;">
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:${theme === 'light' ? '#5a6578' : '#666'};">Route</span>
-              <span style="color:${theme === 'light' ? '#2d3748' : '#aaa'}; font-size:11px;">${fromName} → ${toName}</span>
+              <span style="color:${theme === 'light' ? '#6b6559' : '#666'};">Route</span>
+              <span style="color:${theme === 'light' ? '#4a453e' : '#aaa'}; font-size:11px;">${fromName} → ${toName}</span>
             </div>
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:${theme === 'light' ? '#5a6578' : '#666'};">Speed</span>
-              <span style="color:${theme === 'light' ? '#0c1220' : '#fff'}; font-weight:600;">${train.speed} km/h</span>
+              <span style="color:${theme === 'light' ? '#6b6559' : '#666'};">Speed</span>
+              <span style="color:${theme === 'light' ? '#1c1a17' : '#fff'}; font-weight:600;">${train.speed} km/h</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="color:${theme === 'light' ? '#5a6578' : '#666'};">Status</span>
+              <span style="color:${theme === 'light' ? '#6b6559' : '#666'};">Status</span>
               <span style="color:${delayColor}; font-weight:700; font-size:11px; background:${delayColor}18; padding:2px 8px; border-radius:4px;">${statusText}</span>
             </div>
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:${theme === 'light' ? '#5a6578' : '#666'};">Occupancy</span>
-              <span style="color:${theme === 'light' ? '#0c1220' : '#fff'};">
+              <span style="color:${theme === 'light' ? '#6b6559' : '#666'};">Occupancy</span>
+              <span style="color:${theme === 'light' ? '#1c1a17' : '#fff'};">
                 <span style="font-weight:600;">${occupancy}%</span>
-                <span style="color:${theme === 'light' ? '#5a6578' : '#555'}; font-size:10px;"> (${train.passengerCount.toLocaleString()}/${train.capacity.toLocaleString()})</span>
+                <span style="color:${theme === 'light' ? '#6b6559' : '#555'}; font-size:10px;"> (${train.passengerCount.toLocaleString()}/${train.capacity.toLocaleString()})</span>
               </span>
             </div>
           </div>
@@ -869,7 +869,7 @@ export const CorridorMap: React.FC = () => {
             <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
             <div className="flex flex-col gap-1.5">
               {[
-                { id: '12301', name: 'Rajdhani', color: '#2563eb', dir: '→' },
+                { id: '12301', name: 'Rajdhani', color: '#1a6dd4', dir: '→' },
                 { id: '12303', name: 'Poorva', color: '#d97706', dir: '→' },
                 { id: '12305', name: 'Rajdhani', color: '#16a34a', dir: '→' },
                 { id: '13005', name: 'Mail', color: '#7c3aed', dir: '→' },

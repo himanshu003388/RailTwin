@@ -68,30 +68,30 @@ export const TopBar: React.FC = () => {
   return (
     <>
       <header
-        className="h-12 border-b border-border-default px-4 flex items-center justify-between text-sm select-none shrink-0"
+        className="h-12 border-b border-border-default px-2 sm:px-4 flex items-center justify-between text-sm select-none shrink-0"
         style={{
           background: 'linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 100%)',
           boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3)',
         }}
       >
         {/* ── Breadcrumb Left ── */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
           {/* Hamburger button on < lg */}
           <button
             onClick={() => setMobileLeftOpen(!mobileLeftOpen)}
-            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title="Toggle Menu"
           >
             <Menu className="w-3.5 h-3.5" />
           </button>
 
-          <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[11px] uppercase tracking-widest">
-            <span>Ops Center</span>
-            <span className="text-border-active">/</span>
+          <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[10px] sm:text-[11px] uppercase tracking-widest truncate">
+            <span className="max-sm:hidden">Ops Center</span>
+            <span className="text-border-active max-sm:hidden">/</span>
             <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
           </div>
           <div
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider border select-none ${
+            className={`flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 ${
               liveApiEnabled && apiStatus === 'connected'
                 ? 'bg-accent-green-soft text-accent-green border-accent-green/20'
                 : liveApiEnabled && apiStatus === 'connecting'
@@ -106,12 +106,30 @@ export const TopBar: React.FC = () => {
                 ? 'bg-accent-amber animate-pulse'
                 : 'bg-accent-blue'
             }`} />
-            <span>{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting' : 'Simulated'}</span>
+            <span className="max-sm:hidden">{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting' : 'Simulated'}</span>
           </div>
         </div>
 
         {/* ── Center Stat Pills ── */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Live Clock — highlighted */}
+          <div
+            className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-text-secondary text-[10px] sm:text-[11px] font-mono"
+            style={{
+              background: 'rgba(59,130,246,0.06)',
+              border: '1px solid rgba(59,130,246,0.2)',
+              boxShadow: '0 0 8px rgba(59,130,246,0.12)',
+            }}
+          >
+            <Clock className="w-3 h-3 text-accent-blue hidden sm:block" />
+            <span
+              className="text-text-primary"
+              style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em' }}
+            >
+              {timeStr || '00:00:00 IST'}
+            </span>
+          </div>
+
           {/* Passenger Count */}
           <div
             className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-tertiary text-[11px] font-mono"
@@ -137,32 +155,14 @@ export const TopBar: React.FC = () => {
             <Compass className="w-3 h-3 text-text-muted" />
             <span>1,531 km corridor</span>
           </div>
-
-          {/* Live Clock — highlighted */}
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-text-secondary text-[11px] font-mono"
-            style={{
-              background: 'rgba(59,130,246,0.06)',
-              border: '1px solid rgba(59,130,246,0.2)',
-              boxShadow: '0 0 8px rgba(59,130,246,0.12)',
-            }}
-          >
-            <Clock className="w-3 h-3 text-accent-blue" />
-            <span
-              className="text-text-primary"
-              style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em' }}
-            >
-              {timeStr || '00:00:00 IST'}
-            </span>
-          </div>
         </div>
 
         {/* ── Right Controls ── */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Timeline & Station Risks toggle button on < lg */}
           <button
             onClick={() => setMobileRightOpen(!mobileRightOpen)}
-            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title="Toggle Stations & Timeline"
           >
             <List className="w-3.5 h-3.5" />
@@ -171,7 +171,7 @@ export const TopBar: React.FC = () => {
           {/* Help Button */}
           <button
             onClick={() => setShowHelp(true)}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none"
+            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none shrink-0"
             title="Keyboard shortcuts & help"
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -180,7 +180,7 @@ export const TopBar: React.FC = () => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
@@ -193,7 +193,7 @@ export const TopBar: React.FC = () => {
           {/* Settings Button */}
           <button
             onClick={() => setShowSettings(true)}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer"
+            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title="Configure Live API"
           >
             <Settings className="w-3.5 h-3.5" />
@@ -202,7 +202,7 @@ export const TopBar: React.FC = () => {
           {/* Audio Toggle */}
           <button
             onClick={toggleAudio}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle hover:border-border-default transition-all duration-150 outline-none"
+            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle hover:border-border-default transition-all duration-150 outline-none shrink-0"
             title={audioEnabled ? 'Mute alerts' : 'Enable audio alerts'}
           >
             {audioEnabled ? (
@@ -215,7 +215,7 @@ export const TopBar: React.FC = () => {
           {/* System Status Badge */}
           {demoRunning ? (
             <div
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-accent-amber text-[11px] font-mono font-semibold"
+              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-amber text-[10px] sm:text-[11px] font-mono font-semibold shrink-0"
               style={{
                 background: 'rgba(245,158,11,0.08)',
                 border: '1px solid rgba(245,158,11,0.25)',
@@ -226,12 +226,12 @@ export const TopBar: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-amber opacity-75" />
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-amber" style={{ boxShadow: '0 0 6px rgba(245,158,11,0.8)' }} />
               </span>
-              <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Demo Active</span>
+              <ShieldAlert className="w-3.5 h-3.5 max-sm:hidden" />
+              <span className="max-sm:hidden">Demo Active</span>
             </div>
           ) : (
             <div
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-accent-green text-[11px] font-mono font-semibold"
+              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-green text-[10px] sm:text-[11px] font-mono font-semibold shrink-0"
               style={{
                 background: 'rgba(34,197,94,0.07)',
                 border: '1px solid rgba(34,197,94,0.2)',
@@ -240,8 +240,8 @@ export const TopBar: React.FC = () => {
               <span className="relative flex w-2 h-2">
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 5px rgba(34,197,94,0.7)' }} />
               </span>
-              <Shield className="w-3.5 h-3.5" />
-              <span>Nominal</span>
+              <Shield className="w-3.5 h-3.5 max-sm:hidden" />
+              <span className="max-sm:hidden">Nominal</span>
             </div>
           )}
         </div>

@@ -37,11 +37,11 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
       onClick={onClose}
     >
       <div
-        className="bg-bg-card border border-border-default rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[80vh] overflow-hidden flex flex-col"
+        className="bg-bg-card border border-border-default rounded-2xl w-full max-w-lg mx-2 sm:mx-4 shadow-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default">
           <div className="flex items-center gap-2">
             <Keyboard className="w-4 h-4 text-accent-blue" />
             <h2 className="text-sm font-semibold text-text-primary">Keyboard Shortcuts & Panel Guide</h2>
@@ -56,7 +56,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 overflow-y-auto flex flex-col gap-6 scrollbar-thin">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 overflow-y-auto flex flex-col gap-4 sm:gap-6 scrollbar-thin">
           {/* Shortcuts */}
           <div>
             <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Keyboard Shortcuts</h3>
@@ -92,7 +92,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-border-default text-center">
+        <div className="px-4 sm:px-6 py-2 sm:py-3 border-t border-border-default text-center">
           <span className="text-[10px] text-text-tertiary font-mono">Press any key or click outside to close</span>
         </div>
       </div>

@@ -70,28 +70,28 @@ export const AlertBanner: React.FC = () => {
         borderColor: 'var(--color-accent-red)',
       }}
     >
-      <div className="flex items-center justify-between gap-3 max-w-[1400px] mx-auto relative">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 max-w-[1400px] mx-auto relative">
         {/* Left Side: Pulse Dot & Message */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Animated Pulse Circle */}
           <div className="relative w-3.5 h-3.5 flex items-center justify-center shrink-0">
             <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full opacity-75" style={{ backgroundColor: 'var(--color-accent-red)' }} />
             <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: 'var(--color-accent-red)' }} />
           </div>
 
-          <p className="text-sm text-text-primary flex items-center gap-1.5 flex-wrap">
-            <span className="font-bold" style={{ color: 'var(--color-accent-red)' }}>⚠ WEATHER ALERT</span>
-            <span className="text-text-secondary">—</span>
-            <span className="text-text-primary">{alertMessage}. Delay predictions active.</span>
-            <span className="text-text-tertiary text-xs font-mono">
+          <p className="text-xs sm:text-sm text-text-primary flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0">
+            <span className="font-bold whitespace-nowrap" style={{ color: 'var(--color-accent-red)' }}>⚠ WEATHER ALERT</span>
+            <span className="text-text-secondary hidden sm:inline">—</span>
+            <span className="text-text-primary truncate max-sm:text-[11px]">{alertMessage}. Delay predictions active.</span>
+            <span className="text-text-tertiary text-[10px] sm:text-xs font-mono hidden sm:inline">
               {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
             </span>
           </p>
         </div>
 
         {/* Right Side: Timestamp & Dismiss */}
-        <div className="flex items-center gap-3 font-mono text-xs text-text-tertiary pl-2 flex-shrink-0">
-          <span>{timeStr || '00:00:00'}</span>
+        <div className="flex items-center gap-2 sm:gap-3 font-mono text-[10px] sm:text-xs text-text-tertiary pl-1 sm:pl-2 flex-shrink-0">
+          <span className="hidden sm:inline">{timeStr || '00:00:00'}</span>
           <button
             onClick={() => setVisible(false)}
             className="text-text-secondary hover:text-text-primary transition-colors duration-150 p-1 hover:bg-bg-hover rounded outline-none"

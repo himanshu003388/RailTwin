@@ -203,7 +203,7 @@ export const StationRiskPanel: React.FC = () => {
       </div>
 
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-320px)] pr-0.5 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto max-h-[calc(100dvh-320px)] pr-0.5 scrollbar-thin">
         {stations.map(station => {
           const risks = stationRisks[station.id] || {
             crowdRisk: 'low',

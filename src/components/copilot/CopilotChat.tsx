@@ -162,7 +162,7 @@ export const CopilotChat: React.FC = () => {
   const hasUserMessages = messages.some(m => m.sender === 'user');
 
   return (
-    <div className="flex flex-col h-[calc(100vh-48px)] bg-bg-page text-text-primary">
+    <div className="flex flex-col h-full max-lg:h-[calc(100dvh-48px-12px)] lg:h-[calc(100vh-48px)] bg-bg-page text-text-primary">
       {/* Chat History */}
       <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin">
         {!hasUserMessages && (

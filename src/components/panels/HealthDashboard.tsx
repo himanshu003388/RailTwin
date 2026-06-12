@@ -121,7 +121,7 @@ export const HealthDashboard: React.FC = () => {
       </div>
 
       {/* ── Key Metrics Grid ── */}
-      <div className="grid grid-cols-2 gap-2 mb-4 shrink-0">
+      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4 shrink-0">
         <MetricTile
           icon={<Train className="w-3.5 h-3.5 text-accent-blue" />}
           label="Active Trains"
@@ -207,7 +207,7 @@ export const HealthDashboard: React.FC = () => {
         <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-[0.08em] block mb-2.5">
           Active Systems
         </span>
-        <div className="grid grid-cols-2 gap-y-2 gap-x-3">
+        <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-y-2 gap-x-3">
           {systems.map(sys => (
             <div key={sys.label} className="flex items-center gap-2">
               <span

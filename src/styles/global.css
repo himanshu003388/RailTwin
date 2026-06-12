@@ -110,113 +110,114 @@
 }
 
 /* ── Light Mode Token Overrides ────────────────────────────── */
+/* Warm, paper-inspired palette for comfortable reading */
 html.light, .light {
-  /* Surface Ladder */
-  --color-bg-page:     #f4f5f6; /* Slate gray background so white cards pop */
-  --color-bg-card:     #ffffff; /* Clean white card surfaces */
-  --color-bg-elevated: #fafafa;
-  --color-bg-hover:    #eaebeb;
-  --color-bg-sunken:   #e2e3e5;
+  /* Surface Ladder — warm off-white paper foundations */
+  --color-bg-page:     #f2efe8; /* Warm parchment */
+  --color-bg-card:     #fcfaf7; /* Creamy card surface */
+  --color-bg-elevated: #f7f4ee; /* Slightly deeper warm */
+  --color-bg-hover:    #efebe3; /* Warm hover state */
+  --color-bg-sunken:   #e6e1d7; /* Deepest warm inset */
 
-  /* Border Ladder */
-  --color-border-subtle:  #e6e8eb;
-  --color-border-default: #d8dadf;
-  --color-border-hover:   #b8bac0;
-  --color-border-active:  #989a9f;
-  --color-border-strong:  #686a6f;
+  /* Border Ladder — soft warm grays with brown undertone */
+  --color-border-subtle:  #e5dfd4;
+  --color-border-default: #d6cec0;
+  --color-border-hover:   #c2b9a8;
+  --color-border-active:  #a39987;
+  --color-border-strong:  #847a68;
 
-  /* Text Hierarchy */
-  --color-text-primary:   #111111;
-  --color-text-secondary: #3c4048;
-  --color-text-tertiary:  #5c6068;
-  --color-text-muted:     #767c85;
+  /* Text Hierarchy — rich brown-black for readability */
+  --color-text-primary:   #1c1a17;
+  --color-text-secondary: #4a453e;
+  --color-text-tertiary:  #6b6559;
+  --color-text-muted:     #8d867a;
 
-  /* Accent — Blue */
-  --color-accent-blue:       #0060df;
-  --color-accent-blue-soft:  rgba(0, 96, 223, 0.08);
-  --color-accent-blue-glow:  rgba(0, 96, 223, 0.2);
+  /* Accent — Blue (warm, deep navy-leaning) */
+  --color-accent-blue:       #1a6dd4;
+  --color-accent-blue-soft:  rgba(26, 109, 212, 0.08);
+  --color-accent-blue-glow:  rgba(26, 109, 212, 0.2);
 
-  /* Accent — Green */
-  --color-accent-green:      #15803d;
-  --color-accent-green-soft: rgba(21, 128, 61, 0.08);
-  --color-accent-green-glow: rgba(21, 128, 61, 0.2);
+  /* Accent — Green (rich forest) */
+  --color-accent-green:      #2d7d46;
+  --color-accent-green-soft: rgba(45, 125, 70, 0.08);
+  --color-accent-green-glow: rgba(45, 125, 70, 0.2);
 
-  /* Accent — Amber */
-  --color-accent-amber:      #b45309;
-  --color-accent-amber-soft: rgba(180, 83, 9, 0.08);
-  --color-accent-amber-glow: rgba(180, 83, 9, 0.2);
+  /* Accent — Amber (warm ochre) */
+  --color-accent-amber:      #b8631a;
+  --color-accent-amber-soft: rgba(184, 99, 26, 0.08);
+  --color-accent-amber-glow: rgba(184, 99, 26, 0.2);
 
-  /* Accent — Red */
-  --color-accent-red:        #cc0000;
-  --color-accent-red-soft:   rgba(204, 0, 0, 0.08);
-  --color-accent-red-glow:   rgba(204, 0, 0, 0.25);
+  /* Accent — Red (brick) */
+  --color-accent-red:        #c1311e;
+  --color-accent-red-soft:   rgba(193, 49, 30, 0.08);
+  --color-accent-red-glow:   rgba(193, 49, 30, 0.2);
 
   /* Accent — Purple */
-  --color-accent-purple:      #6b21a8;
-  --color-accent-purple-soft: rgba(107, 33, 168, 0.08);
-  --color-accent-purple-glow: rgba(107, 33, 168, 0.2);
+  --color-accent-purple:      #7c3aed;
+  --color-accent-purple-soft: rgba(124, 58, 237, 0.08);
+  --color-accent-purple-glow: rgba(124, 58, 237, 0.2);
 
-  /* Accent — Cyan */
-  --color-accent-cyan:       #0369a1;
-  --color-accent-cyan-soft:  rgba(3, 105, 161, 0.08);
-  --color-accent-cyan-glow:  rgba(3, 105, 161, 0.2);
+  /* Accent — Cyan (teal-leaning) */
+  --color-accent-cyan:       #0a749b;
+  --color-accent-cyan-soft:  rgba(10, 116, 155, 0.08);
+  --color-accent-cyan-glow:  rgba(10, 116, 155, 0.2);
 
-  /* Risk Semantic Tokens */
-  --color-risk-low:           #15803d;
-  --color-risk-low-bg:        #f0fdf4;
-  --color-risk-low-border:    #bbf7d0;
+  /* Risk Semantic Tokens — soft warm backgrounds */
+  --color-risk-low:           #2d7d46;
+  --color-risk-low-bg:        #eef5ea;
+  --color-risk-low-border:    #c6ddc0;
 
-  --color-risk-moderate:      #b45309;
-  --color-risk-moderate-bg:   #fffbeb;
-  --color-risk-moderate-border: #fde6c7;
+  --color-risk-moderate:      #b8631a;
+  --color-risk-moderate-bg:   #faf3e8;
+  --color-risk-moderate-border: #ecd4b0;
 
-  --color-risk-high:          #c2410c;
-  --color-risk-high-bg:       #fff7ed;
-  --color-risk-high-border:   #ffedd5;
+  --color-risk-high:          #c14f1e;
+  --color-risk-high-bg:       #fbf1ea;
+  --color-risk-high-border:   #edcbb8;
 
-  --color-risk-critical:      #c53030;
-  --color-risk-critical-bg:   #fff5f5;
-  --color-risk-critical-border: #fed7d7;
+  --color-risk-critical:      #c1311e;
+  --color-risk-critical-bg:   #fbedea;
+  --color-risk-critical-border: #edc0b8;
 
-  /* Shadows (Light Mode Vercel) */
+  /* Shadows — warm brown undertone instead of cold black */
   --shadow-flat:  none;
-  --shadow-card:  0 0 0 1px rgba(0,0,0,0.08) inset,
-                  0px 1px 2px rgba(0,0,0,0.06),
-                  0px 2px 4px rgba(0,0,0,0.04);
-  --shadow-card-elevated: 0 0 0 1px rgba(0,0,0,0.10) inset,
-                          0px 2px 8px rgba(0,0,0,0.10),
-                          0px 12px 24px rgba(0,0,0,0.08);
-  --shadow-elevated: 0 0 0 1px rgba(0,0,0,0.08) inset,
-                     0px 2px 6px rgba(0,0,0,0.06),
-                     0px 8px 16px rgba(0,0,0,0.04);
-  --shadow-float: 0 0 0 1px rgba(0,0,0,0.1) inset,
-                  0px 2px 4px rgba(0,0,0,0.04),
-                  0px 8px 24px rgba(0,0,0,0.05),
-                  0px 24px 48px rgba(0,0,0,0.03);
-  --shadow-modal: 0 0 0 1px rgba(0,0,0,0.1) inset,
-                  0px 1px 3px rgba(0,0,0,0.04),
-                  0px 8px 20px rgba(0,0,0,0.06),
-                  0px 24px 48px rgba(0,0,0,0.06);
+  --shadow-card:  0 0 0 1px rgba(120, 90, 60, 0.08) inset,
+                  0px 1px 2px rgba(80, 60, 40, 0.06),
+                  0px 2px 4px rgba(80, 60, 40, 0.04);
+  --shadow-card-elevated: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
+                          0px 2px 8px rgba(80, 60, 40, 0.10),
+                          0px 12px 24px rgba(80, 60, 40, 0.06);
+  --shadow-elevated: 0 0 0 1px rgba(120, 90, 60, 0.08) inset,
+                     0px 2px 6px rgba(60, 50, 30, 0.06),
+                     0px 8px 16px rgba(60, 50, 30, 0.04);
+  --shadow-float: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
+                  0px 2px 4px rgba(60, 50, 30, 0.04),
+                  0px 8px 24px rgba(60, 50, 30, 0.05),
+                  0px 24px 48px rgba(60, 50, 30, 0.03);
+  --shadow-modal: 0 0 0 1px rgba(120, 90, 60, 0.10) inset,
+                  0px 1px 3px rgba(60, 50, 30, 0.04),
+                  0px 8px 20px rgba(60, 50, 30, 0.06),
+                  0px 24px 48px rgba(60, 50, 30, 0.05);
 
   /* Glow Utilities */
-  --glow-blue:   0 0 12px rgba(0, 96, 223, 0.2), 0 0 24px rgba(0, 96, 223, 0.08);
-  --glow-green:  0 0 10px rgba(21, 128, 61, 0.2),  0 0 20px rgba(21, 128, 61, 0.08);
-  --glow-amber:  0 0 10px rgba(180, 83, 9, 0.2), 0 0 20px rgba(180, 83, 9, 0.08);
-  --glow-red:    0 0 12px rgba(204, 0, 0, 0.25),  0 0 24px rgba(204, 0, 0, 0.1);
-  --glow-purple: 0 0 10px rgba(107, 33, 168, 0.2), 0 0 20px rgba(107, 33, 168, 0.08);
+  --glow-blue:   0 0 12px rgba(26, 109, 212, 0.2), 0 0 24px rgba(26, 109, 212, 0.08);
+  --glow-green:  0 0 10px rgba(45, 125, 70, 0.2),  0 0 20px rgba(45, 125, 70, 0.08);
+  --glow-amber:  0 0 10px rgba(184, 99, 26, 0.2), 0 0 20px rgba(184, 99, 26, 0.08);
+  --glow-red:    0 0 12px rgba(193, 49, 30, 0.25),  0 0 24px rgba(193, 49, 30, 0.1);
+  --glow-purple: 0 0 10px rgba(124, 58, 237, 0.2), 0 0 20px rgba(124, 58, 237, 0.08);
 
-  /* Additional daylight-specific tokens */
-  --color-divider:         #d8dadf;
-  --color-focus-ring:      rgba(0, 96, 223, 0.45);
-  --color-badge-bg:        rgba(0, 96, 223, 0.10);
-  --color-badge-text:      #0060df;
-  --color-nav-active-bg:   rgba(0, 96, 223, 0.12);
-  --color-nav-active-text: #0060df;
-  --color-input-bg:        #ffffff;
-  --color-input-border:    #d8dadf;
-  --color-input-focus:     #0060df;
-  --color-scrollbar:       #b8bac0;
-  --color-scrollbar-hover: #989a9f;
+  /* Additional light-specific tokens */
+  --color-divider:         #d6cec0;
+  --color-focus-ring:      rgba(26, 109, 212, 0.40);
+  --color-badge-bg:        rgba(26, 109, 212, 0.10);
+  --color-badge-text:      #1a6dd4;
+  --color-nav-active-bg:   rgba(26, 109, 212, 0.10);
+  --color-nav-active-text: #1a6dd4;
+  --color-input-bg:        #fcfaf7;
+  --color-input-border:    #d6cec0;
+  --color-input-focus:     #1a6dd4;
+  --color-scrollbar:       #c2b9a8;
+  --color-scrollbar-hover: #a39987;
 }
 
 /* ── Base Reset ─────────────────────────────────────────────── */
@@ -246,8 +247,8 @@ body {
   color: #ffffff;
 }
 html.light ::selection, .light ::selection {
-  background: rgba(37, 99, 235, 0.25);
-  color: #0c1220;
+  background: rgba(26, 109, 212, 0.22);
+  color: #1c1a17;
 }
 
 /* ── Utility Classes ────────────────────────────────────────── */
@@ -370,9 +371,9 @@ html.light :focus-visible, .light :focus-visible {
 }
 html.light .brand-gradient-bg, .light .brand-gradient-bg {
   background: radial-gradient(ellipse 80% 60% at 50% -10%,
-    rgba(37, 99, 235, 0.22) 0%,
-    rgba(124, 58, 237, 0.16) 35%,
-    rgba(236, 72, 153, 0.10) 65%,
+    rgba(26, 109, 212, 0.15) 0%,
+    rgba(124, 58, 237, 0.10) 35%,
+    rgba(193, 49, 30, 0.06) 65%,
     transparent 100%);
 }
 
@@ -384,26 +385,27 @@ html.light .brand-gradient-bg, .light .brand-gradient-bg {
 }
 
 /* ── Light Mode Gradient Utilities ──────────────────────────── */
+/* Warm, cohesive light-mode gradients */
 html.light .daylight-gradient-bg, .light .daylight-gradient-bg {
-  background: linear-gradient(135deg, #e0ecff 0%, #ede0ff 50%, #ffe0f0 100%);
+  background: linear-gradient(135deg, #f0ede6 0%, #ede8df 50%, #eae4d9 100%);
 }
 html.light .daylight-gradient-card, .light .daylight-gradient-card {
-  background: linear-gradient(180deg, #f0f4f8 0%, #e8ecf4 100%);
+  background: linear-gradient(180deg, #fcfaf7 0%, #f8f5ee 100%);
 }
 html.light .daylight-gradient-sidebar, .light .daylight-gradient-sidebar {
-  background: linear-gradient(180deg, #dce3ec 0%, #d0d9e6 100%);
+  background: linear-gradient(180deg, #f2eee7 0%, #ede8df 100%);
 }
 html.light .daylight-gradient-header, .light .daylight-gradient-header {
-  background: linear-gradient(90deg, #e4e9f0 0%, #e8edf4 50%, #e4e9f0 100%);
+  background: linear-gradient(90deg, #f0ece5 0%, #f5f1ea 50%, #f0ece5 100%);
 }
 html.light .daylight-gradient-sunken, .light .daylight-gradient-sunken {
-  background: linear-gradient(180deg, #d4dbe6 0%, #c8d0dc 100%);
+  background: linear-gradient(180deg, #e6e1d7 0%, #ddd7cb 100%);
 }
 html.light .daylight-gradient-accent, .light .daylight-gradient-accent {
-  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #1a6dd4 0%, #7c3aed 50%, #c1311e 100%);
 }
 html.light .daylight-gradient-warm, .light .daylight-gradient-warm {
-  background: linear-gradient(135deg, #fef3c7 0%, #ffedd5 50%, #fee2e2 100%);
+  background: linear-gradient(135deg, #faf3e8 0%, #f5ebe0 50%, #efe3d5 100%);
 }
 
 /* ── Keyframe Animations ────────────────────────────────────── */
@@ -575,8 +577,8 @@ html.light .animate-turn-red-800, .light .animate-turn-red-800 {
   animation-name: box-red-flash-light;
 }
 @keyframes box-red-flash-light {
-  from { background-color: #f0f4f8; border-color: #b0b8c8; color: #5a6578; }
-  to   { background-color: #fee2e2; border-color: #dc2626; color: #0c1220; }
+  from { background-color: #f7f4ee; border-color: #c2b9a8; color: #6b6559; }
+  to   { background-color: #fbedea; border-color: #dc2626; color: #1c1a17; }
 }
 .animate-turn-red-0   { animation: box-red-flash 0.35s ease-out forwards; animation-delay: 0s; }
 .animate-turn-red-400 { animation: box-red-flash 0.35s ease-out forwards; animation-delay: 0.4s; }
@@ -617,12 +619,12 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--color-accent-blue);
   cursor: pointer;
   border: 2px solid #080808;
-  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  box-shadow: var(--glow-blue);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 12px var(--color-accent-blue-glow);
 }
 input[type="range"]::-moz-range-thumb {
   width: 14px;
@@ -631,23 +633,23 @@ input[type="range"]::-moz-range-thumb {
   background: var(--color-accent-blue);
   cursor: pointer;
   border: 2px solid #080808;
-  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  box-shadow: var(--glow-blue);
 }
 
 /* Light mode range input overrides */
 html.light input[type="range"], .light input[type="range"] {
-  background: linear-gradient(90deg, #c0c8d8, #d4dbe6);
+  background: linear-gradient(90deg, #d6cec0, #e5dfd4);
 }
 html.light input[type="range"]::-webkit-slider-thumb, .light input[type="range"]::-webkit-slider-thumb {
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.4), 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 2px solid #fcfaf7;
+  box-shadow: 0 0 8px rgba(26, 109, 212, 0.35), 0 1px 3px rgba(80, 60, 40, 0.12);
 }
 html.light input[type="range"]::-webkit-slider-thumb:hover, .light input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 14px rgba(37, 99, 235, 0.55), 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 14px rgba(26, 109, 212, 0.5), 0 2px 6px rgba(80, 60, 40, 0.15);
 }
 html.light input[type="range"]::-moz-range-thumb, .light input[type="range"]::-moz-range-thumb {
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.4), 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 2px solid #fcfaf7;
+  box-shadow: 0 0 8px rgba(26, 109, 212, 0.35), 0 1px 3px rgba(80, 60, 40, 0.12);
 }
 
 /* ── Select Element Styling ─────────────────────────────────── */
@@ -666,6 +668,17 @@ select option {
 @media (max-width: 1280px) {
   .sidebar-left  { width: 220px !important; }
   .right-sidebar { width: 280px !important; }
+}
+
+@media (max-width: 640px) {
+  .sidebar-left  { width: 100% !important; max-width: 280px !important; }
+  .right-sidebar { width: 100% !important; max-width: 300px !important; }
+  .dashboard-main .p-4 { padding: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .sidebar-left  { max-width: 100% !important; }
+  .right-sidebar { max-width: 100% !important; }
 }
 
 

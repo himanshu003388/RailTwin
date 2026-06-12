@@ -80,7 +80,7 @@ export const WelcomeOverlay: React.FC = () => {
     >
       <div className="relative w-full max-w-md mx-4">
         {/* Card */}
-        <div className="bg-bg-card border border-border-default rounded-2xl p-8 shadow-2xl">
+        <div className="bg-bg-card border border-border-default rounded-2xl p-5 sm:p-8 shadow-2xl">
           {/* Close button */}
           <button
             onClick={handleDismiss}

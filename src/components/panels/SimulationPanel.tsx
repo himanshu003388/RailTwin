@@ -69,7 +69,7 @@ export const SimulationPanel: React.FC = () => {
 
       {/* ── Impact Metrics ── */}
       {isSimulationActive && (
-        <div className="grid grid-cols-4 gap-2 mb-5">
+        <div className="grid grid-cols-4 max-md:grid-cols-2 gap-2 mb-5">
           {[
             { label: 'Delay',      value: `+${simulation.cascadeDelay}m`,                                    color: simulation.cascadeDelay > 30 ? 'var(--color-accent-red)' : 'var(--color-accent-amber)' },
             { label: 'Conflicts',  value: `${simulation.conflictsDetected}`,                                  color: 'var(--color-accent-red)'   },

@@ -53,7 +53,7 @@ export const WhatIfPanel: React.FC = () => {
       </div>
 
       {/* ── Config Selects ── */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3 mb-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Target Station</label>
           <div className="relative">
@@ -122,7 +122,7 @@ export const WhatIfPanel: React.FC = () => {
       {/* ── Results ── */}
       {whatIfResult ? (
         <div className="flex flex-col gap-3 animate-slide-up">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-2">
             {[
               { icon: <Clock className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-red)' }} />,    label: 'Cascade', value: `+${whatIfResult.cascadeDelay}m`,                          color: 'var(--color-accent-red)'    },
               { icon: <Zap   className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-amber)' }} />,  label: 'Conflicts', value: `${whatIfResult.conflictsGenerated}`,                    color: 'var(--color-accent-amber)'  },

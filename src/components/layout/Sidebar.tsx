@@ -100,7 +100,7 @@ export const Sidebar: React.FC = () => {
           onClick={() => setMobileLeftOpen(false)}
         />
       )}
-      <aside className={`w-[240px] sidebar-left h-screen bg-bg-card border-r border-border-default flex flex-col justify-between select-none shrink-0 transition-transform duration-300 ease-in-out max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:left-0 max-lg:z-50 ${
+      <aside className={`w-[240px] sidebar-left h-dvh bg-bg-card border-r border-border-default flex flex-col justify-between select-none shrink-0 transition-transform duration-300 ease-in-out max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:left-0 max-lg:z-50 max-sm:w-full max-sm:max-w-[280px] ${
         mobileLeftOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
       }`}>
         {/* ── Brand Header ── */}
