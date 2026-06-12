@@ -1,21 +1,11 @@
 export interface DemoEvent {
   id: string;
   time: number; // in seconds from demo start
-  type: "weather" | "prediction" | "simulation" | "copilot" | "intervention" | "resolved";
+  type: "prediction" | "simulation" | "copilot" | "intervention" | "resolved";
   payload: any;
 }
 
 export const DEMO_TIMELINE: DemoEvent[] = [
-  {
-    id: "evt-0",
-    time: 0,
-    type: "weather",
-    payload: {
-      station: "pnbe",
-      rainfall: 72,
-      description: "Heavy monsoon rainfall detected near Patna (72mm/hr)"
-    }
-  },
   {
     id: "evt-4",
     time: 4,

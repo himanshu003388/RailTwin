@@ -13,7 +13,7 @@ interface WeatherData {
   visibility: number;
   icon: string;
   fetchedAt: string;
-  source: 'live' | 'cache' | 'fallback';
+  source: 'live' | 'cache';
 }
 
 const STATION_COORDS: Record<string, { lat: number; lng: number; name: string }> = {
@@ -22,14 +22,6 @@ const STATION_COORDS: Record<string, { lat: number; lng: number; name: string }>
   ald: { lat: 25.4358, lng: 81.8463, name: 'Prayagraj' },
   pnbe: { lat: 25.6093, lng: 85.1376, name: 'Patna Junction' },
   hwh: { lat: 22.5804, lng: 88.3460, name: 'Howrah Junction' }
-};
-
-const FALLBACK_WEATHER: Record<string, { rainfall: number; description: string; visibility: number }> = {
-  ndls: { rainfall: 0, description: 'Clear sky', visibility: 10 },
-  cnb: { rainfall: 0, description: 'Partly cloudy', visibility: 8 },
-  ald: { rainfall: 0, description: 'Clear sky', visibility: 10 },
-  pnbe: { rainfall: 72, description: 'Heavy monsoon cloudburst', visibility: 2 },
-  hwh: { rainfall: 5, description: 'Light drizzle', visibility: 7 }
 };
 
 function getCachedWeather(stationCode: string): WeatherData | null {
@@ -124,20 +116,8 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
       }
     }
 
-    // Fallback to hardcoded with realistic corridor weather story
-    const fallback = FALLBACK_WEATHER[stationCode] || { rainfall: 0, description: 'Clear sky', visibility: 10 };
-    results[stationCode] = {
-      station: stationCode,
-      rainfall: fallback.rainfall,
-      description: fallback.description + ' (simulated)',
-      temperature: stationCode === 'pnbe' ? 26 : stationCode === 'hwh' ? 29 : stationCode === 'ndls' ? 34 : 27,
-      humidity: stationCode === 'pnbe' ? 92 : stationCode === 'hwh' ? 85 : 65,
-      windSpeed: stationCode === 'pnbe' ? 45 : stationCode === 'hwh' ? 25 : 12,
-      visibility: fallback.visibility,
-      icon: '01d',
-      fetchedAt: new Date().toISOString(),
-      source: 'fallback'
-    };
+    // No data available — skip this station
+    continue;
   }
   return results;
 }

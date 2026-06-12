@@ -3,10 +3,8 @@ import { useDemoStore } from '../../stores/demoStore';
 import { TestTube, Zap, Users, Clock, ChevronDown } from 'lucide-react';
 
 const SCENARIOS = [
-  { id: 'rainfall'      as const, label: 'Heavy Rainfall',  icon: '🌧️', description: 'Monsoon downpour causing waterlogging and speed restrictions' },
   { id: 'signal_failure'as const, label: 'Signal Failure',  icon: '🔴', description: 'Electronic interlocking system malfunction' },
   { id: 'track_damage'  as const, label: 'Track Damage',    icon: '⚡', description: 'Rail fracture or ballast erosion requiring immediate halt' },
-  { id: 'fog'           as const, label: 'Dense Fog',       icon: '🌫️', description: 'Visibility below 50m causing severe speed restrictions' },
 ];
 
 const selectStyle: React.CSSProperties = {

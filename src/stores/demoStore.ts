@@ -99,7 +99,7 @@ export interface DemoState {
   activePanel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health';
   toasts: Toast[];
   whatIfStation: string;
-  whatIfScenario: 'rainfall' | 'signal_failure' | 'track_damage' | 'fog';
+  whatIfScenario: 'signal_failure' | 'track_damage';
   whatIfResult: WhatIfResult | null;
   networkHealth: NetworkHealth;
   audioEnabled: boolean;
@@ -112,12 +112,9 @@ export interface DemoState {
   stations: any[];
   mobileLeftOpen: boolean;
   mobileRightOpen: boolean;
-  weatherMode: 'live' | 'simulation';
 
   // Actions
-  setWeatherMode: (mode: 'live' | 'simulation') => void;
   recalculateDynamicPredictions: () => Promise<void>;
-  injectCustomWeather: (stationId: string, weatherParams: any) => void;
   setMobileLeftOpen: (open: boolean) => void;
   setMobileRightOpen: (open: boolean) => void;
   startDemo: () => void;
@@ -132,7 +129,7 @@ export interface DemoState {
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
   setWhatIfStation: (station: string) => void;
-  setWhatIfScenario: (scenario: 'rainfall' | 'signal_failure' | 'track_damage' | 'fog') => void;
+  setWhatIfScenario: (scenario: 'signal_failure' | 'track_damage') => void;
   runWhatIf: () => void;
   toggleAudio: () => void;
   toggleTheme: () => void;
@@ -241,7 +238,7 @@ const initialStoreState = {
   activePanel: 'map' as const,
   toasts: [],
   whatIfStation: 'pnbe',
-  whatIfScenario: 'rainfall' as const,
+  whatIfScenario: 'signal_failure' as const,
   whatIfResult: null,
   networkHealth: { efficiency: 100, onTimePerf: 100, platformUtil: 73, signalStatus: 'operational' as const, activeAlerts: 0 },
   audioEnabled: false,
@@ -253,8 +250,6 @@ const initialStoreState = {
   geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
   mobileLeftOpen: false,
   mobileRightOpen: false,
-  openWeatherApiKey: '',
-  weatherMode: 'simulation' as const
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -272,93 +267,10 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
   setMobileLeftOpen: (open) => set({ mobileLeftOpen: open }),
   setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
-  
-  setWeatherMode: (mode) => {
-    set({ weatherMode: mode });
-    get().recalculateDynamicPredictions();
-  },
-
-  injectCustomWeather: (stationId, weatherParams) => {
-    set(state => {
-      const currentWeatherData = state.weatherData || {};
-      const stationWeather = currentWeatherData[stationId] || {
-        station: stationId,
-        rainfall: 0,
-        description: 'Clear sky',
-        temperature: 25,
-        humidity: 80,
-        windSpeed: 10,
-        visibility: 10,
-        source: 'manual'
-      };
-      
-      const newWeatherData = {
-        ...currentWeatherData,
-        [stationId]: {
-          ...stationWeather,
-          ...weatherParams,
-          source: 'manual'
-        }
-      };
-
-      // Recalculate worst station for weatherAlert
-      let worstStation: string | null = null;
-      let maxRainfall = 0;
-      let minVisibility = 10;
-      let worstDesc = '';
-      let worstTemp = 25;
-      let worstHumidity = 80;
-      let worstWind = 0;
-
-      Object.entries(newWeatherData).forEach(([code, w]: [string, any]) => {
-        if (w.rainfall > maxRainfall) {
-          maxRainfall = w.rainfall;
-          worstStation = code;
-          worstDesc = w.description;
-          worstTemp = w.temperature;
-          worstHumidity = w.humidity;
-          worstWind = w.windSpeed;
-        } else if (w.visibility < minVisibility) {
-          minVisibility = w.visibility;
-          if (maxRainfall === 0) {
-            worstStation = code;
-            worstDesc = w.description;
-            worstTemp = w.temperature;
-            worstHumidity = w.humidity;
-            worstWind = w.windSpeed;
-          }
-        }
-      });
-
-      const newWeatherAlert = worstStation && (maxRainfall > 0 || minVisibility < 10)
-        ? {
-            station: worstStation,
-            rainfall: maxRainfall,
-            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'),
-            temperature: worstTemp,
-            humidity: worstHumidity,
-            windSpeed: worstWind,
-            visibility: minVisibility
-          }
-        : null;
-
-      return {
-        weatherData: newWeatherData,
-        weatherAlert: newWeatherAlert
-      };
-    });
-
-    get().recalculateDynamicPredictions();
-  },
 
   recalculateDynamicPredictions: async () => {
-    const { trains, weatherData, stationRisks, stations, weatherMode } = get();
+    const { trains, weatherData, stationRisks, stations } = get();
     if (!weatherData) return;
-    
-    // If weatherMode is simulation, we keep the original flow
-    if (weatherMode === 'simulation') {
-      return;
-    }
 
     const updatedTrains = [...trains];
     const newPredictions: any[] = [];
@@ -978,39 +890,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const { type, payload } = event;
 
     switch (type) {
-      case 'weather': {
-        const activeAlert = get().weatherAlert;
-        const alertStation = activeAlert?.station || 'pnbe';
-        const alertRainfall = activeAlert?.rainfall ?? 72;
-        const alertDesc = activeAlert?.description || 'Heavy monsoon rainfall';
-
-        get().addToast({
-          type: 'warning',
-          title: 'Disruption Detected',
-          message: `${alertDesc} detected near ${alertStation.toUpperCase()}`
-        });
-
-        set(state => ({
-          stationRisks: {
-            ...state.stationRisks,
-            [alertStation]: { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 }
-          },
-          copilot: {
-            ...state.copilot,
-            messages: [
-              ...state.copilot.messages,
-              {
-                id: `weather-msg-${Date.now()}`,
-                sender: 'system',
-                message: `Alert: ${alertDesc} at ${alertStation.toUpperCase()} is ${alertRainfall}mm/hr. Tracking localized delays.`,
-                timestamp: new Date()
-              }
-            ]
-          }
-        }));
-        break;
-      }
-
       case 'prediction': {
         const trainId = payload.trainId;
         const affectedStation = payload.affectedStation;
@@ -1496,10 +1375,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         set({ weatherAlert: null });
       }
 
-      // Automatically trigger recalculation of dynamic predictions in live weatherMode
-      if (get().weatherMode === 'live') {
-        get().recalculateDynamicPredictions();
-      }
+      // Automatically trigger recalculation of dynamic predictions with live weather
+      get().recalculateDynamicPredictions();
     } catch (err) {
       console.error('Failed to fetch live weather for corridor:', err);
     }
