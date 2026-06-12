@@ -25,11 +25,6 @@
     "route": ["New Delhi", "Kanpur Central", "Patna Junction", "Howrah Junction"]
   },
   {
-    "trainNo": "12260",
-    "trainName": "New Delhi Duronto",
-    "route": ["Howrah Junction", "Patna Junction", "Kanpur Central", "New Delhi"]
-  },
-  {
     "trainNo": "12381",
     "trainName": "Poorva Express",
     "route": ["New Delhi", "Kanpur Central", "Prayagraj Junction", "Patna Junction", "Howrah Junction"]

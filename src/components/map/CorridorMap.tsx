@@ -13,7 +13,6 @@ const TRAIN_COLORS: Record<string, string> = {
   '12305': '#22c55e', // green - Howrah Rajdhani via Patna
   '12306': '#10b981', // emerald - New Delhi Rajdhani via Patna
   '12259': '#ef4444', // red - Sealdah Duronto
-  '12260': '#f97316', // orange - New Delhi Duronto
   '12381': '#a855f7', // purple - Poorva Express
   '12382': '#ec4899', // pink - Poorva Express
 };
@@ -25,7 +24,6 @@ const TRAIN_SHORT_NAMES: Record<string, string> = {
   '12305': 'Rajdhani',
   '12306': 'Rajdhani',
   '12259': 'Duronto',
-  '12260': 'Duronto',
   '12381': 'Poorva',
   '12382': 'Poorva',
 };
@@ -779,7 +777,6 @@ export const CorridorMap: React.FC = () => {
                 { id: '12305', name: 'Patna Raj', color: '#22c55e' },
                 { id: '12306', name: 'NDLS Raj', color: '#10b981' },
                 { id: '12259', name: 'Duronto', color: '#ef4444' },
-                { id: '12260', name: 'Duronto', color: '#f97316' },
                 { id: '12381', name: 'Poorva', color: '#a855f7' },
                 { id: '12382', name: 'Poorva', color: '#ec4899' },
               ].map(t => (

@@ -29,7 +29,6 @@ export const trainConfig: Record<string, any> = {
   '12305': { type: 'rajdhani', speed: 120, startHour: 17, startMin: 15, capacity: 900, passengerCount: 850 },
   '12306': { type: 'rajdhani', speed: 120, startHour: 18, startMin: 0, capacity: 900, passengerCount: 810 },
   '12259': { type: 'duronto', speed: 140, startHour: 8, startMin: 0, capacity: 800, passengerCount: 720 },
-  '12260': { type: 'duronto', speed: 140, startHour: 9, startMin: 0, capacity: 800, passengerCount: 760 },
   '12381': { type: 'express', speed: 110, startHour: 14, startMin: 30, capacity: 1200, passengerCount: 1150 },
   '12382': { type: 'express', speed: 110, startHour: 15, startMin: 0, capacity: 1200, passengerCount: 1080 }
 };
@@ -40,7 +39,6 @@ const activeStates: Record<string, any> = {
   '12305': { currentStation: 'cnb', nextStation: 'ald', routeProgress: 0.5, coordinates: [81.09, 25.95] },
   '12306': { currentStation: 'ald', nextStation: 'cnb', routeProgress: 0.4, coordinates: [81.40, 25.70] },
   '12259': { currentStation: 'cnb', nextStation: 'pnbe', routeProgress: 0.6, coordinates: [82.65, 26.05] },
-  '12260': { currentStation: 'pnbe', nextStation: 'cnb', routeProgress: 0.5, coordinates: [83.05, 25.76] },
   '12381': { currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.4, coordinates: [83.15, 25.51] },
   '12382': { currentStation: 'pnbe', nextStation: 'ald', routeProgress: 0.5, coordinates: [83.48, 25.52] }
 };

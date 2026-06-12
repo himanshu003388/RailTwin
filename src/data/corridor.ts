@@ -156,20 +156,6 @@ export const TRAINS: Train[] = [
     routeProgress: 0.20
   },
   {
-    id: '12260',
-    name: 'New Delhi Duronto',
-    type: 'duronto',
-    currentStation: 'cnb',
-    nextStation: 'ndls',
-    scheduledDelay: 5,
-    predictedDelay: 10,
-    coordinates: [79.568, 27.001],
-    speed: 140,
-    passengerCount: 760,
-    capacity: 800,
-    routeProgress: 0.25
-  },
-  {
     id: '12381',
     name: 'Poorva Express',
     type: 'express',
@@ -207,7 +193,6 @@ export const TRAIN_ROUTES: Record<string, string[]> = {
   '12305': ['ndls', 'cnb', 'ald', 'pnbe'],
   '12306': ['pnbe', 'ald', 'cnb', 'ndls'],
   '12259': ['ndls', 'cnb', 'pnbe', 'hwh'],
-  '12260': ['hwh', 'pnbe', 'cnb', 'ndls'],
   '12381': ['ndls', 'cnb', 'ald', 'pnbe', 'hwh'],
   '12382': ['hwh', 'pnbe', 'ald', 'cnb', 'ndls'],
 };
