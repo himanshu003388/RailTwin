@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { CORRIDOR } from '../../data/corridor';
+import { CORRIDOR, TRAIN_ROUTES } from '../../data/corridor';
 
 declare global {
   const maplibregl: any;
@@ -233,20 +233,18 @@ export const CorridorMap: React.FC = () => {
       });
 
       // ═══════════════════════════════════════════════════════════
-      // LAYER 1b: Individual Train Route Paths (colored per train)
+      // LAYER 1b: Individual Train Full-Route Paths (colored per train)
       // ═══════════════════════════════════════════════════════════
-      const initialTrains = useDemoStore.getState().trains;
-      const trainRouteFeatures = initialTrains.map(train => {
-        const fromStation = sortedStations.find(s => s.id === train.currentStation);
-        const toStation = sortedStations.find(s => s.id === train.nextStation);
-        if (!fromStation || !toStation) return null;
+      const trainRouteFeatures = Object.entries(TRAIN_ROUTES).map(([trainId, stationIds]) => {
+        const coords = stationIds
+          .map(id => sortedStations.find(s => s.id === id))
+          .filter(Boolean)
+          .map(s => s!.coordinates);
+        if (coords.length < 2) return null;
         return {
           type: 'Feature' as const,
-          properties: { trainId: train.id, color: TRAIN_COLORS[train.id] || '#3b82f6' },
-          geometry: {
-            type: 'LineString' as const,
-            coordinates: [fromStation.coordinates, toStation.coordinates]
-          }
+          properties: { trainId, color: TRAIN_COLORS[trainId] || '#3b82f6' },
+          geometry: { type: 'LineString' as const, coordinates: coords }
         };
       }).filter(Boolean);
 
