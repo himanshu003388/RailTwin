@@ -63,32 +63,38 @@ export const AlertBanner: React.FC = () => {
     : `${weatherAlert.description.charAt(0).toUpperCase() + weatherAlert.description.slice(1)} detected near ${getStationName(weatherAlert.station)}`;
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-[#1a0000] border-b-2 border-accent-red z-[100] px-4 py-2.5 select-none shadow-lg animate-banner-down">
+    <div
+      className="fixed top-0 left-0 w-full z-[100] px-4 py-2.5 select-none shadow-lg animate-banner-down border-b-2"
+      style={{
+        background: 'color-mix(in srgb, var(--color-accent-red) 8%, var(--color-bg-card))',
+        borderColor: 'var(--color-accent-red)',
+      }}
+    >
       <div className="flex items-center justify-between gap-3 max-w-[1400px] mx-auto relative">
         {/* Left Side: Pulse Dot & Message */}
         <div className="flex items-center gap-3">
           {/* Animated Pulse Circle */}
-          <div className="relative w-3.5 h-3.5 flex items-center justify-center">
-            <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-[#ef4444] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ef4444]"></span>
+          <div className="relative w-3.5 h-3.5 flex items-center justify-center shrink-0">
+            <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full opacity-75" style={{ backgroundColor: 'var(--color-accent-red)' }} />
+            <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: 'var(--color-accent-red)' }} />
           </div>
 
-          <p className="text-sm text-white flex items-center gap-1.5 flex-wrap">
-            <span className="font-bold text-[#ef4444]">⚠ WEATHER ALERT</span>
-            <span>—</span>
-            <span>{alertMessage}. Delay predictions active.</span>
-            <span className="text-[#aaa] text-xs font-mono">
+          <p className="text-sm text-text-primary flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold" style={{ color: 'var(--color-accent-red)' }}>⚠ WEATHER ALERT</span>
+            <span className="text-text-secondary">—</span>
+            <span className="text-text-primary">{alertMessage}. Delay predictions active.</span>
+            <span className="text-text-tertiary text-xs font-mono">
               {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
             </span>
           </p>
         </div>
 
         {/* Right Side: Timestamp & Dismiss */}
-        <div className="flex items-center gap-3 font-mono text-xs text-[#888] pl-2 flex-shrink-0">
+        <div className="flex items-center gap-3 font-mono text-xs text-text-tertiary pl-2 flex-shrink-0">
           <span>{timeStr || '00:00:00'}</span>
           <button
             onClick={() => setVisible(false)}
-            className="text-text-secondary hover:text-white transition-colors duration-150 p-1 hover:bg-white/5 rounded outline-none"
+            className="text-text-secondary hover:text-text-primary transition-colors duration-150 p-1 hover:bg-bg-hover rounded outline-none"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -97,9 +103,10 @@ export const AlertBanner: React.FC = () => {
 
       {/* Auto dismiss progress bar */}
       <div
-        className="absolute bottom-0 left-0 h-[2.5px] bg-[#ef4444]"
+        className="absolute bottom-0 left-0 h-[2.5px]"
         style={{
           width: progress,
+          backgroundColor: 'var(--color-accent-red)',
           transition: 'width 10s linear'
         }}
       />

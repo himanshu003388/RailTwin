@@ -182,7 +182,7 @@ export const StationRiskPanel: React.FC = () => {
 
       {/* Header with Live Dot */}
       <div className="flex items-center justify-between border-b border-border-default pb-2 mb-3">
-        <span className="text-xs uppercase tracking-[0.12em] text-[#555] font-medium select-none">
+        <span className="text-xs uppercase tracking-[0.12em] text-text-tertiary font-medium select-none">
           Live Stations Status
         </span>
         <div className="flex items-center gap-1.5">

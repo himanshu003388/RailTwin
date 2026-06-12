@@ -127,9 +127,9 @@ export const DelayChart: React.FC = () => {
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid vertical={false} stroke="#1e1e1e" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#4a4a4a', fontSize: 10, fontFamily: 'monospace' }} />
-                <YAxis domain={[0, 60]} axisLine={false} tickLine={false} tick={{ fill: '#4a4a4a', fontSize: 10, fontFamily: 'monospace' }} />
+                <CartesianGrid vertical={false} stroke="var(--color-border-default)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-tertiary)', fontSize: 10, fontFamily: 'monospace' }} />
+                <YAxis domain={[0, 60]} axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-tertiary)', fontSize: 10, fontFamily: 'monospace' }} />
 
                 <Tooltip
                   content={({ active, payload }) => {
@@ -201,7 +201,12 @@ export const DelayChart: React.FC = () => {
 
                     {isExpanded && pred.explanation && (
                       <div 
-                        className="mt-2 p-2.5 rounded border text-text-secondary font-mono text-[9px] leading-relaxed whitespace-pre-wrap select-text animate-slide-down bg-[#141414] border-[#2a2a2a] text-[#8eecf5]"
+                        className="mt-2 p-2.5 rounded border font-mono text-[9px] leading-relaxed whitespace-pre-wrap select-text animate-slide-down"
+                        style={{
+                          background: 'var(--color-bg-sunken)',
+                          borderColor: 'var(--color-border-hover)',
+                          color: 'var(--color-accent-cyan)'
+                        }}
                         onClick={e => e.stopPropagation()}
                       >
                         {pred.explanation}

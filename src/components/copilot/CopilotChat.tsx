@@ -51,9 +51,6 @@ export const CopilotChat: React.FC = () => {
     checkBackendKey();
   }, []);
 
-  useEffect(() => {
-    // No hardcoded greeting — copilot messages are generated via Gemini API
-  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });

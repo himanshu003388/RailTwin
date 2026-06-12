@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 
 export const KeyboardShortcuts: React.FC = () => {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CORRIDOR, TRAINS, SORTED_STATIONS, interpolateTrainPosition, getCorridorDistance, type Train } from '../data/corridor';
+import { CORRIDOR, TRAINS, interpolateTrainPosition, getCorridorDistance, type Train } from '../data/corridor';
 import { DEMO_TIMELINE } from '../data/mockScenario';
 import { fetchLiveTrainStatus, normalizeLiveTrainData } from '../services/railwayService';
 import { HistoricalDelayPredictionEngine } from '../services/HistoricalDelayPredictionEngine';
@@ -254,15 +254,14 @@ const initialStoreState = {
   apiStatus: 'disconnected' as const,
   geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
   mobileLeftOpen: false,
-  mobileRightOpen: false,
-  fetchLiveWeatherForCorridor: async () => {}
+  mobileRightOpen: false
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
   ...initialStoreState,
 
   addToast: (toast) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newToast = { ...toast, id };
     set(state => ({ toasts: [...state.toasts, newToast] }));
   },
@@ -950,14 +949,14 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         break;
       }
 
-      case 'simulation':
+      case 'simulation': {
         get().addToast({
           type: 'error',
           title: 'Simulation Complete',
           message: 'Simulation complete: 3 platform conflicts, 19K passengers at risk'
         });
 
-        set(state => ({
+        set(() => ({
           simulation: {
             conflictsDetected: payload.conflictsDetected,
             cascadeDelay: payload.cascadeDelay,
@@ -991,6 +990,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         }, 500);
         eventTimeouts.push(simulationTimeout);
         break;
+      }
 
       case 'copilot':
         if (payload.thinking) {
@@ -1093,7 +1093,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         }
         break;
 
-      case 'resolved':
+      case 'resolved': {
         if (get().resolved) return;
 
         get().addToast({
@@ -1186,6 +1186,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           }
         })();
         break;
+      }
     }
   },
 
