@@ -57,6 +57,16 @@ export interface DemoState {
   isPaused: boolean;
   playbackSpeed: number;
   weatherAlert: null | { station: string; rainfall: number; description: string };
+  weatherData: Record<string, {
+    station: string;
+    rainfall: number;
+    description: string;
+    temperature: number;
+    humidity: number;
+    windSpeed: number;
+    visibility: number;
+    source: string;
+  }> | null;
   trains: Train[];
   stationRisks: Record<string, StationRisk>;
   predictions: Array<{
@@ -127,6 +137,7 @@ export interface DemoState {
   setGeminiApiKey: (key: string) => void;
   updateLiveTrainsFromApi: () => Promise<void>;
   generateAIRecommendations: () => Promise<void>;
+  fetchLiveWeatherForCorridor: () => Promise<void>;
 }
 
 // Global timers references
@@ -209,6 +220,7 @@ const initialStoreState = {
   isPaused: false,
   playbackSpeed: 1,
   weatherAlert: null,
+  weatherData: null,
   stations: JSON.parse(JSON.stringify(CORRIDOR.stations)),
   trains: JSON.parse(JSON.stringify(TRAINS)),
   stationRisks: createInitialStationRisks(CORRIDOR.stations),
@@ -242,7 +254,8 @@ const initialStoreState = {
   apiStatus: 'disconnected' as const,
   geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
   mobileLeftOpen: false,
-  mobileRightOpen: false
+  mobileRightOpen: false,
+  fetchLiveWeatherForCorridor: async () => {}
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -791,18 +804,22 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const { type, payload } = event;
 
     switch (type) {
-      case 'weather':
+      case 'weather': {
+        const activeAlert = get().weatherAlert;
+        const alertStation = activeAlert?.station || 'pnbe';
+        const alertRainfall = activeAlert?.rainfall ?? 72;
+        const alertDesc = activeAlert?.description || 'Heavy monsoon rainfall';
+
         get().addToast({
           type: 'warning',
           title: 'Disruption Detected',
-          message: 'Heavy rainfall detected near Patna'
+          message: `${alertDesc} detected near ${alertStation.toUpperCase()}`
         });
 
         set(state => ({
-          weatherAlert: payload,
           stationRisks: {
             ...state.stationRisks,
-            [payload.station]: { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 }
+            [alertStation]: { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 }
           },
           copilot: {
             ...state.copilot,
@@ -811,13 +828,14 @@ export const useDemoStore = create<DemoState>((set, get) => ({
               {
                 id: `weather-msg-${Date.now()}`,
                 sender: 'system',
-                message: `Alert: Rainfall at ${payload.station.toUpperCase()} is ${payload.rainfall}mm/hr. Tracking localized delays.`,
+                message: `Alert: ${alertDesc} at ${alertStation.toUpperCase()} is ${alertRainfall}mm/hr. Tracking localized delays.`,
                 timestamp: new Date()
               }
             ]
           }
         }));
         break;
+      }
 
       case 'prediction': {
         const trainId = payload.trainId;
@@ -839,13 +857,43 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         // Get station congestion level from current risks state
         const congestion = get().stationRisks[affectedStation]?.crowdRisk || 'low';
 
-        // Check if there is an active weather alert for this station
-        const weatherAlert = get().weatherAlert;
-        const isAlertActive = weatherAlert && weatherAlert.station === affectedStation;
-        const weatherCondition = isAlertActive
-          ? (weatherAlert.rainfall > 50 ? 'Heavy Rain' : 'Rain')
-          : 'Clear';
-        const rainfall = isAlertActive ? weatherAlert.rainfall : undefined;
+        // Check if there is live weather data for this station
+        const weatherData = get().weatherData;
+        const stationWeather = weatherData?.[affectedStation];
+
+        let weatherCondition = 'Clear';
+        let rainfall = 0;
+        let visibility = 10;
+
+        if (stationWeather) {
+          rainfall = stationWeather.rainfall;
+          visibility = stationWeather.visibility;
+          
+          if (visibility < 1) {
+            weatherCondition = 'Fog';
+          } else if (rainfall > 50) {
+            weatherCondition = 'Heavy Rain';
+          } else if (rainfall > 0) {
+            weatherCondition = 'Rain';
+          } else {
+            const desc = stationWeather.description.toLowerCase();
+            if (desc.includes('fog') || desc.includes('mist')) {
+              weatherCondition = 'Fog';
+            } else if (desc.includes('rain') || desc.includes('drizzle')) {
+              weatherCondition = rainfall > 50 ? 'Heavy Rain' : 'Rain';
+            } else {
+              weatherCondition = 'Clear';
+            }
+          }
+        } else {
+          // Fallback to weatherAlert if weatherData is not loaded
+          const weatherAlert = get().weatherAlert;
+          const isAlertActive = weatherAlert && weatherAlert.station === affectedStation;
+          weatherCondition = isAlertActive
+            ? (weatherAlert.rainfall > 50 ? 'Heavy Rain' : 'Rain')
+            : 'Clear';
+          rainfall = isAlertActive ? weatherAlert.rainfall : 0;
+        }
 
         // Run prediction dynamically using the engine
         const pred = await HistoricalDelayPredictionEngine.predict({
@@ -1217,6 +1265,50 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         message: err.message || 'Could not fetch mitigations.'
       });
     }
+  },
+  fetchLiveWeatherForCorridor: async () => {
+    try {
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const res = await fetch(`${normalizedBase}api/weather/corridor`);
+      if (!res.ok) throw new Error('Failed to fetch weather');
+      const weatherData = await res.json();
+      set({ weatherData });
+
+      // Update weatherAlert dynamically based on the worst weather station
+      let worstStation: string | null = null;
+      let maxRainfall = 0;
+      let minVisibility = 10;
+      let worstDesc = '';
+
+      Object.entries(weatherData).forEach(([code, w]: [string, any]) => {
+        if (w.rainfall > maxRainfall) {
+          maxRainfall = w.rainfall;
+          worstStation = code;
+          worstDesc = w.description;
+        } else if (w.visibility < minVisibility) {
+          minVisibility = w.visibility;
+          if (maxRainfall === 0) {
+            worstStation = code;
+            worstDesc = w.description;
+          }
+        }
+      });
+
+      if (worstStation && (maxRainfall > 0 || minVisibility < 10)) {
+        set({
+          weatherAlert: {
+            station: worstStation,
+            rainfall: maxRainfall,
+            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility')
+          }
+        });
+      } else {
+        set({ weatherAlert: null });
+      }
+    } catch (err) {
+      console.error('Failed to fetch live weather for corridor:', err);
+    }
   }
 }));
 
@@ -1245,6 +1337,9 @@ export const fetchInitialData = async () => {
         trains,
         stationRisks: risks
       });
+
+      // Fetch live weather data
+      await useDemoStore.getState().fetchLiveWeatherForCorridor();
 
       // Update network health
       const state = useDemoStore.getState();
