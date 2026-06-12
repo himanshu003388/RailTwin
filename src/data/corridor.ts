@@ -131,15 +131,15 @@ export const TRAINS: Train[] = [
     id: '12306',
     name: 'New Delhi Rajdhani',
     type: 'rajdhani',
-    currentStation: 'ald',
-    nextStation: 'cnb',
+    currentStation: 'cnb',
+    nextStation: 'ndls',
     scheduledDelay: 5,
     predictedDelay: 14,
-    coordinates: [81.090, 25.950],
+    coordinates: [79.568, 27.001],
     speed: 120,
     passengerCount: 810,
     capacity: 900,
-    routeProgress: 0.50
+    routeProgress: 0.25
   },
   {
     id: '12259',
@@ -173,15 +173,15 @@ export const TRAINS: Train[] = [
     id: '12382',
     name: 'Poorva Express',
     type: 'express',
-    currentStation: 'hwh',
-    nextStation: 'pnbe',
+    currentStation: 'cnb',
+    nextStation: 'ndls',
     scheduledDelay: 7,
     predictedDelay: 15,
-    coordinates: [86.418, 24.395],
+    coordinates: [78.003, 28.095],
     speed: 110,
     passengerCount: 1080,
     capacity: 1200,
-    routeProgress: 0.60
+    routeProgress: 0.75
   }
 ];
 
