@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Zap, Bot, ArrowDown, CloudRain, CheckCircle, Play } from 'lucide-react';
+import { Zap, Bot, ArrowDown, CloudRain, CheckCircle, Play, Loader2 } from 'lucide-react';
 
 export const SimulationPanel: React.FC = () => {
   const simulation    = useDemoStore(state => state.simulation);
@@ -8,6 +8,7 @@ export const SimulationPanel: React.FC = () => {
   const resolved      = useDemoStore(state => state.resolved);
   const copilot       = useDemoStore(state => state.copilot);
   const acceptRecommendation = useDemoStore(state => state.acceptRecommendation);
+  const generateAIRecommendations = useDemoStore(state => state.generateAIRecommendations);
   const startDemo     = useDemoStore(state => state.startDemo);
   const demoRunning   = useDemoStore(state => state.demoRunning);
   const stations      = useDemoStore(state => state.stations) || [];
@@ -199,7 +200,7 @@ export const SimulationPanel: React.FC = () => {
       )}
 
       {/* ── AI Recommendations ── */}
-      {isSimulationActive && recommendations.length > 0 && (
+      {isSimulationActive && (
         <div className="flex flex-col flex-1 pb-4">
           <div className="flex items-center gap-1.5 border-b border-border-default pb-1.5 mb-2.5">
             <Bot className="w-4 h-4 text-accent-purple" />
@@ -208,59 +209,84 @@ export const SimulationPanel: React.FC = () => {
             </h3>
           </div>
 
-          <div className="flex flex-col gap-2 overflow-y-auto max-h-[300px] scrollbar-thin">
-            {recommendations.map(rec => {
-              const isPriority1    = rec.priority === 1;
-              const alreadyAccepted = !!rec.accepted || !!intervention;
-              return (
-                <div
-                  key={rec.id}
-                  className="rounded-lg p-3 flex flex-col transition-all duration-300"
-                  style={{
-                    background: 'rgba(168,85,247,0.05)',
-                    border: `${isPriority1 ? '2' : '1'}px solid ${isPriority1 ? 'rgba(168,85,247,0.5)' : 'rgba(168,85,247,0.2)'}`,
-                    boxShadow: isPriority1 ? '0 0 12px rgba(168,85,247,0.12)' : 'none',
-                  }}
-                >
-                  <div className="flex gap-2.5 items-start">
-                    <div
-                      className="w-5 h-5 rounded-full text-white flex items-center justify-center font-mono text-[10px] font-bold flex-shrink-0 select-none"
-                      style={{ background: 'var(--color-accent-purple)' }}
-                    >
-                      {rec.priority}
-                    </div>
-                    <div className="flex-1 flex flex-col gap-1">
-                      <p className="text-[11px] font-medium text-text-primary leading-normal">{rec.action}</p>
-                      <span className="text-[10px] text-accent-purple font-semibold">Impact: {rec.impact}</span>
-                    </div>
-                  </div>
-
-                  {isPriority1 && (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        disabled={alreadyAccepted}
-                        onClick={() => acceptRecommendation(rec.id)}
-                        className="text-[10px] font-semibold px-3.5 py-1 rounded transition-all duration-200 outline-none active:scale-[0.98]"
-                        style={alreadyAccepted ? {
-                          background: 'var(--color-bg-elevated)',
-                          color: 'var(--color-text-tertiary)',
-                          border: '1px solid var(--color-border-default)',
-                          cursor: 'not-allowed',
-                        } : {
-                          background: 'var(--color-accent-purple)',
-                          color: '#fff',
-                          border: '1px solid rgba(168,85,247,0.3)',
-                          boxShadow: 'var(--glow-purple)',
-                        }}
+          {copilot.thinking ? (
+            <div className="flex flex-col items-center justify-center py-6 gap-3 border border-border-default rounded-xl bg-bg-card select-none">
+              <Loader2 className="w-5 h-5 text-accent-purple animate-spin" />
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-xs text-text-secondary font-medium">Analyzing digital twin telemetry…</span>
+                <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider">Querying Gemini Agent API</span>
+              </div>
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="flex flex-col gap-2 overflow-y-auto max-h-[300px] scrollbar-thin">
+              {recommendations.map(rec => {
+                const isPriority1    = rec.priority === 1;
+                const alreadyAccepted = !!rec.accepted || !!intervention;
+                return (
+                  <div
+                    key={rec.id}
+                    className="rounded-lg p-3 flex flex-col transition-all duration-300 animate-slide-up"
+                    style={{
+                      background: 'rgba(168,85,247,0.05)',
+                      border: `${isPriority1 ? '2' : '1'}px solid ${isPriority1 ? 'rgba(168,85,247,0.5)' : 'rgba(168,85,247,0.2)'}`,
+                      boxShadow: isPriority1 ? '0 0 12px rgba(168,85,247,0.12)' : 'none',
+                    }}
+                  >
+                    <div className="flex gap-2.5 items-start">
+                      <div
+                        className="w-5 h-5 rounded-full text-white flex items-center justify-center font-mono text-[10px] font-bold flex-shrink-0 select-none"
+                        style={{ background: 'var(--color-accent-purple)' }}
                       >
-                        {alreadyAccepted ? 'Intervention Active' : 'Accept Mitigation'}
-                      </button>
+                        {rec.priority}
+                      </div>
+                      <div className="flex-1 flex flex-col gap-1">
+                        <p className="text-[11px] font-medium text-text-primary leading-normal">{rec.action}</p>
+                        <span className="text-[10px] text-accent-purple font-semibold">Impact: {rec.impact}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+
+                    {isPriority1 && (
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          disabled={alreadyAccepted}
+                          onClick={() => acceptRecommendation(rec.id)}
+                          className="text-[10px] font-semibold px-3.5 py-1 rounded transition-all duration-200 outline-none active:scale-[0.98]"
+                          style={alreadyAccepted ? {
+                            background: 'var(--color-bg-elevated)',
+                            color: 'var(--color-text-tertiary)',
+                            border: '1px solid var(--color-border-default)',
+                            cursor: 'not-allowed',
+                          } : {
+                            background: 'var(--color-accent-purple)',
+                            color: '#fff',
+                            border: '1px solid rgba(168,85,247,0.3)',
+                            boxShadow: 'var(--glow-purple)',
+                          }}
+                        >
+                          {alreadyAccepted ? 'Intervention Active' : 'Accept Mitigation'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-6 px-4 border border-border-default border-dashed rounded-xl bg-bg-card text-center select-none">
+              <span className="text-xs text-text-secondary font-medium mb-1">Analyze Mitigation Options</span>
+              <span className="text-[10px] text-text-tertiary mb-3 max-w-[240px] leading-relaxed">
+                Query Gemini to generate structured dispatch mitigations for active platform conflicts.
+              </span>
+              <button
+                onClick={generateAIRecommendations}
+                className="flex items-center gap-1.5 text-white text-[10px] font-semibold font-mono uppercase tracking-wider px-3.5 py-1.5 rounded transition-all duration-150 active:scale-[0.98] cursor-pointer hover:brightness-115"
+                style={{ background: 'var(--color-accent-purple)', boxShadow: 'var(--glow-purple)' }}
+              >
+                <Bot className="w-3.5 h-3.5" />
+                Generate Mitigations
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

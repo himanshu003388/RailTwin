@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import { StatCard } from '../ui/StatCard';
-import { CloudRain } from 'lucide-react';
+import { CloudRain, CloudFog } from 'lucide-react';
 
 interface StationCardProps {
   station: any;
@@ -12,14 +12,14 @@ interface StationCardProps {
     platformConflicts: number;
   };
   prediction: any;
-  weatherAlert: any;
+  weather: any;
 }
 
 const StationCard: React.FC<StationCardProps> = ({
   station,
   risks,
   prediction,
-  weatherAlert
+  weather
 }) => {
   const [isFlash, setIsFlash] = useState(false);
   const prevRiskRef = useRef(risks.crowdRisk);
@@ -45,14 +45,14 @@ const StationCard: React.FC<StationCardProps> = ({
     else flashBorderColor = 'var(--color-risk-low)';
   }
 
-  // Show bottom details row if active telemetry exists
+  // Weather metrics check
+  const hasRain = weather && weather.rainfall > 0;
+  const hasFog = weather && weather.visibility < 10 && !hasRain;
+  const hasWeather = hasRain || hasFog;
   const hasPrediction = !!prediction;
   const hasConflicts = risks.platformConflicts > 0;
   const hasHighCrowd = crowdRisk === 'high' || crowdRisk === 'critical';
-  const hasDetails = hasPrediction || hasConflicts || hasHighCrowd;
-
-  // Weather flag for Patna
-  const isPatnaWeather = station.id === 'pnbe' && weatherAlert?.station === 'pnbe';
+  const hasDetails = hasPrediction || hasConflicts || hasHighCrowd || hasWeather;
 
   return (
     <div
@@ -74,8 +74,15 @@ const StationCard: React.FC<StationCardProps> = ({
             <span className="text-sm font-medium text-text-primary select-none">
               {station.name}
             </span>
-            {isPatnaWeather && (
-              <CloudRain className="w-3.5 h-3.5 text-accent-red animate-pulse" />
+            {hasRain && (
+              <span title={`${weather.description} (${weather.rainfall}mm/hr)`}>
+                <CloudRain className="w-3.5 h-3.5 text-accent-blue animate-pulse" />
+              </span>
+            )}
+            {hasFog && (
+              <span title={`${weather.description} (Vis: ${weather.visibility}km)`}>
+                <CloudFog className="w-3.5 h-3.5 text-text-tertiary animate-pulse" />
+              </span>
             )}
           </div>
         </div>
@@ -102,6 +109,15 @@ const StationCard: React.FC<StationCardProps> = ({
               <span>👥</span> High crowd
             </span>
           )}
+          {hasWeather && (
+            <span className="text-accent-blue font-mono text-[10px] font-semibold flex items-center gap-1 uppercase tracking-wider">
+              {hasRain ? (
+                <><span>🌧</span> {weather.rainfall} mm/h</>
+              ) : (
+                <><span>🌫</span> {weather.visibility} km vis</>
+              )}
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -111,7 +127,7 @@ const StationCard: React.FC<StationCardProps> = ({
 export const StationRiskPanel: React.FC = () => {
   const stationRisks = useDemoStore(state => state.stationRisks);
   const predictions = useDemoStore(state => state.predictions);
-  const weatherAlert = useDemoStore(state => state.weatherAlert);
+  const weatherData = useDemoStore(state => state.weatherData);
   const trains = useDemoStore(state => state.trains);
   const stations = useDemoStore(state => state.stations) || [];
   const simulation = useDemoStore(state => state.simulation);
@@ -198,7 +214,7 @@ export const StationRiskPanel: React.FC = () => {
               station={station}
               risks={risks}
               prediction={prediction}
-              weatherAlert={weatherAlert}
+              weather={weatherData ? weatherData[station.id] : null}
             />
           );
         })}

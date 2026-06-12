@@ -102,6 +102,41 @@ async function fetchLiveWeather(stationCode: string): Promise<WeatherData | null
   }
 }
 
+export async function getCorridorWeather(): Promise<Record<string, WeatherData>> {
+  const results: Record<string, WeatherData> = {};
+  for (const stationCode of Object.keys(STATION_COORDS)) {
+    // Check cache first
+    const cached = getCachedWeather(stationCode);
+    if (cached) {
+      results[stationCode] = cached;
+      continue;
+    }
+
+    // Try live API
+    const live = await fetchLiveWeather(stationCode);
+    if (live) {
+      results[stationCode] = live;
+      continue;
+    }
+
+    // Fallback to hardcoded
+    const fallback = FALLBACK_WEATHER[stationCode] || { rainfall: 0, description: 'Clear sky' };
+    results[stationCode] = {
+      station: stationCode,
+      rainfall: fallback.rainfall,
+      description: fallback.description,
+      temperature: stationCode === 'pnbe' ? 28 : 25,
+      humidity: 80,
+      windSpeed: 10,
+      visibility: stationCode === 'pnbe' ? 5 : 10,
+      icon: '01d',
+      fetchedAt: new Date().toISOString(),
+      source: 'fallback'
+    };
+  }
+  return results;
+}
+
 export async function getWeatherAlert(): Promise<{
   station: string;
   rainfall: number;
@@ -112,46 +147,16 @@ export async function getWeatherAlert(): Promise<{
   visibility: number;
   source: string;
 }> {
-  // Check cache first
-  const cached = getCachedWeather('pnbe');
-  if (cached) {
-    return {
-      station: cached.station,
-      rainfall: cached.rainfall,
-      description: cached.description,
-      temperature: cached.temperature,
-      humidity: cached.humidity,
-      windSpeed: cached.windSpeed,
-      visibility: cached.visibility,
-      source: 'cache'
-    };
-  }
-
-  // Try live API
-  const live = await fetchLiveWeather('pnbe');
-  if (live) {
-    return {
-      station: live.station,
-      rainfall: live.rainfall,
-      description: live.description,
-      temperature: live.temperature,
-      humidity: live.humidity,
-      windSpeed: live.windSpeed,
-      visibility: live.visibility,
-      source: 'live'
-    };
-  }
-
-  // Fallback to hardcoded
-  const fallback = FALLBACK_WEATHER.pnbe;
+  const corridorWeather = await getCorridorWeather();
+  const pnbeWeather = corridorWeather.pnbe;
   return {
-    station: 'pnbe',
-    rainfall: fallback.rainfall,
-    description: fallback.description,
-    temperature: 28,
-    humidity: 85,
-    windSpeed: 12,
-    visibility: 5,
-    source: 'fallback'
+    station: pnbeWeather.station,
+    rainfall: pnbeWeather.rainfall,
+    description: pnbeWeather.description,
+    temperature: pnbeWeather.temperature,
+    humidity: pnbeWeather.humidity,
+    windSpeed: pnbeWeather.windSpeed,
+    visibility: pnbeWeather.visibility,
+    source: pnbeWeather.source
   };
 }

@@ -44,6 +44,24 @@ export const AlertBanner: React.FC = () => {
 
   if (!visible || !weatherAlert) return null;
 
+  const stationMap: Record<string, string> = {
+    ndls: 'New Delhi',
+    cnb: 'Kanpur Central',
+    ald: 'Prayagraj',
+    bsb: 'Varanasi Junction',
+    pnbe: 'Patna Junction',
+    dhn: 'Dhanbad Junction',
+    hwh: 'Howrah Junction'
+  };
+
+  const getStationName = (code: string) => {
+    return stationMap[code.toLowerCase()] || code.toUpperCase();
+  };
+
+  const alertMessage = weatherAlert.description.toLowerCase().includes('detected near')
+    ? weatherAlert.description
+    : `${weatherAlert.description.charAt(0).toUpperCase() + weatherAlert.description.slice(1)} detected near ${getStationName(weatherAlert.station)}`;
+
   return (
     <div className="fixed top-0 left-0 w-full bg-[#1a0000] border-b-2 border-accent-red z-[100] px-4 py-2.5 select-none shadow-lg animate-banner-down">
       <div className="flex items-center justify-between gap-3 max-w-[1400px] mx-auto relative">
@@ -58,7 +76,7 @@ export const AlertBanner: React.FC = () => {
           <p className="text-sm text-white flex items-center gap-1.5 flex-wrap">
             <span className="font-bold text-[#ef4444]">⚠ WEATHER ALERT</span>
             <span>—</span>
-            <span>Heavy rainfall (72mm/hr) detected near Patna Junction. Delay predictions active.</span>
+            <span>{alertMessage}. Delay predictions active.</span>
           </p>
         </div>
 

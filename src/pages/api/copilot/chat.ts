@@ -64,12 +64,12 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { messages, systemState } = await request.json();
+    const { messages, systemState, userApiKey } = await request.json();
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = userApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "AI Copilot is not configured. GEMINI_API_KEY environment variable is missing." }),
+        JSON.stringify({ error: "AI Copilot is not configured. GEMINI_API_KEY is missing. Please configure it in Settings." }),
         { status: 503, headers: { 'Content-Type': 'application/json' } }
       );
     }

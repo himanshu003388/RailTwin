@@ -108,118 +108,109 @@
 
 /* ── Light Mode Token Overrides ────────────────────────────── */
 html.light, .light {
-  /* ── Surface System — cool-tinted daylight palette ─────── */
-  --color-bg-page:     #e4e9f0;
-  --color-bg-card:     #f0f4f8;
-  --color-bg-elevated: #ffffff;
-  --color-bg-hover:    #dce3ec;
-  --color-bg-sunken:   #d4dbe6;
+  /* Surface Ladder */
+  --color-bg-page:     #f4f5f6; /* Slate gray background so white cards pop */
+  --color-bg-card:     #ffffff; /* Clean white card surfaces */
+  --color-bg-elevated: #fafafa;
+  --color-bg-hover:    #eaebeb;
+  --color-bg-sunken:   #e2e3e5;
 
-  /* Colored surface tints — for section differentiation */
-  --color-surface-sidebar:   #dce3ec;
-  --color-surface-header:    #e8edf4;
-  --color-surface-panel:     #f0f4f8;
-  --color-surface-overlay:   rgba(255, 255, 255, 0.92);
-  --color-surface-code:      #e8ecf2;
-  --color-surface-brand:     linear-gradient(135deg, #e0ecff 0%, #ede0ff 50%, #ffe0f0 100%);
+  /* Border Ladder */
+  --color-border-subtle:  #e6e8eb;
+  --color-border-default: #d8dadf;
+  --color-border-hover:   #b8bac0;
+  --color-border-active:  #989a9f;
+  --color-border-strong:  #686a6f;
 
-  /* ── Border Ladder — tinted for depth ──────────────────── */
-  --color-border-subtle:  #c8d0dc;
-  --color-border-default: #b0b8c8;
-  --color-border-hover:   #8892a8;
-  --color-border-active:  #5a6478;
-  --color-border-strong:  #3d4556;
+  /* Text Hierarchy */
+  --color-text-primary:   #111111;
+  --color-text-secondary: #3c4048;
+  --color-text-tertiary:  #5c6068;
+  --color-text-muted:     #767c85;
 
-  /* ── Text Hierarchy — rich contrast ────────────────────── */
-  --color-text-primary:   #0c1220;
-  --color-text-secondary: #2d3748;
-  --color-text-tertiary:  #5a6578;
-  --color-text-muted:     #8494a7;
+  /* Accent — Blue */
+  --color-accent-blue:       #0060df;
+  --color-accent-blue-soft:  rgba(0, 96, 223, 0.08);
+  --color-accent-blue-glow:  rgba(0, 96, 223, 0.2);
 
-  /* ── Accent — Blue (primary interactive) ───────────────── */
-  --color-accent-blue:       #2563eb;
-  --color-accent-blue-soft:  rgba(37, 99, 235, 0.12);
-  --color-accent-blue-glow:  rgba(37, 99, 235, 0.28);
+  /* Accent — Green */
+  --color-accent-green:      #15803d;
+  --color-accent-green-soft: rgba(21, 128, 61, 0.08);
+  --color-accent-green-glow: rgba(21, 128, 61, 0.2);
 
-  /* ── Accent — Green (success / nominal) ────────────────── */
-  --color-accent-green:      #16a34a;
-  --color-accent-green-soft: rgba(22, 163, 74, 0.12);
-  --color-accent-green-glow: rgba(22, 163, 74, 0.28);
+  /* Accent — Amber */
+  --color-accent-amber:      #b45309;
+  --color-accent-amber-soft: rgba(180, 83, 9, 0.08);
+  --color-accent-amber-glow: rgba(180, 83, 9, 0.2);
 
-  /* ── Accent — Amber (warning / demo) ──────────────────── */
-  --color-accent-amber:      #d97706;
-  --color-accent-amber-soft: rgba(217, 119, 6, 0.12);
-  --color-accent-amber-glow: rgba(217, 119, 6, 0.28);
+  /* Accent — Red */
+  --color-accent-red:        #cc0000;
+  --color-accent-red-soft:   rgba(204, 0, 0, 0.08);
+  --color-accent-red-glow:   rgba(204, 0, 0, 0.25);
 
-  /* ── Accent — Red (error / critical) ──────────────────── */
-  --color-accent-red:        #dc2626;
-  --color-accent-red-soft:   rgba(220, 38, 38, 0.12);
-  --color-accent-red-glow:   rgba(220, 38, 38, 0.30);
+  /* Accent — Purple */
+  --color-accent-purple:      #6b21a8;
+  --color-accent-purple-soft: rgba(107, 33, 168, 0.08);
+  --color-accent-purple-glow: rgba(107, 33, 168, 0.2);
 
-  /* ── Accent — Purple (AI / prediction) ────────────────── */
-  --color-accent-purple:      #7c3aed;
-  --color-accent-purple-soft: rgba(124, 58, 237, 0.12);
-  --color-accent-purple-glow: rgba(124, 58, 237, 0.28);
+  /* Accent — Cyan */
+  --color-accent-cyan:       #0369a1;
+  --color-accent-cyan-soft:  rgba(3, 105, 161, 0.08);
+  --color-accent-cyan-glow:  rgba(3, 105, 161, 0.2);
 
-  /* ── Accent — Cyan (info / data) ──────────────────────── */
-  --color-accent-cyan:       #0891b2;
-  --color-accent-cyan-soft:  rgba(8, 145, 178, 0.12);
-  --color-accent-cyan-glow:  rgba(8, 145, 178, 0.28);
+  /* Risk Semantic Tokens */
+  --color-risk-low:           #15803d;
+  --color-risk-low-bg:        #f0fdf4;
+  --color-risk-low-border:    #bbf7d0;
 
-  /* ── Risk Semantic Tokens — vivid daylight backgrounds ── */
-  --color-risk-low:           #16a34a;
-  --color-risk-low-bg:        #dcfce7;
-  --color-risk-low-border:    #86efac;
+  --color-risk-moderate:      #b45309;
+  --color-risk-moderate-bg:   #fffbeb;
+  --color-risk-moderate-border: #fde6c7;
 
-  --color-risk-moderate:      #d97706;
-  --color-risk-moderate-bg:   #fef3c7;
-  --color-risk-moderate-border: #fde68a;
+  --color-risk-high:          #c2410c;
+  --color-risk-high-bg:       #fff7ed;
+  --color-risk-high-border:   #ffedd5;
 
-  --color-risk-high:          #ea580c;
-  --color-risk-high-bg:       #ffedd5;
-  --color-risk-high-border:   #fed7aa;
+  --color-risk-critical:      #c53030;
+  --color-risk-critical-bg:   #fff5f5;
+  --color-risk-critical-border: #fed7d7;
 
-  --color-risk-critical:      #dc2626;
-  --color-risk-critical-bg:   #fee2e2;
-  --color-risk-critical-border: #fca5a5;
-
-  /* ── Shadows — blue-tinted for daylight feel ──────────── */
+  /* Shadows (Light Mode Vercel) */
   --shadow-flat:  none;
-  --shadow-card:  0 0 0 1px rgba(100, 120, 160, 0.10) inset,
-                  0px 1px 3px rgba(60, 80, 120, 0.08),
-                  0px 2px 8px rgba(60, 80, 120, 0.05);
-  --shadow-elevated: 0 0 0 1px rgba(100, 120, 160, 0.10) inset,
-                     0px 2px 6px rgba(60, 80, 120, 0.10),
-                     0px 8px 24px rgba(60, 80, 120, 0.08);
-  --shadow-float: 0 0 0 1px rgba(100, 120, 160, 0.12) inset,
-                  0px 4px 8px rgba(60, 80, 120, 0.12),
-                  0px 12px 32px rgba(60, 80, 120, 0.10),
-                  0px 24px 56px rgba(60, 80, 120, 0.06);
-  --shadow-modal: 0 0 0 1px rgba(100, 120, 160, 0.12) inset,
-                  0px 4px 8px rgba(60, 80, 120, 0.14),
-                  0px 12px 28px rgba(60, 80, 120, 0.12),
-                  0px 28px 56px rgba(60, 80, 120, 0.10);
+  --shadow-card:  0 0 0 1px rgba(0,0,0,0.08) inset,
+                  0px 1px 2px rgba(0,0,0,0.06),
+                  0px 2px 4px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 0 0 1px rgba(0,0,0,0.08) inset,
+                     0px 2px 6px rgba(0,0,0,0.06),
+                     0px 8px 16px rgba(0,0,0,0.04);
+  --shadow-float: 0 0 0 1px rgba(0,0,0,0.1) inset,
+                  0px 2px 4px rgba(0,0,0,0.04),
+                  0px 8px 24px rgba(0,0,0,0.05),
+                  0px 24px 48px rgba(0,0,0,0.03);
+  --shadow-modal: 0 0 0 1px rgba(0,0,0,0.1) inset,
+                  0px 1px 3px rgba(0,0,0,0.04),
+                  0px 8px 20px rgba(0,0,0,0.06),
+                  0px 24px 48px rgba(0,0,0,0.06);
 
-  /* ── Glow Utilities — vivid on light bg ───────────────── */
-  --glow-blue:   0 0 14px rgba(37, 99, 235, 0.35), 0 0 32px rgba(37, 99, 235, 0.12);
-  --glow-green:  0 0 12px rgba(22, 163, 74, 0.35),  0 0 28px rgba(22, 163, 74, 0.12);
-  --glow-amber:  0 0 12px rgba(217, 119, 6, 0.35),  0 0 28px rgba(217, 119, 6, 0.12);
-  --glow-red:    0 0 14px rgba(220, 38, 38, 0.40),  0 0 32px rgba(220, 38, 38, 0.15);
-  --glow-purple: 0 0 12px rgba(124, 58, 237, 0.35), 0 0 28px rgba(124, 58, 237, 0.12);
-  --glow-cyan:   0 0 12px rgba(8, 145, 178, 0.35),  0 0 28px rgba(8, 145, 178, 0.12);
+  /* Glow Utilities */
+  --glow-blue:   0 0 12px rgba(0, 96, 223, 0.2), 0 0 24px rgba(0, 96, 223, 0.08);
+  --glow-green:  0 0 10px rgba(21, 128, 61, 0.2),  0 0 20px rgba(21, 128, 61, 0.08);
+  --glow-amber:  0 0 10px rgba(180, 83, 9, 0.2), 0 0 20px rgba(180, 83, 9, 0.08);
+  --glow-red:    0 0 12px rgba(204, 0, 0, 0.25),  0 0 24px rgba(204, 0, 0, 0.1);
+  --glow-purple: 0 0 10px rgba(107, 33, 168, 0.2), 0 0 20px rgba(107, 33, 168, 0.08);
 
-  /* ── Additional daylight-specific tokens ──────────────── */
-  --color-divider:         #c0c8d8;
-  --color-focus-ring:      rgba(37, 99, 235, 0.45);
-  --color-badge-bg:        rgba(37, 99, 235, 0.10);
-  --color-badge-text:      #1d4ed8;
-  --color-nav-active-bg:   rgba(37, 99, 235, 0.12);
-  --color-nav-active-text: #1d4ed8;
+  /* Additional daylight-specific tokens */
+  --color-divider:         #d8dadf;
+  --color-focus-ring:      rgba(0, 96, 223, 0.45);
+  --color-badge-bg:        rgba(0, 96, 223, 0.10);
+  --color-badge-text:      #0060df;
+  --color-nav-active-bg:   rgba(0, 96, 223, 0.12);
+  --color-nav-active-text: #0060df;
   --color-input-bg:        #ffffff;
-  --color-input-border:    #b8c0d0;
-  --color-input-focus:     #2563eb;
-  --color-scrollbar:       #94a3b8;
-  --color-scrollbar-hover: #64748b;
+  --color-input-border:    #d8dadf;
+  --color-input-focus:     #0060df;
+  --color-scrollbar:       #b8bac0;
+  --color-scrollbar-hover: #989a9f;
 }
 
 /* ── Base Reset ─────────────────────────────────────────────── */

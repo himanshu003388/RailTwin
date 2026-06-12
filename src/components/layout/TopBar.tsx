@@ -56,6 +56,15 @@ export const TopBar: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [liveApiEnabled]);
 
+  // Weather API Polling
+  useEffect(() => {
+    const fetchWeather = useDemoStore.getState().fetchLiveWeatherForCorridor;
+    fetchWeather(); // Fetch immediately on load
+
+    const intervalId = setInterval(fetchWeather, 3 * 60 * 1000); // Poll every 3 minutes
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <>
       <header

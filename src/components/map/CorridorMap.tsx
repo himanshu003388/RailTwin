@@ -56,13 +56,14 @@ function createGeoJSONCircle(center: [number, number], radiusInKm: number, point
   };
 }
 
-// Generate stations GeoJSON with risk colors
-const getStationsGeoJSON = (stationRisks: any, stationsList?: any[]) => {
+// Generate stations GeoJSON with risk colors and weather parameters
+const getStationsGeoJSON = (stationRisks: any, stationsList: any[], weatherData: any) => {
   const list = stationsList || CORRIDOR.stations;
   return {
     type: 'FeatureCollection',
     features: list.map(station => {
       const risks = stationRisks[station.id] || { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 };
+      const weather = weatherData ? weatherData[station.id] : null;
       let color = '#22c55e';
       if (risks.crowdRisk === 'moderate') color = '#f59e0b';
       else if (risks.crowdRisk === 'high') color = '#f97316';
@@ -77,12 +78,59 @@ const getStationsGeoJSON = (stationRisks: any, stationsList?: any[]) => {
           crowdRisk: risks.crowdRisk,
           delayRisk: risks.delayRisk,
           conflicts: risks.platformConflicts,
-          color: color
+          color: color,
+          rainfall: weather ? weather.rainfall : 0,
+          visibility: weather ? weather.visibility : 10,
+          temperature: weather ? weather.temperature : 25,
+          humidity: weather ? weather.humidity : 80,
+          description: weather ? weather.description : 'Clear sky',
+          source: weather ? weather.source : 'fallback'
         },
         geometry: { type: 'Point', coordinates: station.coordinates }
       };
     })
   };
+};
+
+// Generate polygons for active weather zones (rain or low visibility)
+const getWeatherZonesGeoJSON = (weatherData: any, stationsList: any[]) => {
+  const features: any[] = [];
+  if (!weatherData) return { type: 'FeatureCollection', features };
+
+  stationsList.forEach(station => {
+    const weather = weatherData[station.id];
+    if (!weather) return;
+
+    let hasWeather = false;
+    let radius = 20; // default km radius
+    let color = '#3b82f6'; // default blue for rain
+
+    if (weather.rainfall > 0) {
+      hasWeather = true;
+      radius = Math.min(45, 15 + weather.rainfall * 1.2); // scale radius by rainfall
+      color = '#3b82f6';
+    } else if (weather.visibility < 10) {
+      hasWeather = true;
+      radius = 20; // fixed size for fog/visibility disruption
+      color = '#64748b'; // slate/gray for visibility
+    }
+
+    if (hasWeather) {
+      const circleGeo = createGeoJSONCircle(station.coordinates, radius);
+      features.push({
+        type: 'Feature',
+        properties: {
+          stationId: station.id,
+          rainfall: weather.rainfall,
+          visibility: weather.visibility,
+          color: color
+        },
+        geometry: circleGeo.geometry
+      });
+    }
+  });
+
+  return { type: 'FeatureCollection', features };
 };
 
 // Tile style URLs in priority order (most reliable first)
@@ -110,7 +158,7 @@ export const CorridorMap: React.FC = () => {
 
   const trains = useDemoStore(state => state.trains);
   const stationRisks = useDemoStore(state => state.stationRisks);
-  const weatherAlert = useDemoStore(state => state.weatherAlert);
+  const weatherData = useDemoStore(state => state.weatherData);
   const activePanel = useDemoStore(state => state.activePanel);
   const demoTime = useDemoStore(state => state.demoTime);
   const theme = useDemoStore(state => state.theme);
@@ -292,7 +340,11 @@ export const CorridorMap: React.FC = () => {
       // ═══════════════════════════════════════════════════════════
       map.addSource('stations', {
         type: 'geojson',
-        data: getStationsGeoJSON(useDemoStore.getState().stationRisks, useDemoStore.getState().stations)
+        data: getStationsGeoJSON(
+          useDemoStore.getState().stationRisks,
+          useDemoStore.getState().stations,
+          useDemoStore.getState().weatherData
+        )
       });
 
       // Outer glow ring
@@ -367,21 +419,44 @@ export const CorridorMap: React.FC = () => {
       // ═══════════════════════════════════════════════════════════
       map.on('click', 'station-circles', (e: any) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const { name, code, crowdRisk, conflicts, platforms } = e.features[0].properties;
+        const {
+          name, code, crowdRisk, conflicts, platforms,
+          rainfall, visibility, temperature, humidity, description, source
+        } = e.features[0].properties;
         const riskColor = crowdRisk === 'critical' ? '#ef4444' : crowdRisk === 'high' ? '#f97316' : crowdRisk === 'moderate' ? '#f59e0b' : '#22c55e';
 
         const html = `
-          <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#0c1220' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#b0b8c8' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(60,80,120,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:180px;">
+          <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#0c1220' : '#ffffff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${theme === 'light' ? '#ebebeb' : '#222'}; padding:14px; border-radius:12px; box-shadow:${theme === 'light' ? '0 8px 28px rgba(60,80,120,0.18), 0 2px 8px rgba(0,0,0,0.08)' : '0 12px 32px rgba(0,0,0,0.7)'}; min-width:190px;">
             <div style="font-weight:700; font-size:14px; margin-bottom:2px; color:${theme === 'light' ? '#2563eb' : '#3b82f6'};">${name}</div>
-            <div style="font-size:10px; color:${theme === 'light' ? '#5a6578' : '#555'}; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
+            <div style="font-size:10px; color:${theme === 'light' ? '#5a6578' : '#888'}; margin-bottom:10px; font-family:monospace;">${code} · ${platforms} platforms</div>
             <div style="display:flex; flex-direction:column; gap:5px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2px;">
                 <span style="color:${theme === 'light' ? '#5a6578' : '#888'};">Crowd Risk</span>
                 <span style="color:${riskColor}; font-weight:700; font-size:11px; background:${riskColor}18; padding:2px 8px; border-radius:4px;">${crowdRisk.toUpperCase()}</span>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
                 <span style="color:${theme === 'light' ? '#5a6578' : '#888'};">Platform Conflicts</span>
                 <span style="font-weight:700; color:${conflicts > 0 ? '#dc2626' : '#16a34a'}; font-size:11px;">${conflicts}</span>
+              </div>
+              <div style="height:1px; background:${theme === 'light' ? '#ebebeb' : '#222'}; margin:6px 0;"></div>
+              <div style="font-weight:600; font-size:10px; color:${theme === 'light' ? '#4d4d4d' : '#888'}; text-transform:uppercase; tracking-wide; margin-bottom:2px;">Live Weather (${source})</div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Condition</span>
+                  <span style="font-weight:500;">${description}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Rainfall</span>
+                  <span style="font-weight:500; color:${rainfall > 0 ? '#0284c7' : 'inherit'};">${rainfall} mm/h</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Visibility</span>
+                  <span style="font-weight:500; color:${visibility < 10 ? '#d97706' : 'inherit'};">${visibility} km</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:${theme === 'light' ? '#888' : '#666'};">Temp / Humidity</span>
+                  <span style="font-weight:500;">${temperature}°C / ${humidity}%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -409,13 +484,13 @@ export const CorridorMap: React.FC = () => {
   }, [maplibReady, theme]);
 
 
-  // Sync station risks
+  // Sync station risks and weather data
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
     const source = map.getSource('stations');
-    if (source) { source.setData(getStationsGeoJSON(stationRisks, stations)); }
-  }, [stationRisks, mapLoaded, stations]);
+    if (source) { source.setData(getStationsGeoJSON(stationRisks, stations, weatherData)); }
+  }, [stationRisks, mapLoaded, stations, weatherData]);
 
   // Fly-to animations at demo milestones
   useEffect(() => {
@@ -612,9 +687,9 @@ export const CorridorMap: React.FC = () => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    const sourceId = 'weather-circle';
-    const fillLayerId = 'weather-fill';
-    const borderLayerId = 'weather-border';
+    const sourceId = 'weather-zones';
+    const fillLayerId = 'weather-zones-fill';
+    const borderLayerId = 'weather-zones-border';
 
     const cleanupLayers = () => {
       if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
@@ -623,31 +698,36 @@ export const CorridorMap: React.FC = () => {
     };
     cleanupLayers();
 
-    if (weatherAlert) {
-      const weatherStation = stations.find(s => s.id === weatherAlert.station);
-      if (weatherStation) {
-        map.addSource(sourceId, { type: 'geojson', data: createGeoJSONCircle(weatherStation.coordinates, 20) });
-        map.addLayer({
-          id: fillLayerId, type: 'fill', source: sourceId,
-          paint: { 'fill-color': '#dc2626', 'fill-opacity': theme === 'light' ? 0.18 : 0.15 }
-        });
-        map.addLayer({
-          id: borderLayerId, type: 'line', source: sourceId,
-          paint: { 'line-color': '#dc2626', 'line-width': theme === 'light' ? 2 : 1.5, 'line-opacity': 0.9 }
-        });
+    const geojsonData = getWeatherZonesGeoJSON(weatherData, stations);
+    if (geojsonData.features.length > 0) {
+      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
+      map.addLayer({
+        id: fillLayerId, type: 'fill', source: sourceId,
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': theme === 'light' ? 0.15 : 0.12
+        }
+      });
+      map.addLayer({
+        id: borderLayerId, type: 'line', source: sourceId,
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': theme === 'light' ? 1.8 : 1.2,
+          'line-opacity': 0.8
+        }
+      });
 
-        let startTime = Date.now();
-        const pulseInterval = setInterval(() => {
-          if (!mapRef.current || !mapRef.current.getLayer(fillLayerId)) { clearInterval(pulseInterval); return; }
-          const elapsed = Date.now() - startTime;
-          const opacity = 0.15 + 0.06 * Math.cos((elapsed / 2000) * 2 * Math.PI);
-          mapRef.current.setPaintProperty(fillLayerId, 'fill-opacity', opacity);
-        }, 50);
+      let startTime = Date.now();
+      const pulseInterval = setInterval(() => {
+        if (!mapRef.current || !mapRef.current.getLayer(fillLayerId)) { clearInterval(pulseInterval); return; }
+        const elapsed = Date.now() - startTime;
+        const opacity = (theme === 'light' ? 0.14 : 0.10) + 0.05 * Math.cos((elapsed / 2000) * 2 * Math.PI);
+        mapRef.current.setPaintProperty(fillLayerId, 'fill-opacity', opacity);
+      }, 50);
 
-        return () => { clearInterval(pulseInterval); cleanupLayers(); };
-      }
+      return () => { clearInterval(pulseInterval); cleanupLayers(); };
     }
-  }, [weatherAlert, mapLoaded]);
+  }, [weatherData, mapLoaded, stations, theme]);
 
   return (
     <div className="relative w-full h-full">
@@ -755,6 +835,24 @@ export const CorridorMap: React.FC = () => {
                   <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-border-default my-2.5" />
+
+          {/* Weather Legend */}
+          <div className="mb-3">
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather Layers</div>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
+                <span className="text-[10px] font-medium text-text-secondary">Rainfall Zone</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
+                <span className="text-[10px] font-medium text-text-secondary">Low Visibility</span>
+              </div>
             </div>
           </div>
 
