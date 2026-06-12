@@ -28,7 +28,7 @@ export const CopilotChat: React.FC = () => {
   // Always starts as true — the server reads GEMINI_API_KEY from Vercel env
   const [isLiveActive, setIsLiveActive] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  
+
   const active = isLiveActive || !!geminiApiKey;
 
   // Verify that the server has GEMINI_API_KEY configured in Vercel env
@@ -146,6 +146,14 @@ export const CopilotChat: React.FC = () => {
   };
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const prevThinking = useRef(copilot.thinking);
+  useEffect(() => {
+    if (prevThinking.current && !copilot.thinking) {
+      inputRef.current?.focus();
+    }
+    prevThinking.current = copilot.thinking;
+  }, [copilot.thinking]);
 
   const handleSubmit = () => {
     if (!inputText.trim() || copilot.thinking) return;
@@ -292,14 +300,9 @@ export const CopilotChat: React.FC = () => {
           <input
             ref={inputRef}
             type="text"
+            autoFocus
             value={inputText}
             onChange={e => setInputText(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-            }}
             disabled={copilot.thinking}
             placeholder={copilot.thinking ? "Analyzing corridor state…" : "Ask about corridor status…"}
             className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
