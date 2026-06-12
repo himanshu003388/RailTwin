@@ -134,6 +134,18 @@ export async function getWeatherAlert(customApiKey?: string): Promise<{
 }> {
   const corridorWeather = await getCorridorWeather(customApiKey);
   const pnbeWeather = corridorWeather.pnbe;
+  if (!pnbeWeather) {
+    return {
+      station: 'pnbe',
+      rainfall: 0,
+      description: 'No weather data available',
+      temperature: 25,
+      humidity: 60,
+      windSpeed: 5,
+      visibility: 10,
+      source: 'unavailable'
+    };
+  }
   return {
     station: pnbeWeather.station,
     rainfall: pnbeWeather.rainfall,
