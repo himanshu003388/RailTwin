@@ -50,60 +50,12 @@ export const DEMO_TIMELINE: DemoEvent[] = [
     }
   },
   {
-    id: "evt-18",
-    time: 18,
+    id: "evt-16",
+    time: 16,
     type: "copilot",
     payload: {
       thinking: true,
-      message: "Analyzing corridor state and running impact simulation..."
-    }
-  },
-  {
-    id: "evt-24",
-    time: 24,
-    type: "copilot",
-    payload: {
-      thinking: false,
-      recommendations: [
-        {
-          id: "rec-1",
-          priority: 1,
-          action: "Issue hold order for 12303 at Allahabad Junction (18-min hold resolves platform conflict)",
-          impact: "Eliminates 3 platform conflicts"
-        },
-        {
-          id: "rec-2",
-          priority: 2,
-          action: "Deploy crowd management to Patna platform 5 & 7",
-          impact: "Reduces crowd risk from CRITICAL to MODERATE"
-        },
-        {
-          id: "rec-3",
-          priority: 3,
-          action: "Push passenger alerts via NTES for 12301",
-          impact: "Notifies 920 passengers of delay"
-        }
-      ]
-    }
-  },
-  {
-    id: "evt-36",
-    time: 36,
-    type: "intervention",
-    payload: {
-      accepted: "hold-12303",
-      operator: "CNT-04"
-    }
-  },
-  {
-    id: "evt-42",
-    time: 42,
-    type: "resolved",
-    payload: {
-      newCascadeDelay: 19,
-      conflictsResolved: 3,
-      riskReduction: "CRITICAL→MODERATE",
-      minutesSaved: 33
+      message: "Analyzing corridor impact from monsoon disruption..."
     }
   }
 ];

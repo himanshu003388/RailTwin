@@ -21,12 +21,15 @@ function getBaseUrl() {
 
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
+  const geminiApiKey = useDemoStore(state => state.geminiApiKey);
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
   // Always starts as true — the server reads GEMINI_API_KEY from Vercel env
   const [isLiveActive, setIsLiveActive] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  
+  const active = isLiveActive || !!geminiApiKey;
 
   // Verify that the server has GEMINI_API_KEY configured in Vercel env
   useEffect(() => {
@@ -49,23 +52,7 @@ export const CopilotChat: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const currentMessages = useDemoStore.getState().copilot.messages;
-    if (!currentMessages.some(m => m.id === 'init-agent-msg')) {
-      useDemoStore.setState(state => ({
-        copilot: {
-          ...state.copilot,
-          messages: [
-            {
-              id: 'init-agent-msg',
-              sender: 'copilot' as const,
-              message: "Good morning. I'm monitoring the Delhi–Howrah corridor. All 8 stations operational, 5 trains on schedule. No active disruptions detected. Ask me anything about current operations.",
-              timestamp: new Date()
-            },
-            ...state.copilot.messages.filter(m => m.id !== 'init-msg')
-          ]
-        }
-      }));
-    }
+    // No hardcoded greeting — copilot messages are generated via Gemini API
   }, []);
 
   useEffect(() => {
@@ -105,14 +92,14 @@ export const CopilotChat: React.FC = () => {
     try {
       let replyMessage = '';
 
-      // Always route through the server API — GEMINI_API_KEY is in Vercel environment, never sent from client
+      // Always route through the server API, passing custom key if configured
       const response = await fetchWithTimeout(`${getBaseUrl()}api/copilot/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: currentMessages,
-          systemState
-          // NOTE: userApiKey intentionally omitted — key lives server-side in Vercel env
+          systemState,
+          userApiKey: geminiApiKey
         })
       });
 
@@ -191,14 +178,22 @@ export const CopilotChat: React.FC = () => {
             <div
               className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
               style={{
-                background: isLiveActive ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
-                border: `1px solid ${isLiveActive ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
-                color: isLiveActive ? 'var(--color-accent-green)' : 'var(--color-accent-red)'
+                background: active ? 'var(--color-risk-low-bg)' : 'var(--color-risk-critical-bg)',
+                border: `1px solid ${active ? 'var(--color-risk-low-border)' : 'var(--color-risk-critical-border)'}`,
+                color: active ? 'var(--color-risk-low)' : 'var(--color-risk-critical)'
               }}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${isLiveActive ? 'bg-accent-green animate-pulse' : 'bg-accent-red'}`} />
-              <span>{isLiveActive ? 'Live AI Agent Mode (Gemini 2.5)' : 'AI Service Unavailable — Check Vercel Env'}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
+              <span>{active ? 'Live AI Agent Mode (Gemini 2.5)' : 'AI Service Unavailable · Configure Settings'}</span>
             </div>
+            {!active && (
+              <div className="mt-4 p-3.5 rounded-lg border border-border-default bg-bg-card max-w-[320px] text-center flex flex-col gap-2 shadow-sm">
+                <span className="text-[11px] font-semibold text-text-primary">Gemini API Key Required</span>
+                <span className="text-[10px] text-text-tertiary leading-relaxed">
+                  Please open **Settings** (gear icon in the top right) and enter a valid Gemini API Key to enable real-time operational query answering.
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -309,7 +304,7 @@ export const CopilotChat: React.FC = () => {
               }
             }}
             disabled={copilot.thinking}
-            placeholder={copilot.thinking ? "Analyzing corridor state..." : "Ask about corridor status..."}
+            placeholder={copilot.thinking ? "Analyzing corridor state…" : "Ask about corridor status…"}
             className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-bg-elevated)',
@@ -331,8 +326,8 @@ export const CopilotChat: React.FC = () => {
 
         <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
           <span>RailTwin Copilot · Powered by Gemini Agent API</span>
-          <span className={`w-1 h-1 rounded-full ${isLiveActive ? 'bg-accent-green animate-pulse' : 'bg-accent-red'}`} />
-          <span className="text-[8px]">{isLiveActive ? 'LIVE ACTIVE' : 'SERVER UNAVAILABLE'}</span>
+          <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
+          <span className="text-[8px]">{active ? 'LIVE ACTIVE' : 'SERVER UNAVAILABLE'}</span>
         </div>
       </div>
     </div>

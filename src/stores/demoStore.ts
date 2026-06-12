@@ -126,6 +126,7 @@ export interface DemoState {
   setApiConfig: (config: { enabled: boolean, key: string, host: string }) => void;
   setGeminiApiKey: (key: string) => void;
   updateLiveTrainsFromApi: () => Promise<void>;
+  generateAIRecommendations: () => Promise<void>;
 }
 
 // Global timers references
@@ -134,6 +135,11 @@ let eventTimeouts: any[] = [];
 
 // Concurrency guard for live API updates
 let liveApiUpdating = false;
+
+function getBaseUrl() {
+  const base = import.meta.env.BASE_URL || '/';
+  return base.endsWith('/') ? base : `${base}/`;
+}
 
 const nameToIdMap: Record<string, string> = {
   'new delhi': 'ndls',
@@ -459,15 +465,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           set({ activePanel: 'delays' });
         } else if (nextTime === 12) {
           set({ activePanel: 'simulation' });
-        } else if (nextTime === 18) {
-          set(s => ({
-            activePanel: 'simulation',
-            copilot: { ...s.copilot, thinking: true }
-          }));
-        } else if (nextTime === 24) {
-          set({ activePanel: 'copilot' });
-        } else if (nextTime === 30) {
-          set({ activePanel: 'simulation' });
         } else if (nextTime === 50) {
           set({ activePanel: 'map', demoRunning: false });
           if (timerInterval) clearInterval(timerInterval);
@@ -598,6 +595,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const updatedRecommendations = get().copilot.recommendations.map(r =>
       r.id === id ? { ...r, accepted: true } : r
     );
+    const acceptedRec = get().copilot.recommendations.find(r => r.id === id);
 
     set(state => ({
       copilot: {
@@ -608,13 +606,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           {
             id: `user-msg-${Date.now()}`,
             sender: 'user',
-            message: `Accepted recommendation: ${state.copilot.recommendations.find(r => r.id === id)?.action}`,
-            timestamp: new Date()
-          },
-          {
-            id: `copilot-apply-${Date.now()}`,
-            sender: 'copilot',
-            message: 'Sending hold instruction to Allahabad Junction (ALD). Recalculating signal schedules...',
+            message: `Accepted recommendation: ${acceptedRec?.action}`,
             timestamp: new Date()
           }
         ]
@@ -624,6 +616,72 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         operator: 'OP-01'
       }
     }));
+
+    // Call Gemini API for copilot response to accepted recommendation
+    const stateForApi = get();
+    const systemStateForApi = {
+      trains: stateForApi.trains,
+      weatherAlert: stateForApi.weatherAlert,
+      stationRisks: stateForApi.stationRisks,
+      predictions: stateForApi.predictions,
+      simulation: stateForApi.simulation,
+      intervention: stateForApi.intervention,
+      resolved: stateForApi.resolved,
+      networkHealth: stateForApi.networkHealth
+    };
+
+    (async () => {
+      try {
+        const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              ...stateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
+              { sender: 'user', message: `I accepted the recommendation: "${acceptedRec?.action}". Confirm the dispatch and explain what happens next.` }
+            ],
+            systemState: systemStateForApi,
+            userApiKey: stateForApi.geminiApiKey
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          set(state => ({
+            copilot: {
+              ...state.copilot,
+              messages: [
+                ...state.copilot.messages,
+                {
+                  id: `copilot-apply-${Date.now()}`,
+                  sender: 'copilot',
+                  message: data.message,
+                  timestamp: new Date()
+                }
+              ]
+            }
+          }));
+        } else {
+          throw new Error(`API returned ${response.status}`);
+        }
+      } catch (err: any) {
+        console.error('Copilot API call failed on accept recommendation:', err);
+        set(state => ({
+          copilot: {
+            ...state.copilot,
+            messages: [
+              ...state.copilot.messages,
+              {
+                id: `copilot-apply-${Date.now()}`,
+                sender: 'copilot',
+                message: `Mitigation dispatched: "${acceptedRec?.action}". Recalculating prediction models…`,
+                timestamp: new Date()
+              }
+            ]
+          }
+        }));
+      }
+    })();
 
     const timeout = setTimeout(() => {
       if (!get().demoRunning) return;
@@ -669,19 +727,61 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         },
         copilot: {
           ...state.copilot,
-          messages: [
-            ...state.copilot.messages,
-            {
-              id: `copilot-res-${Date.now()}`,
-              sender: 'copilot',
-              message: 'Intervention successful: Poorva Express hold processed. Grid conflicts resolved. Cascade delay minimized to 19 minutes.',
-              timestamp: new Date()
-            }
-          ]
+          messages: state.copilot.messages
         }
       }));
     }, 1500);
     eventTimeouts.push(timeout);
+
+    // Call Gemini API for resolution confirmation message
+    const resolvedStateForApi = get();
+    const resolvedSystemState = {
+      trains: resolvedStateForApi.trains,
+      weatherAlert: resolvedStateForApi.weatherAlert,
+      stationRisks: resolvedStateForApi.stationRisks,
+      predictions: resolvedStateForApi.predictions,
+      simulation: resolvedStateForApi.simulation,
+      intervention: resolvedStateForApi.intervention,
+      resolved: resolvedStateForApi.resolved,
+      networkHealth: resolvedStateForApi.networkHealth
+    };
+
+    (async () => {
+      try {
+        const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              ...resolvedStateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
+              { sender: 'user', message: 'The mitigation intervention has been applied. Confirm the resolution and summarize the updated corridor status.' }
+            ],
+            systemState: resolvedSystemState,
+            userApiKey: resolvedStateForApi.geminiApiKey
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          set(state => ({
+            copilot: {
+              ...state.copilot,
+              messages: [
+                ...state.copilot.messages,
+                {
+                  id: `copilot-res-${Date.now()}`,
+                  sender: 'copilot',
+                  message: data.message,
+                  timestamp: new Date()
+                }
+              ]
+            }
+          }));
+        }
+      } catch (err) {
+        console.error('Copilot API call failed on resolution:', err);
+      }
+    })();
   },
 
   tickDemo: async (second) => {
@@ -867,29 +967,75 @@ export const useDemoStore = create<DemoState>((set, get) => ({
               ]
             }
           }));
-        } else {
-          get().addToast({
-            type: 'ai',
-            title: 'Mitigations Available',
-            message: '3 recommendations ready — review in Simulation panel'
-          });
 
-          set(state => ({
-            copilot: {
-              ...state.copilot,
-              thinking: false,
-              recommendations: payload.recommendations.map((rec: any) => ({ ...rec, accepted: false })),
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `cop-rec-${Date.now()}`,
-                  sender: 'copilot',
-                  message: 'Analysis complete. Dispatching mitigation options. Operational hold at ALD recommended.',
-                  timestamp: new Date()
+          // Call real Gemini API for copilot analysis
+          const currentState = get();
+          const systemStateForCopilot = {
+            trains: currentState.trains,
+            weatherAlert: currentState.weatherAlert,
+            stationRisks: currentState.stationRisks,
+            predictions: currentState.predictions,
+            simulation: currentState.simulation,
+            intervention: currentState.intervention,
+            resolved: currentState.resolved,
+            networkHealth: currentState.networkHealth
+          };
+
+          try {
+            const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messages: [
+                  { sender: 'user', message: 'Analyze the current corridor situation. What is the impact of the monsoon disruption? Provide a brief operational assessment and key concerns.' }
+                ],
+                systemState: systemStateForCopilot,
+                userApiKey: currentState.geminiApiKey
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              set(state => ({
+                copilot: {
+                  ...state.copilot,
+                  thinking: false,
+                  messages: [
+                    ...state.copilot.messages,
+                    {
+                      id: `cop-api-${Date.now()}`,
+                      sender: 'copilot',
+                      message: data.message,
+                      timestamp: new Date()
+                    }
+                  ]
                 }
-              ]
+              }));
+            } else {
+              throw new Error(`API returned ${response.status}`);
             }
-          }));
+          } catch (err: any) {
+            console.error('Copilot API call failed during demo:', err);
+            const apiKey = currentState.geminiApiKey;
+            const fallbackMsg = apiKey
+              ? `Copilot analysis request failed: ${err.message || 'unknown error'}. The copilot requires a valid Gemini API key configured in Settings.`
+              : 'Copilot is unavailable — no Gemini API key configured. Open Settings and add a GEMINI_API_KEY to enable live AI analysis during the demo.';
+            set(state => ({
+              copilot: {
+                ...state.copilot,
+                thinking: false,
+                messages: [
+                  ...state.copilot.messages,
+                  {
+                    id: `cop-fallback-${Date.now()}`,
+                    sender: 'copilot',
+                    message: fallbackMsg,
+                    timestamp: new Date()
+                  }
+                ]
+              }
+            }));
+          }
         }
         break;
 
@@ -939,21 +1085,137 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             conflictsResolved: payload.conflictsResolved,
             riskReduction: payload.riskReduction,
             minutesSaved: payload.minutesSaved
-          },
-          copilot: {
-            ...state.copilot,
-            messages: [
-              ...state.copilot.messages,
-              {
-                id: `cop-res-auto-${Date.now()}`,
-                sender: 'copilot',
-                message: `Conflict resolution auto-applied. New cascade delay is ${payload.newCascadeDelay} mins.`,
-                timestamp: new Date()
-              }
-            ]
           }
         }));
+
+        // Call Gemini API for auto-resolution confirmation
+        const resolvedAutoState = get();
+        const resolvedAutoSystemState = {
+          trains: resolvedAutoState.trains,
+          weatherAlert: resolvedAutoState.weatherAlert,
+          stationRisks: resolvedAutoState.stationRisks,
+          predictions: resolvedAutoState.predictions,
+          simulation: resolvedAutoState.simulation,
+          intervention: resolvedAutoState.intervention,
+          resolved: resolvedAutoState.resolved,
+          networkHealth: resolvedAutoState.networkHealth
+        };
+
+        (async () => {
+          try {
+            const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messages: [
+                  ...resolvedAutoState.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
+                  { sender: 'user', message: `Conflict resolution has been auto-applied. New cascade delay is ${payload.newCascadeDelay} mins. Summarize the resolution outcome.` }
+                ],
+                systemState: resolvedAutoSystemState,
+                userApiKey: resolvedAutoState.geminiApiKey
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              set(state => ({
+                copilot: {
+                  ...state.copilot,
+                  messages: [
+                    ...state.copilot.messages,
+                    {
+                      id: `cop-res-auto-${Date.now()}`,
+                      sender: 'copilot',
+                      message: data.message,
+                      timestamp: new Date()
+                    }
+                  ]
+                }
+              }));
+            }
+          } catch (err) {
+            console.error('Copilot API call failed on auto-resolution:', err);
+          }
+        })();
         break;
+    }
+  },
+
+  generateAIRecommendations: async () => {
+    const state = get();
+    if (!state.simulation) return;
+
+    set(s => ({
+      copilot: {
+        ...s.copilot,
+        thinking: true
+      }
+    }));
+
+    try {
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const systemState = {
+        trains: state.trains,
+        weatherAlert: state.weatherAlert,
+        stationRisks: state.stationRisks,
+        predictions: state.predictions,
+        simulation: state.simulation,
+        networkHealth: state.networkHealth
+      };
+
+      const response = await fetch(`${normalizedBase}api/copilot/recommendations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemState,
+          userApiKey: state.geminiApiKey
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned status ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      set(s => ({
+        copilot: {
+          ...s.copilot,
+          thinking: false,
+          recommendations: data.recommendations.map((rec: any) => ({ ...rec, accepted: false })),
+          messages: [
+            ...s.copilot.messages,
+            {
+              id: `cop-rec-${Date.now()}`,
+              sender: 'copilot',
+              message: `AI analysis complete. Digital twin suggests ${data.recommendations.length} mitigation actions. Operational hold at the optimal conflict point is recommended.`,
+              timestamp: new Date()
+            }
+          ]
+        }
+      }));
+
+      get().addToast({
+        type: 'success',
+        title: 'Mitigations Generated',
+        message: `Generated ${data.recommendations.length} dispatch recommendations using Gemini.`
+      });
+
+    } catch (err: any) {
+      console.error('Failed to generate recommendations:', err);
+      set(s => ({
+        copilot: {
+          ...s.copilot,
+          thinking: false
+        }
+      }));
+      get().addToast({
+        type: 'error',
+        title: 'AI Analysis Failed',
+        message: err.message || 'Could not fetch mitigations.'
+      });
     }
   }
 }));
