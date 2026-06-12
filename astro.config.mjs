@@ -23,6 +23,6 @@ export default defineConfig({
       exclude: ['fs', 'path'],
     },
   },
-  output: 'server',
+  output: 'static',
   adapter: isVercel ? vercel() : node({ mode: 'standalone' })
 });

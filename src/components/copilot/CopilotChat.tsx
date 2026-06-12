@@ -31,6 +31,26 @@ export const CopilotChat: React.FC = () => {
 
   const active = isLiveActive || !!geminiApiKey;
 
+  async function askGemini(userMessage: string, simulationState: object): Promise<string> {
+    try {
+      const response = await fetch('/api/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          simulationState,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      return data.reply ?? 'Unable to get response.';
+    } catch (err) {
+      return `Connection error: ${String(err)}`;
+    }
+  }
+
   // Verify that the server has GEMINI_API_KEY configured in Vercel env
   useEffect(() => {
     const checkBackendKey = async () => {
@@ -59,90 +79,44 @@ export const CopilotChat: React.FC = () => {
 
 
 
-  const handleSendMessage = async (text: string) => {
+  const handleSend = async (overrideText?: string) => {
+    const text = overrideText ?? inputText;
     if (!text.trim()) return;
+    const userMsg = text.trim();
+    setInputText('');
 
-    const userMsg = { id: `user-msg-${Date.now()}`, sender: 'user' as const, message: text, timestamp: new Date() };
-    const currentMessages = [...messages, userMsg];
+    const userMsgObj = { id: `user-msg-${Date.now()}`, sender: 'user' as const, message: userMsg, timestamp: new Date() };
 
-    // Show user message and set thinking state
     useDemoStore.setState(state => ({
       copilot: {
         ...state.copilot,
         thinking: true,
-        messages: currentMessages
+        messages: [...state.copilot.messages, userMsgObj]
       }
     }));
 
     const state = useDemoStore.getState();
-    const systemState = {
-      trains: state.trains,
-      weatherAlert: state.weatherAlert,
-      stationRisks: state.stationRisks,
-      predictions: state.predictions,
-      simulation: state.simulation,
-      intervention: state.intervention,
-      resolved: state.resolved,
-      networkHealth: state.networkHealth
+    const simulationState = {
+      activeTrains: state.trains?.length ?? 5,
+      stationsAtRisk: state.stations?.filter(s => s.risk !== 'low').length ?? 0,
+      totalDelay: state.totalDelay ?? 0,
+      passengersAffected: state.passengersAffected ?? 0,
+      currentEvents: state.activeEvents?.map(e => e.description).join(', ') ?? 'None',
+      weather: state.currentWeather ?? 'Clear',
+      networkEfficiency: state.networkEfficiency ?? 100,
     };
 
-    try {
-      let replyMessage = '';
+    const reply = await askGemini(userMsg, simulationState);
 
-      // Always route through the server API, passing custom key if configured
-      const response = await fetchWithTimeout(`${getBaseUrl()}api/copilot/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: currentMessages,
-          systemState,
-          userApiKey: geminiApiKey
-        })
-      });
+    setIsLiveActive(true);
 
-      if (response.ok) {
-        const data = await response.json();
-        replyMessage = data.message;
-        setIsLiveActive(true);
-      } else {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Server returned status ${response.status}`);
+    useDemoStore.setState(s => ({
+      copilot: {
+        ...s.copilot,
+        thinking: false,
+        messages: [...s.copilot.messages, { id: `copilot-msg-${Date.now()}`, sender: 'copilot' as const, message: reply, timestamp: new Date() }]
       }
-
-      useDemoStore.setState(s => ({
-        copilot: {
-          ...s.copilot,
-          thinking: false,
-          messages: [...s.copilot.messages, { id: `copilot-msg-${Date.now()}`, sender: 'copilot' as const, message: replyMessage, timestamp: new Date() }]
-        }
-      }));
-
-    } catch (err: any) {
-      console.error('Error generating AI reply:', err);
-      setIsLiveActive(false);
-
-      let errorMsg: string;
-      if (err.name === 'AbortError') {
-        errorMsg = '⚠️ **Request Timed Out**\n\nThe Gemini model took too long to respond. This usually means high API load — please try again in a moment.';
-      } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
-        errorMsg = '⚠️ **Connection Failed**\n\nCould not reach the AI server. The Vercel serverless function may be cold-starting or the GEMINI_API_KEY environment variable may not be set in your Vercel project settings.';
-      } else {
-        errorMsg = `⚠️ **AI Copilot Unavailable**\n\n${err.message || 'Could not reach the AI service.'}`;
-      }
-
-      useDemoStore.setState(s => ({
-        copilot: {
-          ...s.copilot,
-          thinking: false,
-          messages: [...s.copilot.messages, {
-            id: `copilot-msg-${Date.now()}`,
-            sender: 'copilot' as const,
-            message: errorMsg,
-            timestamp: new Date()
-          }]
-        }
-      }));
-    }
+    }));
   };
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -157,8 +131,7 @@ export const CopilotChat: React.FC = () => {
 
   const handleSubmit = () => {
     if (!inputText.trim() || copilot.thinking) return;
-    handleSendMessage(inputText);
-    setInputText('');
+    handleSend();
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -248,24 +221,11 @@ export const CopilotChat: React.FC = () => {
         })}
 
         {copilot.thinking && (
-          <div className="flex flex-col gap-1 items-start max-w-[85%] self-start">
-            <div className="flex items-center gap-1.5 ml-1 select-none">
-              <Bot className="w-3.5 h-3.5 text-accent-purple" />
-              <span className="text-xs font-semibold text-accent-purple">RailTwin Copilot</span>
-            </div>
-            <div
-              className="rounded-lg rounded-tl-sm p-3"
-              style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)' }}
-            >
-              <span className="text-xs text-accent-purple font-mono block mb-1.5 select-none">
-                Analyzing corridor state...
-              </span>
-              <div className="flex gap-1 items-center h-2 pl-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-1 inline-block" />
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-2 inline-block" />
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple bounce-3 inline-block" />
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-gray-400 px-3 py-2">
+            <span className="animate-pulse">●</span>
+            <span className="animate-pulse delay-100">●</span>
+            <span className="animate-pulse delay-200">●</span>
+            <span className="ml-1 text-xs">RailTwin AI thinking...</span>
           </div>
         )}
 
@@ -279,7 +239,7 @@ export const CopilotChat: React.FC = () => {
             {['Which station is most at risk?', "What's the cascade impact?", 'Recommended actions?'].map(q => (
               <button
                 key={q}
-                onClick={() => { setInputText(''); handleSendMessage(q); }}
+                onClick={() => { setInputText(''); handleSend(q); }}
                 disabled={copilot.thinking}
                 className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
