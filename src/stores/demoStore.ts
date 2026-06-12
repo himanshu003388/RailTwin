@@ -112,11 +112,9 @@ export interface DemoState {
   stations: any[];
   mobileLeftOpen: boolean;
   mobileRightOpen: boolean;
-  openWeatherApiKey: string;
   weatherMode: 'live' | 'simulation';
 
   // Actions
-  setOpenWeatherApiKey: (key: string) => void;
   setWeatherMode: (mode: 'live' | 'simulation') => void;
   recalculateDynamicPredictions: () => Promise<void>;
   injectCustomWeather: (stationId: string, weatherParams: any) => void;
@@ -255,7 +253,7 @@ const initialStoreState = {
   geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
   mobileLeftOpen: false,
   mobileRightOpen: false,
-  openWeatherApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-openweather-api-key') || '' : '',
+  openWeatherApiKey: '',
   weatherMode: 'simulation' as const
 };
 
@@ -275,13 +273,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   setMobileLeftOpen: (open) => set({ mobileLeftOpen: open }),
   setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
   
-  setOpenWeatherApiKey: (key) => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('railtwin-openweather-api-key', key);
-    }
-    set({ openWeatherApiKey: key });
-  },
-
   setWeatherMode: (mode) => {
     set({ weatherMode: mode });
     get().recalculateDynamicPredictions();
@@ -1455,12 +1446,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     try {
       const baseUrl = import.meta.env.BASE_URL || '/';
       const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      const headers: Record<string, string> = {};
-      const openWeatherApiKey = get().openWeatherApiKey;
-      if (openWeatherApiKey) {
-        headers['x-openweather-api-key'] = openWeatherApiKey;
-      }
-      const res = await fetch(`${normalizedBase}api/weather/corridor`, { headers });
+      const res = await fetch(`${normalizedBase}api/weather/corridor`);
       if (!res.ok) throw new Error('Failed to fetch weather');
       const weatherData = await res.json();
       set({ weatherData });

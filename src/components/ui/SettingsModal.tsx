@@ -15,14 +15,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const setApiConfig = useDemoStore(state => state.setApiConfig);
   const geminiApiKey = useDemoStore(state => state.geminiApiKey);
   const setGeminiApiKey = useDemoStore(state => state.setGeminiApiKey);
-  const openWeatherApiKey = useDemoStore(state => state.openWeatherApiKey);
-  const setOpenWeatherApiKey = useDemoStore(state => state.setOpenWeatherApiKey);
-
   const [enabled, setEnabled] = useState(liveApiEnabled);
   const [key, setKey] = useState(rapidApiKey);
   const [host, setHost] = useState(rapidApiHost);
   const [gKey, setGKey] = useState(geminiApiKey);
-  const [owKey, setOwKey] = useState(openWeatherApiKey);
 
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<'idle' | 'success' | 'failed'>('idle');
@@ -34,9 +30,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     setKey(rapidApiKey);
     setHost(rapidApiHost);
     setGKey(geminiApiKey);
-    setOwKey(openWeatherApiKey);
     setTestResult('idle');
-  }, [liveApiEnabled, rapidApiKey, rapidApiHost, geminiApiKey, openWeatherApiKey, open]);
+  }, [liveApiEnabled, rapidApiKey, rapidApiHost, geminiApiKey, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +47,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const handleSave = () => {
     setApiConfig({ enabled, key: key.trim(), host: host.trim() });
     setGeminiApiKey(gKey.trim());
-    setOpenWeatherApiKey(owKey.trim());
     onClose();
   };
 
@@ -192,39 +186,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 Used securely for live AI chat. If left empty, Copilot runs in mock demo mode.
               </span>
             </div>
-
-            <div className="h-px bg-border-subtle my-2" />
-
-            {/* OpenWeatherMap API Key Input */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider font-mono">
-                  OpenWeatherMap Key
-                </label>
-                <a
-                  href="https://openweathermap.org/api"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] text-accent-blue hover:underline"
-                >
-                  Get Free Key
-                </a>
-              </div>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-tertiary pointer-events-none" />
-                <input
-                  type="password"
-                  placeholder="Enter OpenWeatherMap API Key..."
-                  value={owKey}
-                  onChange={e => setOwKey(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 rounded-md bg-bg-sunken border border-border-default text-xs text-text-primary focus:border-accent-blue placeholder-text-tertiary outline-none transition-colors duration-150"
-                />
-              </div>
-              <span className="text-[9px] text-text-secondary">
-                Used to fetch real live weather at the 8 corridor stations. Falls back to simulated weather if empty.
-              </span>
-            </div>
-
             {/* Connection Status & Test Button */}
             {enabled && key.trim() && (
               <div className="flex items-center justify-between gap-3 mt-1.5 bg-bg-sunken border border-border-subtle p-2.5 rounded-lg">
