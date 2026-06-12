@@ -6,9 +6,7 @@ const STATION_CODE_MAP: Record<string, string> = {
   'CNB': 'cnb',
   'ALD': 'ald',
   'PRYJ': 'ald', // Prayagraj Junction
-  'BSB': 'bsb',
   'PNBE': 'pnbe',
-  'DHN': 'dhn',
   'HWH': 'hwh'
 };
 

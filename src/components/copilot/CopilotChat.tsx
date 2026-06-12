@@ -33,7 +33,7 @@ export const CopilotChat: React.FC = () => {
 
   async function askGemini(userMessage: string, simulationState: object): Promise<string> {
     try {
-      const response = await fetch('/api/copilot', {
+      const response = await fetch(`${getBaseUrl()}api/copilot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -98,12 +98,12 @@ export const CopilotChat: React.FC = () => {
     const state = useDemoStore.getState();
     const simulationState = {
       activeTrains: state.trains?.length ?? 5,
-      stationsAtRisk: state.stations?.filter(s => s.risk !== 'low').length ?? 0,
-      totalDelay: state.totalDelay ?? 0,
-      passengersAffected: state.passengersAffected ?? 0,
-      currentEvents: state.activeEvents?.map(e => e.description).join(', ') ?? 'None',
-      weather: state.currentWeather ?? 'Clear',
-      networkEfficiency: state.networkEfficiency ?? 100,
+      stationsAtRisk: state.stations?.filter(s => s.riskLevel && s.riskLevel !== 'low').length ?? 0,
+      totalDelay: state.trains?.reduce((sum, t) => sum + (t.predictedDelay || 0), 0) ?? 0,
+      passengersAffected: state.simulation?.passengersAffected ?? 0,
+      currentEvents: state.predictions?.map(p => `Train ${p.trainId} delayed +${p.delayMinutes}m at ${p.affectedStation.toUpperCase()}`).join(', ') || 'None',
+      weather: state.weatherAlert?.description ?? 'Clear',
+      networkEfficiency: state.networkHealth?.efficiency ?? 100,
     };
 
     const reply = await askGemini(userMsg, simulationState);

@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 export const prerender = false; // CRITICAL — tells Astro this is a server route
 
 export const POST: APIRoute = async ({ request }) => {
-  const apiKey = import.meta.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'API key not configured' }), {
@@ -28,7 +28,7 @@ CURRENT SIMULATION STATE:
 - Network Efficiency: ${simulationState?.networkEfficiency ?? 100}%
 
 You give concise, actionable recommendations. Use railway terminology. Keep responses under 150 words unless the operator asks for detail.
-Always reference specific train numbers (12301 Rajdhani, 12303 Poorva, etc.) and station codes (NDLS, CNB, ALD, BSB, PNBE, DHN, HWH).`;
+Always reference specific train numbers (12301 Rajdhani, 12305 Poorva, etc.) and station codes (NDLS, CNB, ALD, PNBE, HWH).`;
 
   const geminiPayload = {
     contents: [

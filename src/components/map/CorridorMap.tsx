@@ -8,20 +8,26 @@ declare global {
 
 // Train color mapping - each train has a unique color for its route line and marker
 const TRAIN_COLORS: Record<string, string> = {
-  '12301': '#3b82f6', // blue
-  '12303': '#f59e0b', // amber
-  '12305': '#22c55e', // green
-  '13005': '#a855f7', // purple
-  '12273': '#ef4444', // red
+  '12301': '#3b82f6', // blue - Howrah Rajdhani
+  '12302': '#06b6d4', // cyan - New Delhi Rajdhani
+  '12305': '#22c55e', // green - Howrah Rajdhani via Patna
+  '12306': '#10b981', // emerald - New Delhi Rajdhani via Patna
+  '12259': '#ef4444', // red - Sealdah Duronto
+  '12260': '#f97316', // orange - New Delhi Duronto
+  '12381': '#a855f7', // purple - Poorva Express
+  '12382': '#ec4899', // pink - Poorva Express
 };
 
 // Short train names for map labels
 const TRAIN_SHORT_NAMES: Record<string, string> = {
-  '12301': 'Rajdhani',
-  '12303': 'Poorva',
+  '12301': 'Howrah Raj',
+  '12302': 'NDLS Raj',
   '12305': 'Rajdhani',
-  '13005': 'Mail',
-  '12273': 'Duronto',
+  '12306': 'Rajdhani',
+  '12259': 'Duronto',
+  '12260': 'Duronto',
+  '12381': 'Poorva',
+  '12382': 'Poorva',
 };
 
 // Station code to full name mapping for labels
@@ -29,9 +35,7 @@ const STATION_FULL_NAMES: Record<string, string> = {
   'NDLS': 'New Delhi',
   'CNB': 'Kanpur',
   'ALD': 'Prayagraj',
-  'BSB': 'Varanasi',
   'PNBE': 'Patna',
-  'DHN': 'Dhanbad',
   'HWH': 'Howrah',
 };
 
@@ -164,6 +168,8 @@ export const CorridorMap: React.FC = () => {
   const demoTime = useDemoStore(state => state.demoTime);
   const theme = useDemoStore(state => state.theme);
   const stations = useDemoStore(state => state.stations) || [];
+  const weatherMode = useDemoStore(state => state.weatherMode);
+  const setWeatherMode = useDemoStore(state => state.setWeatherMode);
 
   const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
@@ -516,17 +522,19 @@ export const CorridorMap: React.FC = () => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    setTimeout(() => {
-      map.resize();
+    const timer = setTimeout(() => {
+      if (!mapRef.current) return;
+      mapRef.current.resize();
       const currentDemoTime = useDemoStore.getState().demoTime;
       const currentDemoRunning = useDemoStore.getState().demoRunning;
       if (currentDemoRunning && currentDemoTime === 12) return;
       if (activePanel !== 'map') {
-        map.easeTo({ zoom: 5.0, center: [84.0, 25.5], duration: 350 });
+        mapRef.current.easeTo({ zoom: 5.0, center: [84.0, 25.5], duration: 350 });
       } else {
-        map.easeTo({ zoom: 5.5, center: [84.0, 25.5], duration: 350 });
+        mapRef.current.easeTo({ zoom: 5.5, center: [84.0, 25.5], duration: 350 });
       }
     }, 150);
+    return () => clearTimeout(timer);
   }, [activePanel, mapLoaded]);
 
   // ═══════════════════════════════════════════════════════════════
@@ -684,6 +692,16 @@ export const CorridorMap: React.FC = () => {
       `;
       markerEntry.marker.getPopup().setHTML(popupContent);
     });
+
+    // Remove markers for trains that no longer exist
+    const trainIds = new Set(trains.map(t => t.id));
+    Object.keys(markersRef.current).forEach(id => {
+      if (!trainIds.has(id)) {
+        markersRef.current[id].marker.remove();
+        delete markersRef.current[id];
+        delete prevDelaysRef.current[id];
+      }
+    });
   }, [trains, mapLoaded]);
 
   // ═══════════════════════════════════════════════════════════════
@@ -816,7 +834,7 @@ export const CorridorMap: React.FC = () => {
             <div className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
             <div>
               <div className="text-[11px] font-bold text-text-primary tracking-wide">Delhi–Howrah Corridor</div>
-              <div className="text-[9px] text-text-secondary font-mono">1,531 km · 7 stations · 5 trains</div>
+              <div className="text-[9px] text-text-secondary font-mono">1,531 km · 8 stations · 8 trains</div>
             </div>
           </div>
         </div>
@@ -869,11 +887,14 @@ export const CorridorMap: React.FC = () => {
             <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
             <div className="flex flex-col gap-1.5">
               {[
-                { id: '12301', name: 'Rajdhani', color: '#1a6dd4', dir: '→' },
-                { id: '12303', name: 'Poorva', color: '#d97706', dir: '→' },
-                { id: '12305', name: 'Rajdhani', color: '#16a34a', dir: '→' },
-                { id: '13005', name: 'Mail', color: '#7c3aed', dir: '→' },
-                { id: '12273', name: 'Duronto', color: '#dc2626', dir: '→' },
+                { id: '12301', name: 'Howrah Raj', color: '#3b82f6' },
+                { id: '12302', name: 'NDLS Raj', color: '#06b6d4' },
+                { id: '12305', name: 'Patna Raj', color: '#22c55e' },
+                { id: '12306', name: 'NDLS Raj', color: '#10b981' },
+                { id: '12259', name: 'Duronto', color: '#ef4444' },
+                { id: '12260', name: 'Duronto', color: '#f97316' },
+                { id: '12381', name: 'Poorva', color: '#a855f7' },
+                { id: '12382', name: 'Poorva', color: '#ec4899' },
               ].map(t => (
                 <div key={t.id} className="flex items-center gap-2">
                   <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color, boxShadow: `0 0 6px ${t.color}44` }} />
@@ -892,6 +913,138 @@ export const CorridorMap: React.FC = () => {
               </svg>
               <span>Direction of travel</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Weather Operations HUD ═══ */}
+      <div className="absolute bottom-3 left-3 z-10">
+        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] flex flex-col gap-2.5 pointer-events-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Weather Radar Ops</span>
+              <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
+                weatherMode === 'live'
+                  ? 'bg-accent-blue-soft text-accent-blue border border-accent-blue/20'
+                  : 'bg-accent-amber-soft text-accent-amber border border-accent-amber/20'
+              }`}>
+                {weatherMode === 'live' ? 'Live OWM' : 'Simulated'}
+              </span>
+            </div>
+            <button
+              onClick={() => setWeatherMode(weatherMode === 'live' ? 'simulation' : 'live')}
+              className="text-[9px] font-mono font-bold text-accent-blue hover:text-accent-blue-deep hover:underline outline-none cursor-pointer"
+            >
+              Toggle Mode
+            </button>
+          </div>
+
+          {/* Stations List */}
+          <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin">
+            {stations.map(s => {
+              const w = weatherData ? weatherData[s.id] : null;
+              const hasRain = w && w.rainfall > 0;
+              const hasFog = w && w.visibility < 5;
+              
+              let weatherEmoji = '☀️';
+              let weatherColor = 'text-text-muted';
+              
+              if (hasRain) {
+                weatherEmoji = '🌧️';
+                weatherColor = 'text-accent-blue';
+              } else if (hasFog) {
+                weatherEmoji = '🌫️';
+                weatherColor = 'text-text-secondary';
+              } else if (w && w.description.toLowerCase().includes('cloud')) {
+                weatherEmoji = '☁️';
+                weatherColor = 'text-text-tertiary';
+              }
+              
+              return (
+                <div
+                  key={s.id}
+                  onClick={() => {
+                    if (mapRef.current) {
+                      mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 });
+                    }
+                  }}
+                  className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
+                  title="Click to focus station on map"
+                >
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
+                    <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-right">
+                    <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
+                    <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {w ? `${w.temperature}°` : '--'}
+                    </span>
+                    <span className="text-[9px] text-text-muted select-none">|</span>
+                    <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Quick Override Sandbox controls */}
+          <div className="border-t border-border-subtle pt-2 flex flex-col gap-1.5">
+            <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-wider font-mono">Disruption Sandbox</span>
+            <div className="flex items-center gap-1.5">
+              <select
+                id="sandbox-station"
+                className="flex-1 h-7 px-1.5 rounded bg-bg-sunken border border-border-subtle text-[10px] text-text-primary font-mono outline-none cursor-pointer"
+                defaultValue="pnbe"
+              >
+                {stations.map(s => (
+                  <option key={s.id} value={s.id}>{s.code} — {s.name}</option>
+                ))}
+              </select>
+              <select
+                id="sandbox-weather"
+                className="h-7 px-1.5 rounded bg-bg-sunken border border-border-subtle text-[10px] text-text-primary font-mono outline-none cursor-pointer"
+                defaultValue="heavy-rain"
+              >
+                <option value="heavy-rain">🌧 Heavy Rain</option>
+                <option value="dense-fog">🌫 Dense Fog</option>
+                <option value="clear">☀️ Clear Sky</option>
+              </select>
+            </div>
+            <button
+              onClick={() => {
+                const stationId = (document.getElementById('sandbox-station') as HTMLSelectElement).value;
+                const weatherVal = (document.getElementById('sandbox-weather') as HTMLSelectElement).value;
+                
+                let params = {};
+                if (weatherVal === 'heavy-rain') {
+                  params = { rainfall: 65, visibility: 4, description: 'Heavy monsoon cloudburst', temperature: 24 };
+                } else if (weatherVal === 'dense-fog') {
+                  params = { rainfall: 0, visibility: 0.5, description: 'Dense radiation fog cover', temperature: 14 };
+                } else {
+                  params = { rainfall: 0, visibility: 10, description: 'Clear sky', temperature: 28 };
+                }
+                
+                // Set weatherMode to 'live' if triggering sandbox so the engine dynamically processes it!
+                if (useDemoStore.getState().weatherMode !== 'live') {
+                  useDemoStore.getState().setWeatherMode('live');
+                }
+                useDemoStore.getState().injectCustomWeather(stationId, params);
+                
+                // Add a toast
+                useDemoStore.getState().addToast({
+                  type: 'ai',
+                  title: 'Disruption Injected',
+                  message: `Custom weather injected at station ${stationId.toUpperCase()}`
+                });
+              }}
+              className="w-full h-7 font-mono font-bold text-[10px] bg-accent-blue/15 hover:bg-accent-blue text-accent-blue hover:text-white rounded border border-accent-blue/30 hover:border-accent-blue transition-all duration-150 cursor-pointer text-center flex items-center justify-center"
+            >
+              Inject Disruptive Condition
+            </button>
           </div>
         </div>
       </div>

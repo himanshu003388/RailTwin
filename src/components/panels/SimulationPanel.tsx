@@ -115,11 +115,11 @@ export const SimulationPanel: React.FC = () => {
                 textClass = 'text-text-primary';
               } else {
                 const impactIdx = simulation?.stationsImpacted.indexOf(station.id) ?? 0;
-                const animClass = impactIdx === 0 ? 'animate-turn-red-0' : impactIdx === 1 ? 'animate-turn-red-400' : 'animate-turn-red-800';
+                const redShade = impactIdx === 0 ? 'rgba(239,68,68,0.2)' : impactIdx === 1 ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.06)';
                 return (
                   <React.Fragment key={station.id}>
                     {idx > 0 && <ArrowDown className="w-3.5 h-3.5 text-border-active" />}
-                    <div className={`w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm ${animClass}`}>
+                    <div className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm" style={{ background: redShade, borderColor: 'var(--color-accent-red)' }}>
                       {isFirstImpacted && !isResolved && (
                         <CloudRain className="absolute top-1 right-1.5 w-3 h-3 text-accent-red animate-pulse" />
                       )}

@@ -2,49 +2,31 @@
   {
     "code": "NDLS",
     "name": "New Delhi",
-    "lat": 28.6428,
-    "lng": 77.2190
+    "lat": 28.642314,
+    "lng": 77.22000399999999
   },
   {
     "code": "CNB",
     "name": "Kanpur Central",
-    "lat": 26.4539,
-    "lng": 80.3512
+    "lat": 26.454240000000002,
+    "lng": 80.350966
   },
   {
-    "code": "PRYJ",
+    "code": "ALD",
     "name": "Prayagraj Junction",
-    "lat": 25.4460,
-    "lng": 81.8289
-  },
-  {
-    "code": "BSB",
-    "name": "Varanasi Junction",
-    "lat": 25.3269,
-    "lng": 82.9864
+    "lat": 25.446241,
+    "lng": 81.828816
   },
   {
     "code": "PNBE",
     "name": "Patna Junction",
-    "lat": 25.6028,
-    "lng": 85.1375
-  },
-  {
-    "code": "DHN",
-    "name": "Dhanbad Junction",
-    "lat": 23.7922,
-    "lng": 86.4283
+    "lat": 25.60256,
+    "lng": 85.136824
   },
   {
     "code": "HWH",
     "name": "Howrah Junction",
-    "lat": 22.5829,
-    "lng": 88.3428
-  },
-  {
-    "code": "LKO",
-    "name": "Lucknow Charbagh",
-    "lat": 26.8320,
-    "lng": 80.9190
+    "lat": 22.584077999999998,
+    "lng": 88.34099900000001
   }
 ]

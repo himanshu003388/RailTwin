@@ -107,11 +107,11 @@ CURRENT SYSTEM TELEMETRY:
 ${weatherAlertText}
 
 [2. Network Health Metrics]
-- Grid Operations Efficiency: ${systemState.networkHealth.efficiency}%
-- On-Time Performance: ${systemState.networkHealth.onTimePerf}%
-- Platform/Terminal Utilization: ${systemState.networkHealth.platformUtil}%
-- Signal System Status: ${systemState.networkHealth.signalStatus.toUpperCase()}
-- Active Corridor Alerts: ${systemState.networkHealth.activeAlerts}
+- Grid Operations Efficiency: ${systemState.networkHealth?.efficiency ?? 'N/A'}%
+- On-Time Performance: ${systemState.networkHealth?.onTimePerf ?? 'N/A'}%
+- Platform/Terminal Utilization: ${systemState.networkHealth?.platformUtil ?? 'N/A'}%
+- Signal System Status: ${(systemState.networkHealth?.signalStatus ?? 'unknown').toUpperCase()}
+- Active Corridor Alerts: ${systemState.networkHealth?.activeAlerts ?? 'N/A'}
 
 [3. Active Dispatch Simulation & What-If Context]
 ${simulationText}

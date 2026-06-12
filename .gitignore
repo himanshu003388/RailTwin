@@ -26,7 +26,9 @@ railtwin.db-shm
 # Dead legacy backend (replaced by src/pages/api/)
 backend/
 
-# macOS-specific files
+# Raw DataMeet datasets (80MB+ — download via scripts/process_datameet.cjs)
+data/raw/
+data/scripts/
 .DS_Store
 
 # jetbrains setting folder

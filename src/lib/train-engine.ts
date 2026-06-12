@@ -8,39 +8,41 @@ function readJson<T>(filename: string): T {
 }
 
 const kmFromOriginMap: Record<string, number> = {
-  NDLS: 0, CNB: 440, PRYJ: 630, ALD: 630, BSB: 760, PNBE: 990, DHN: 1270, HWH: 1531, LKO: 510
+  NDLS: 0, CNB: 440, ALD: 630, PNBE: 990, HWH: 1531
 };
 
 const platformsMap: Record<string, number> = {
-  NDLS: 16, CNB: 8, PRYJ: 7, ALD: 7, BSB: 9, PNBE: 10, DHN: 6, HWH: 15, LKO: 8
+  NDLS: 16, CNB: 8, ALD: 7, PNBE: 10, HWH: 15
 };
 
 const nameToIdMap: Record<string, string> = {
-  'new delhi': 'ndls', 'kanpur central': 'cnb', 'kanpur': 'cnb',
+  'new delhi': 'ndls',
+  'kanpur central': 'cnb', 'kanpur': 'cnb',
   'prayagraj junction': 'ald', 'allahabad': 'ald', 'prayagraj': 'ald',
-  'varanasi junction': 'bsb', 'varanasi': 'bsb',
   'patna junction': 'pnbe', 'patna': 'pnbe',
-  'dhanbad junction': 'dhn', 'dhanbad': 'dhn',
-  'howrah junction': 'hwh', 'howrah': 'hwh',
-  'lucknow charbagh': 'lko', 'lucknow': 'lko'
+  'howrah junction': 'hwh', 'howrah': 'hwh'
 };
 
 export const trainConfig: Record<string, any> = {
-  '12301': { type: 'rajdhani', speed: 110, startHour: 16, startMin: 55, capacity: 1000, passengerCount: 920 },
-  '12303': { type: 'express', speed: 95, startHour: 16, startMin: 10, capacity: 1200, passengerCount: 1150 },
+  '12301': { type: 'rajdhani', speed: 130, startHour: 16, startMin: 55, capacity: 1000, passengerCount: 920 },
+  '12302': { type: 'rajdhani', speed: 130, startHour: 17, startMin: 0, capacity: 1000, passengerCount: 880 },
   '12305': { type: 'rajdhani', speed: 120, startHour: 17, startMin: 15, capacity: 900, passengerCount: 850 },
-  '13005': { type: 'mail', speed: 75, startHour: 13, startMin: 0, capacity: 1500, passengerCount: 1400 },
-  '12273': { type: 'express', speed: 115, startHour: 12, startMin: 40, capacity: 800, passengerCount: 720 },
-  '12002': { type: 'express', speed: 100, startHour: 6, startMin: 0, capacity: 800, passengerCount: 710 }
+  '12306': { type: 'rajdhani', speed: 120, startHour: 18, startMin: 0, capacity: 900, passengerCount: 810 },
+  '12259': { type: 'duronto', speed: 140, startHour: 8, startMin: 0, capacity: 800, passengerCount: 720 },
+  '12260': { type: 'duronto', speed: 140, startHour: 9, startMin: 0, capacity: 800, passengerCount: 760 },
+  '12381': { type: 'express', speed: 110, startHour: 14, startMin: 30, capacity: 1200, passengerCount: 1150 },
+  '12382': { type: 'express', speed: 110, startHour: 15, startMin: 0, capacity: 1200, passengerCount: 1080 }
 };
 
 const activeStates: Record<string, any> = {
-  '12301': { currentStation: 'pnbe', nextStation: 'dhn', routeProgress: 0.3, coordinates: [85.78, 24.69] },
-  '12303': { currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.4, coordinates: [82.40, 25.38] },
+  '12301': { currentStation: 'pnbe', nextStation: 'hwh', routeProgress: 0.3, coordinates: [86.10, 24.70] },
+  '12302': { currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.5, coordinates: [83.48, 25.52] },
   '12305': { currentStation: 'cnb', nextStation: 'ald', routeProgress: 0.5, coordinates: [81.09, 25.95] },
-  '13005': { currentStation: 'dhn', nextStation: 'hwh', routeProgress: 0.2, coordinates: [87.38, 23.18] },
-  '12273': { currentStation: 'ndls', nextStation: 'cnb', routeProgress: 0.6, coordinates: [78.78, 27.54] },
-  '12002': { currentStation: 'cnb', nextStation: 'lko', routeProgress: 0.5, coordinates: [80.63, 26.64] }
+  '12306': { currentStation: 'ald', nextStation: 'cnb', routeProgress: 0.4, coordinates: [81.40, 25.70] },
+  '12259': { currentStation: 'cnb', nextStation: 'pnbe', routeProgress: 0.6, coordinates: [82.65, 26.05] },
+  '12260': { currentStation: 'pnbe', nextStation: 'cnb', routeProgress: 0.5, coordinates: [83.05, 25.76] },
+  '12381': { currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.4, coordinates: [83.15, 25.51] },
+  '12382': { currentStation: 'pnbe', nextStation: 'ald', routeProgress: 0.5, coordinates: [83.48, 25.52] }
 };
 
 function nameToId(name: string): string {

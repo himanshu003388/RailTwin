@@ -10,7 +10,7 @@ export const GET: APIRoute = async ({ url }) => {
     const offset = parseInt(url.searchParams.get('offset') || '0');
     const trainId = url.searchParams.get('trainId');
 
-    let query = 'SELECT p.*, o.display_name as creator_name FROM predictions p LEFT JOIN operators o ON p.created_by = o.id';
+    let query = 'SELECT p.* FROM predictions p';
     const params: any[] = [];
 
     if (trainId) {

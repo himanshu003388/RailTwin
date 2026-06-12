@@ -32,7 +32,7 @@ export const DEMO_TIMELINE: DemoEvent[] = [
     time: 8,
     type: "prediction",
     payload: {
-      trainId: "12303",
+      trainId: "12381",
       delayMinutes: 22,
       affectedStation: "pnbe",
       confidence: 0.81
@@ -46,7 +46,7 @@ export const DEMO_TIMELINE: DemoEvent[] = [
       conflictsDetected: 3,
       cascadeDelay: 52,
       passengersAffected: 19000,
-      stationsImpacted: ["pnbe", "dhn", "hwh"]
+      stationsImpacted: ["pnbe", "ald", "hwh"]
     }
   },
   {

@@ -20,24 +20,19 @@ const STATION_COORDS: Record<string, { lat: number; lng: number; name: string }>
   ndls: { lat: 28.6419, lng: 77.2217, name: 'New Delhi' },
   cnb: { lat: 26.4525, lng: 80.3311, name: 'Kanpur Central' },
   ald: { lat: 25.4358, lng: 81.8463, name: 'Prayagraj' },
-  bsb: { lat: 25.3180, lng: 83.0090, name: 'Varanasi Junction' },
   pnbe: { lat: 25.6093, lng: 85.1376, name: 'Patna Junction' },
-  dhn: { lat: 23.7957, lng: 86.4304, name: 'Dhanbad Junction' },
   hwh: { lat: 22.5804, lng: 88.3460, name: 'Howrah Junction' }
 };
 
-const FALLBACK_WEATHER: Record<string, { rainfall: number; description: string }> = {
-  ndls: { rainfall: 0, description: 'Clear sky' },
-  cnb: { rainfall: 0, description: 'Partly cloudy' },
-  ald: { rainfall: 0, description: 'Clear sky' },
-  bsb: { rainfall: 0, description: 'Clear sky' },
-  pnbe: { rainfall: 72, description: 'Heavy rainfall' },
-  dhn: { rainfall: 0, description: 'Partly cloudy' },
-  hwh: { rainfall: 0, description: 'Light rain' }
+const FALLBACK_WEATHER: Record<string, { rainfall: number; description: string; visibility: number }> = {
+  ndls: { rainfall: 0, description: 'Clear sky', visibility: 10 },
+  cnb: { rainfall: 0, description: 'Partly cloudy', visibility: 8 },
+  ald: { rainfall: 0, description: 'Clear sky', visibility: 10 },
+  pnbe: { rainfall: 72, description: 'Heavy monsoon cloudburst', visibility: 2 },
+  hwh: { rainfall: 5, description: 'Light drizzle', visibility: 7 }
 };
 
 function getCachedWeather(stationCode: string): WeatherData | null {
-  if (!OPENWEATHER_API_KEY) return null;
   const db = getDb();
   const row = db.prepare(
     "SELECT data_json, fetched_at FROM weather_cache WHERE station_code = ? ORDER BY fetched_at DESC LIMIT 1"
@@ -57,7 +52,6 @@ function getCachedWeather(stationCode: string): WeatherData | null {
 }
 
 function cacheWeather(stationCode: string, data: WeatherData) {
-  if (!OPENWEATHER_API_KEY) return;
   const db = getDb();
   db.prepare('INSERT INTO weather_cache (station_code, data_json) VALUES (?, ?)').run(
     stationCode,
@@ -65,21 +59,28 @@ function cacheWeather(stationCode: string, data: WeatherData) {
   );
 }
 
-async function fetchLiveWeather(stationCode: string): Promise<WeatherData | null> {
-  if (!OPENWEATHER_API_KEY) return null;
+async function fetchLiveWeather(stationCode: string, apiKey: string): Promise<WeatherData | null> {
+  if (!apiKey) return null;
 
   const coords = STATION_COORDS[stationCode];
   if (!coords) return null;
 
   try {
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lng}&appid=${OPENWEATHER_API_KEY}&units=metric`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lng}&appid=${apiKey}&units=metric`;
     const response = await fetch(url);
     if (!response.ok) return null;
 
     const data = await response.json();
     const rainfall = data.rain?.['1h'] || data.rain?.['3h'] || 0;
-    const description = data.weather?.[0]?.description || 'Clear sky';
+    let description = data.weather?.[0]?.description || 'Clear sky';
     const icon = data.weather?.[0]?.icon || '01d';
+    const rawVisibility = data.visibility !== undefined ? data.visibility : 10000;
+    const visibilityKm = Math.round(rawVisibility / 1000);
+
+    // Dynamic description override if visibility is low
+    if (rawVisibility < 1000 && !description.toLowerCase().includes('fog') && !description.toLowerCase().includes('mist')) {
+      description = 'Dense fog';
+    }
 
     const weatherData: WeatherData = {
       station: stationCode,
@@ -88,7 +89,7 @@ async function fetchLiveWeather(stationCode: string): Promise<WeatherData | null
       temperature: Math.round(data.main?.temp || 0),
       humidity: data.main?.humidity || 0,
       windSpeed: Math.round((data.wind?.speed || 0) * 3.6),
-      visibility: Math.round((data.visibility || 10000) / 1000),
+      visibility: visibilityKm,
       icon,
       fetchedAt: new Date().toISOString(),
       source: 'live'
@@ -102,8 +103,10 @@ async function fetchLiveWeather(stationCode: string): Promise<WeatherData | null
   }
 }
 
-export async function getCorridorWeather(): Promise<Record<string, WeatherData>> {
+export async function getCorridorWeather(customApiKey?: string): Promise<Record<string, WeatherData>> {
   const results: Record<string, WeatherData> = {};
+  const apiKey = customApiKey || OPENWEATHER_API_KEY;
+
   for (const stationCode of Object.keys(STATION_COORDS)) {
     // Check cache first
     const cached = getCachedWeather(stationCode);
@@ -112,23 +115,25 @@ export async function getCorridorWeather(): Promise<Record<string, WeatherData>>
       continue;
     }
 
-    // Try live API
-    const live = await fetchLiveWeather(stationCode);
-    if (live) {
-      results[stationCode] = live;
-      continue;
+    // Try live API if API Key is available
+    if (apiKey) {
+      const live = await fetchLiveWeather(stationCode, apiKey);
+      if (live) {
+        results[stationCode] = live;
+        continue;
+      }
     }
 
-    // Fallback to hardcoded
-    const fallback = FALLBACK_WEATHER[stationCode] || { rainfall: 0, description: 'Clear sky' };
+    // Fallback to hardcoded with realistic corridor weather story
+    const fallback = FALLBACK_WEATHER[stationCode] || { rainfall: 0, description: 'Clear sky', visibility: 10 };
     results[stationCode] = {
       station: stationCode,
       rainfall: fallback.rainfall,
-      description: fallback.description,
-      temperature: stationCode === 'pnbe' ? 28 : 25,
-      humidity: 80,
-      windSpeed: 10,
-      visibility: stationCode === 'pnbe' ? 5 : 10,
+      description: fallback.description + ' (simulated)',
+      temperature: stationCode === 'pnbe' ? 26 : stationCode === 'hwh' ? 29 : stationCode === 'ndls' ? 34 : 27,
+      humidity: stationCode === 'pnbe' ? 92 : stationCode === 'hwh' ? 85 : 65,
+      windSpeed: stationCode === 'pnbe' ? 45 : stationCode === 'hwh' ? 25 : 12,
+      visibility: fallback.visibility,
       icon: '01d',
       fetchedAt: new Date().toISOString(),
       source: 'fallback'
@@ -137,7 +142,7 @@ export async function getCorridorWeather(): Promise<Record<string, WeatherData>>
   return results;
 }
 
-export async function getWeatherAlert(): Promise<{
+export async function getWeatherAlert(customApiKey?: string): Promise<{
   station: string;
   rainfall: number;
   description: string;
@@ -147,7 +152,7 @@ export async function getWeatherAlert(): Promise<{
   visibility: number;
   source: string;
 }> {
-  const corridorWeather = await getCorridorWeather();
+  const corridorWeather = await getCorridorWeather(customApiKey);
   const pnbeWeather = corridorWeather.pnbe;
   return {
     station: pnbeWeather.station,

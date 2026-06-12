@@ -2,67 +2,41 @@
   {
     "trainNo": "12301",
     "trainName": "Howrah Rajdhani Express",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Prayagraj Junction",
-      "Patna Junction",
-      "Dhanbad Junction",
-      "Howrah Junction"
-    ]
+    "route": ["New Delhi", "Kanpur Central", "Prayagraj Junction", "Patna Junction", "Howrah Junction"]
   },
   {
-    "trainNo": "12303",
-    "trainName": "Poorva Express",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Prayagraj Junction",
-      "Varanasi Junction",
-      "Patna Junction",
-      "Howrah Junction"
-    ]
+    "trainNo": "12302",
+    "trainName": "New Delhi Rajdhani",
+    "route": ["Howrah Junction", "Patna Junction", "Prayagraj Junction", "Kanpur Central", "New Delhi"]
   },
   {
     "trainNo": "12305",
-    "trainName": "Rajendra Nagar Patna Rajdhani",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Prayagraj Junction",
-      "Patna Junction"
-    ]
+    "trainName": "Howrah Rajdhani Express",
+    "route": ["New Delhi", "Kanpur Central", "Prayagraj Junction", "Patna Junction"]
   },
   {
-    "trainNo": "13005",
-    "trainName": "Amritsar Mail",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Prayagraj Junction",
-      "Varanasi Junction",
-      "Patna Junction",
-      "Dhanbad Junction",
-      "Howrah Junction"
-    ]
+    "trainNo": "12306",
+    "trainName": "New Delhi Rajdhani",
+    "route": ["Patna Junction", "Prayagraj Junction", "Kanpur Central", "New Delhi"]
   },
   {
-    "trainNo": "12273",
-    "trainName": "Howrah Duronto",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Patna Junction",
-      "Howrah Junction"
-    ]
+    "trainNo": "12259",
+    "trainName": "Sealdah Duronto",
+    "route": ["New Delhi", "Kanpur Central", "Patna Junction", "Howrah Junction"]
   },
   {
-    "trainNo": "12002",
-    "trainName": "Shatabdi Express",
-    "route": [
-      "New Delhi",
-      "Kanpur Central",
-      "Lucknow Charbagh"
-    ]
+    "trainNo": "12260",
+    "trainName": "New Delhi Duronto",
+    "route": ["Howrah Junction", "Patna Junction", "Kanpur Central", "New Delhi"]
+  },
+  {
+    "trainNo": "12381",
+    "trainName": "Poorva Express",
+    "route": ["New Delhi", "Kanpur Central", "Prayagraj Junction", "Patna Junction", "Howrah Junction"]
+  },
+  {
+    "trainNo": "12382",
+    "trainName": "Poorva Express",
+    "route": ["Howrah Junction", "Patna Junction", "Prayagraj Junction", "Kanpur Central", "New Delhi"]
   }
 ]

@@ -56,7 +56,7 @@ export interface DemoState {
   demoTime: number;
   isPaused: boolean;
   playbackSpeed: number;
-  weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number };
+  weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number; visibility: number };
   weatherData: Record<string, {
     station: string;
     rainfall: number;
@@ -112,8 +112,14 @@ export interface DemoState {
   stations: any[];
   mobileLeftOpen: boolean;
   mobileRightOpen: boolean;
+  openWeatherApiKey: string;
+  weatherMode: 'live' | 'simulation';
 
   // Actions
+  setOpenWeatherApiKey: (key: string) => void;
+  setWeatherMode: (mode: 'live' | 'simulation') => void;
+  recalculateDynamicPredictions: () => Promise<void>;
+  injectCustomWeather: (stationId: string, weatherParams: any) => void;
   setMobileLeftOpen: (open: boolean) => void;
   setMobileRightOpen: (open: boolean) => void;
   startDemo: () => void;
@@ -159,16 +165,10 @@ const nameToIdMap: Record<string, string> = {
   'prayagraj junction': 'ald',
   'allahabad': 'ald',
   'prayagraj': 'ald',
-  'varanasi junction': 'bsb',
-  'varanasi': 'bsb',
   'patna junction': 'pnbe',
   'patna': 'pnbe',
-  'dhanbad junction': 'dhn',
-  'dhanbad': 'dhn',
   'howrah junction': 'hwh',
-  'howrah': 'hwh',
-  'lucknow charbagh': 'lko',
-  'lucknow': 'lko'
+  'howrah': 'hwh'
 };
 
 function nameToId(name: string): string {
@@ -254,7 +254,9 @@ const initialStoreState = {
   apiStatus: 'disconnected' as const,
   geminiApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-gemini-api-key') || '' : '',
   mobileLeftOpen: false,
-  mobileRightOpen: false
+  mobileRightOpen: false,
+  openWeatherApiKey: typeof window !== 'undefined' ? localStorage.getItem('railtwin-openweather-api-key') || '' : '',
+  weatherMode: 'simulation' as const
 };
 
 export const useDemoStore = create<DemoState>((set, get) => ({
@@ -272,6 +274,187 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
   setMobileLeftOpen: (open) => set({ mobileLeftOpen: open }),
   setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
+  
+  setOpenWeatherApiKey: (key) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('railtwin-openweather-api-key', key);
+    }
+    set({ openWeatherApiKey: key });
+  },
+
+  setWeatherMode: (mode) => {
+    set({ weatherMode: mode });
+    get().recalculateDynamicPredictions();
+  },
+
+  injectCustomWeather: (stationId, weatherParams) => {
+    set(state => {
+      const currentWeatherData = state.weatherData || {};
+      const stationWeather = currentWeatherData[stationId] || {
+        station: stationId,
+        rainfall: 0,
+        description: 'Clear sky',
+        temperature: 25,
+        humidity: 80,
+        windSpeed: 10,
+        visibility: 10,
+        source: 'manual'
+      };
+      
+      const newWeatherData = {
+        ...currentWeatherData,
+        [stationId]: {
+          ...stationWeather,
+          ...weatherParams,
+          source: 'manual'
+        }
+      };
+
+      // Recalculate worst station for weatherAlert
+      let worstStation: string | null = null;
+      let maxRainfall = 0;
+      let minVisibility = 10;
+      let worstDesc = '';
+      let worstTemp = 25;
+      let worstHumidity = 80;
+      let worstWind = 0;
+
+      Object.entries(newWeatherData).forEach(([code, w]: [string, any]) => {
+        if (w.rainfall > maxRainfall) {
+          maxRainfall = w.rainfall;
+          worstStation = code;
+          worstDesc = w.description;
+          worstTemp = w.temperature;
+          worstHumidity = w.humidity;
+          worstWind = w.windSpeed;
+        } else if (w.visibility < minVisibility) {
+          minVisibility = w.visibility;
+          if (maxRainfall === 0) {
+            worstStation = code;
+            worstDesc = w.description;
+            worstTemp = w.temperature;
+            worstHumidity = w.humidity;
+            worstWind = w.windSpeed;
+          }
+        }
+      });
+
+      const newWeatherAlert = worstStation && (maxRainfall > 0 || minVisibility < 10)
+        ? {
+            station: worstStation,
+            rainfall: maxRainfall,
+            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'),
+            temperature: worstTemp,
+            humidity: worstHumidity,
+            windSpeed: worstWind,
+            visibility: minVisibility
+          }
+        : null;
+
+      return {
+        weatherData: newWeatherData,
+        weatherAlert: newWeatherAlert
+      };
+    });
+
+    get().recalculateDynamicPredictions();
+  },
+
+  recalculateDynamicPredictions: async () => {
+    const { trains, weatherData, stationRisks, stations, weatherMode } = get();
+    if (!weatherData) return;
+    
+    // If weatherMode is simulation, we keep the original flow
+    if (weatherMode === 'simulation') {
+      return;
+    }
+
+    const updatedTrains = [...trains];
+    const newPredictions: any[] = [];
+    const newStationRisks = { ...stationRisks };
+    
+    for (const train of trains) {
+      // Get route length
+      const route = await railwayDataset.getRouteByTrainNo(train.id);
+      let routeLengthKm = 1531;
+      if (route) {
+        let length = 0;
+        for (let i = 0; i < route.route.length - 1; i++) {
+          const fromId = nameToId(route.route[i]);
+          const toId = nameToId(route.route[i+1]);
+          length += getCorridorDistance(fromId, toId, stations);
+        }
+        routeLengthKm = length || 1531;
+      }
+
+      // Check weather at next station
+      const targetStationId = train.nextStation || train.currentStation;
+      const stationWeather = weatherData[targetStationId];
+      const congestion = stationRisks[targetStationId]?.crowdRisk || 'low';
+      
+      let weatherCondition = 'Clear';
+      let rainfall = 0;
+      let visibility = 10;
+      
+      if (stationWeather) {
+        rainfall = stationWeather.rainfall;
+        visibility = stationWeather.visibility;
+        
+        if (visibility < 1) {
+          weatherCondition = 'Fog';
+        } else if (rainfall > 50) {
+          weatherCondition = 'Heavy Rain';
+        } else if (rainfall > 0) {
+          weatherCondition = 'Rain';
+        } else {
+          const desc = stationWeather.description.toLowerCase();
+          if (desc.includes('fog') || desc.includes('mist')) {
+            weatherCondition = 'Fog';
+          } else if (desc.includes('rain') || desc.includes('drizzle')) {
+            weatherCondition = rainfall > 50 ? 'Heavy Rain' : 'Rain';
+          } else {
+            weatherCondition = 'Clear';
+          }
+        }
+      }
+
+      // Prediction Engine
+      const pred = await HistoricalDelayPredictionEngine.predict({
+        trainNo: train.id,
+        routeLengthKm,
+        stationCongestion: congestion,
+        weatherCondition,
+        rainfallMmHr: rainfall
+      });
+
+      const trainIdx = updatedTrains.findIndex(t => t.id === train.id);
+      if (trainIdx !== -1) {
+        updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
+      }
+
+      if (pred.predictedDelay > 0) {
+        newPredictions.push({
+          trainId: train.id,
+          delayMinutes: pred.predictedDelay,
+          affectedStation: targetStationId,
+          confidence: pred.confidence,
+          timestamp: get().demoTime,
+          explanation: pred.explanation
+        });
+
+        // Update station delay risk
+        if (newStationRisks[targetStationId]) {
+          newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
+        }
+      }
+    }
+
+    set({
+      trains: updatedTrains,
+      predictions: newPredictions,
+      stationRisks: newStationRisks
+    });
+  },
 
   toggleAudio: () => {
     set(state => ({ audioEnabled: !state.audioEnabled }));
@@ -438,8 +621,9 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
     DEMO_TIMELINE.forEach(event => {
       const timeout = setTimeout(() => {
-        if (get().demoRunning && !get().isPaused) {
-          get().tickDemo(event.time);
+        const state = get();
+        if (state.demoRunning && !state.isPaused && state.demoTime <= event.time) {
+          state.tickDemo(event.time);
         }
       }, event.time * 1000 / get().playbackSpeed);
       eventTimeouts.push(timeout);
@@ -448,7 +632,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     timerInterval = setInterval(() => {
       const state = get();
       if (state.demoRunning && !state.isPaused) {
-        const nextTime = state.demoTime + 1;
+        const nextTime = state.demoTime + state.playbackSpeed;
 
         // Advance train positions
         const updatedTrains = state.trains.map(train => {
@@ -701,13 +885,13 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
       const state = get();
       const resolvedTrains = state.trains.map(t => {
-        if (t.id === '12303') {
+        if (t.id === '12381') {
           return {
             ...t,
             currentStation: 'ald',
             predictedDelay: 18,
             routeProgress: 0.5,
-            coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 }, state.stations)
+            coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.5 }, state.stations)
           };
         }
         if (t.id === '12301') {
@@ -1104,13 +1288,13 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
         const state = get();
         const resolvedTrains = state.trains.map(t => {
-          if (t.id === '12303') {
+          if (t.id === '12381') {
             return {
               ...t,
               currentStation: 'ald',
               predictedDelay: 18,
               routeProgress: 0.5,
-              coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'bsb', routeProgress: 0.5 }, state.stations)
+              coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.5 }, state.stations)
             };
           }
           if (t.id === '12301') {
@@ -1271,7 +1455,12 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     try {
       const baseUrl = import.meta.env.BASE_URL || '/';
       const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      const res = await fetch(`${normalizedBase}api/weather/corridor`);
+      const headers: Record<string, string> = {};
+      const openWeatherApiKey = get().openWeatherApiKey;
+      if (openWeatherApiKey) {
+        headers['x-openweather-api-key'] = openWeatherApiKey;
+      }
+      const res = await fetch(`${normalizedBase}api/weather/corridor`, { headers });
       if (!res.ok) throw new Error('Failed to fetch weather');
       const weatherData = await res.json();
       set({ weatherData });
@@ -1313,11 +1502,17 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'),
             temperature: worstTemp,
             humidity: worstHumidity,
-            windSpeed: worstWind
+            windSpeed: worstWind,
+            visibility: minVisibility
           }
         });
       } else {
         set({ weatherAlert: null });
+      }
+
+      // Automatically trigger recalculation of dynamic predictions in live weatherMode
+      if (get().weatherMode === 'live') {
+        get().recalculateDynamicPredictions();
       }
     } catch (err) {
       console.error('Failed to fetch live weather for corridor:', err);
@@ -1330,7 +1525,7 @@ export const fetchInitialData = async () => {
   try {
     const baseUrl = import.meta.env.BASE_URL || '/';
     const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    const stationsRes = await fetch(`${normalizedBase}api/trains/stations`);
+    const stationsRes = await fetch(`${normalizedBase}api/stations`);
     const trainsRes = await fetch(`${normalizedBase}api/trains`);
     if (stationsRes.ok && trainsRes.ok) {
       const stations = await stationsRes.json();

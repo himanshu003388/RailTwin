@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { X } from 'lucide-react';
+import { X, CloudSun, CloudRain } from 'lucide-react';
 
 export const AlertBanner: React.FC = () => {
   const weatherAlert = useDemoStore(state => state.weatherAlert);
@@ -48,9 +48,7 @@ export const AlertBanner: React.FC = () => {
     ndls: 'New Delhi',
     cnb: 'Kanpur Central',
     ald: 'Prayagraj',
-    bsb: 'Varanasi Junction',
     pnbe: 'Patna Junction',
-    dhn: 'Dhanbad Junction',
     hwh: 'Howrah Junction'
   };
 
@@ -58,9 +56,13 @@ export const AlertBanner: React.FC = () => {
     return stationMap[code.toLowerCase()] || code.toUpperCase();
   };
 
+  const weatherSource = useDemoStore(state => state.weatherMode);
+
   const alertMessage = weatherAlert.description.toLowerCase().includes('detected near')
     ? weatherAlert.description
     : `${weatherAlert.description.charAt(0).toUpperCase() + weatherAlert.description.slice(1)} detected near ${getStationName(weatherAlert.station)}`;
+
+  const WeatherIcon = weatherAlert.rainfall > 0 ? CloudRain : CloudSun;
 
   return (
     <div
@@ -79,12 +81,21 @@ export const AlertBanner: React.FC = () => {
             <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: 'var(--color-accent-red)' }} />
           </div>
 
+          <WeatherIcon className="w-4 h-4 text-accent-red shrink-0" />
+
           <p className="text-xs sm:text-sm text-text-primary flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0">
             <span className="font-bold whitespace-nowrap" style={{ color: 'var(--color-accent-red)' }}>⚠ WEATHER ALERT</span>
             <span className="text-text-secondary hidden sm:inline">—</span>
             <span className="text-text-primary truncate max-sm:text-[11px]">{alertMessage}. Delay predictions active.</span>
             <span className="text-text-tertiary text-[10px] sm:text-xs font-mono hidden sm:inline">
               {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
+            </span>
+            <span className={`ml-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border ${
+              weatherSource === 'live'
+                ? 'bg-accent-blue-soft text-accent-blue border-accent-blue/30'
+                : 'bg-accent-amber-soft text-accent-amber border-accent-amber/30'
+            }`}>
+              {weatherSource === 'live' ? 'LIVE OWM' : 'SIMULATED'}
             </span>
           </p>
         </div>

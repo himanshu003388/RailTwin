@@ -3,17 +3,22 @@ import { getTrains } from '../../../lib/train-engine';
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
       let active = true;
 
+      const cleanup = () => {
+        active = false;
+        clearInterval(interval);
+        try { controller.close(); } catch { /* already closed */ }
+      };
+
       const send = () => {
         if (!active) return;
         try {
           const trains = getTrains();
-          // Add slight random variation to simulate live movement
           const liveTrains = trains.map(t => ({
             ...t,
             speed: t.speed + Math.round((Math.random() - 0.5) * 10),
@@ -26,6 +31,9 @@ export const GET: APIRoute = async () => {
         }
       };
 
+      // Handle client disconnect
+      request.signal.addEventListener('abort', cleanup);
+
       // Send initial data immediately
       send();
 
@@ -33,11 +41,7 @@ export const GET: APIRoute = async () => {
       const interval = setInterval(send, 5000);
 
       // Clean up after 5 minutes (prevent memory leaks)
-      setTimeout(() => {
-        active = false;
-        clearInterval(interval);
-        controller.close();
-      }, 300000);
+      setTimeout(cleanup, 300000);
     }
   });
 

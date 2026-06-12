@@ -3,9 +3,10 @@ import { getWeatherAlert } from '../../../lib/weather';
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
   try {
-    const alert = await getWeatherAlert();
+    const customApiKey = request.headers.get('x-openweather-api-key') || undefined;
+    const alert = await getWeatherAlert(customApiKey);
     return new Response(JSON.stringify(alert), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
