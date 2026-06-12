@@ -1,5 +1,3 @@
-import { getDb } from './db';
-
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '';
 const CACHE_TTL_MINUTES = 15;
 
@@ -24,31 +22,24 @@ const STATION_COORDS: Record<string, { lat: number; lng: number; name: string }>
   hwh: { lat: 22.5804, lng: 88.3460, name: 'Howrah Junction' }
 };
 
+const cache = new Map<string, { data: WeatherData; fetchedAt: Date }>();
+
 function getCachedWeather(stationCode: string): WeatherData | null {
-  const db = getDb();
-  const row = db.prepare(
-    "SELECT data_json, fetched_at FROM weather_cache WHERE station_code = ? ORDER BY fetched_at DESC LIMIT 1"
-  ).get(stationCode) as any;
+  const entry = cache.get(stationCode);
+  if (!entry) return null;
 
-  if (!row) return null;
-
-  const fetchedAt = new Date(row.fetched_at);
   const now = new Date();
-  const diffMinutes = (now.getTime() - fetchedAt.getTime()) / (1000 * 60);
+  const diffMinutes = (now.getTime() - entry.fetchedAt.getTime()) / (1000 * 60);
+  if (diffMinutes > CACHE_TTL_MINUTES) {
+    cache.delete(stationCode);
+    return null;
+  }
 
-  if (diffMinutes > CACHE_TTL_MINUTES) return null;
-
-  const data = JSON.parse(row.data_json);
-  data.source = 'cache';
-  return data;
+  return { ...entry.data, source: 'cache' as const };
 }
 
 function cacheWeather(stationCode: string, data: WeatherData) {
-  const db = getDb();
-  db.prepare('INSERT INTO weather_cache (station_code, data_json) VALUES (?, ?)').run(
-    stationCode,
-    JSON.stringify(data)
-  );
+  cache.set(stationCode, { data, fetchedAt: new Date() });
 }
 
 async function fetchLiveWeather(stationCode: string, apiKey: string): Promise<WeatherData | null> {
@@ -60,7 +51,10 @@ async function fetchLiveWeather(stationCode: string, apiKey: string): Promise<We
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lng}&appid=${apiKey}&units=metric`;
     const response = await fetch(url);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`Weather API returned ${response.status} for ${stationCode}`);
+      return null;
+    }
 
     const data = await response.json();
     const rainfall = data.rain?.['1h'] || data.rain?.['3h'] || 0;
@@ -69,7 +63,6 @@ async function fetchLiveWeather(stationCode: string, apiKey: string): Promise<We
     const rawVisibility = data.visibility !== undefined ? data.visibility : 10000;
     const visibilityKm = Math.round(rawVisibility / 1000);
 
-    // Dynamic description override if visibility is low
     if (rawVisibility < 1000 && !description.toLowerCase().includes('fog') && !description.toLowerCase().includes('mist')) {
       description = 'Dense fog';
     }
@@ -99,15 +92,17 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
   const results: Record<string, WeatherData> = {};
   const apiKey = customApiKey || OPENWEATHER_API_KEY;
 
+  if (!apiKey) {
+    console.warn('OpenWeatherMap API key is not set. Weather data unavailable.');
+  }
+
   for (const stationCode of Object.keys(STATION_COORDS)) {
-    // Check cache first
     const cached = getCachedWeather(stationCode);
     if (cached) {
       results[stationCode] = cached;
       continue;
     }
 
-    // Try live API if API Key is available
     if (apiKey) {
       const live = await fetchLiveWeather(stationCode, apiKey);
       if (live) {
@@ -115,9 +110,6 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
         continue;
       }
     }
-
-    // No data available — skip this station
-    continue;
   }
   return results;
 }
