@@ -22,7 +22,9 @@ async function callGemini(model: string, apiKey: string, body: object, attempt =
     });
     if (res.ok) return res;
 
-    // For 429, parse the retry delay from Gemini's error message and wait
+    // For 429, parse the retry delay from Gemini's error message.
+    // If delay is short (< 8s), wait and retry; otherwise return immediately
+    // to avoid exceeding the frontend timeout.
     if (res.status === 429 && attempt < MAX_RETRIES) {
       let delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
       try {
@@ -33,6 +35,7 @@ async function callGemini(model: string, apiKey: string, body: object, attempt =
           delay = Math.ceil(parseFloat(match[1]) * 1000) + 1000;
         }
       } catch {}
+      if (delay > 8_000) return res; // too long — let the caller handle it
       await new Promise(r => setTimeout(r, delay));
       return callGemini(model, apiKey, body, attempt + 1);
     }
