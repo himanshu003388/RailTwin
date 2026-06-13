@@ -39,26 +39,24 @@ export const CopilotChat: React.FC = () => {
         body: JSON.stringify({
           message: userMessage,
           simulationState,
+          userApiKey: geminiApiKey || undefined, // key from Settings, if any
         }),
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(`HTTP ${response.status}: ${errData.error || 'Unknown error'}`);
+        if (response.status === 429) {
+          return 'AI service is temporarily rate-limited. Please wait a moment and try again.';
+        }
+        if (response.status === 503) {
+          return errData.error || 'AI Copilot is not configured. Add a Gemini API key in Settings.';
+        }
+        return `AI error: ${errData.error || `HTTP ${response.status}`}`;
       }
       const data = await response.json();
-      return data.reply ?? 'Unable to get response.';
-    } catch (err) {
-      const msg = String(err);
-      if (msg.includes('AbortError') || msg.includes('aborted')) {
-        return 'AI request timed out. The server may be under load — please try again.';
-      }
-      if (msg.includes('429')) {
-        return 'AI service is temporarily rate-limited. Please wait a moment and try again. If this persists, configure your own Gemini API key in Settings to avoid shared rate limits.';
-      }
-      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('TypeError')) {
-        return 'Network error — unable to reach the AI service. Please check your connection and try again.';
-      }
-      return 'AI service request failed. Please try again.';
+      return data.reply ?? 'Unable to get a response.';
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return 'The AI request timed out. Please try again.';
+      return `Connection error: ${String(err?.message || err)}`;
     }
   }
 
@@ -66,7 +64,7 @@ export const CopilotChat: React.FC = () => {
   useEffect(() => {
     const checkBackendKey = async () => {
       try {
-        const res = await fetchWithTimeout(`${getBaseUrl()}api/copilot/chat`);
+        const res = await fetchWithTimeout(`${getBaseUrl()}api/copilot`);
         if (res.ok) {
           const data = await res.json();
           setIsLiveActive(!!data.hasKey);
