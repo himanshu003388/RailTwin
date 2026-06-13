@@ -103,10 +103,10 @@ export const POST: APIRoute = async ({ request }) => {
           status: 200, headers: { 'Content-Type': 'application/json' },
         });
       }
-      // Capture error; if it's a 404 (bad model) try the next model.
+      // Capture error; if it's a 404 (bad model) or 429 (rate-limited on that model), try the next model.
       const errData = await res.json().catch(() => ({}));
       lastError = errData?.error?.message || `HTTP ${res.status}`;
-      if (res.status !== 404) {
+      if (res.status !== 404 && res.status !== 429) {
         return new Response(JSON.stringify({ error: lastError }), {
           status: res.status, headers: { 'Content-Type': 'application/json' },
         });

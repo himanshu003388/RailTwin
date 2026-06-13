@@ -45,7 +45,7 @@ export const CopilotChat: React.FC = () => {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         if (response.status === 429) {
-          return 'AI service is temporarily rate-limited. Please wait a moment and try again.';
+          return 'AI service is rate-limited on the server key. Add your own Gemini API key in Settings (gear icon) to avoid this.';
         }
         if (response.status === 503) {
           return errData.error || 'AI Copilot is not configured. Add a Gemini API key in Settings.';
