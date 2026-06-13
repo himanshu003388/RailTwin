@@ -2,44 +2,55 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const GEMINI_TIMEOUT_MS = 55_000;
-const MAX_RETRIES = 3;
-const RETRY_BASE_DELAY_MS = 2_000;
+const GEMINI_TIMEOUT_MS = 20_000;
+const MAX_RETRIES = 2;
+const RETRY_BASE_DELAY_MS = 800;
 
-async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Promise<Response> {
+// Models tried in order — fall back if one is unavailable for the key.
+const MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+
+async function callGemini(model: string, apiKey: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   try {
-    const response = await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+    if (res.ok) return res;
 
-    if (response.ok) return response;
-
-    const status = response.status;
-    const isTransient = status === 429 || status === 503 || status === 500;
-
-    if (isTransient && attempt < MAX_RETRIES) {
-      const retryAfter = response.headers.get('retry-after');
-      const delay = retryAfter
-        ? parseInt(retryAfter, 10) * 1000
-        : RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
-      console.warn(`Gemini API ${status}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+    // For 429, parse the retry delay from Gemini's error message.
+    if (res.status === 429 && attempt < MAX_RETRIES) {
+      let delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+      try {
+        const errData = await res.clone().json();
+        const msg = errData?.error?.message || '';
+        const match = msg.match(/retry\s+in\s+(\d+(?:\.\d+)?)\s*s/i);
+        if (match) {
+          delay = Math.ceil(parseFloat(match[1]) * 1000) + 1000;
+        }
+      } catch {}
+      if (delay > 8_000) return res;
       await new Promise(r => setTimeout(r, delay));
-      return fetchGeminiWithRetry(url, body, attempt + 1);
+      return callGemini(model, apiKey, body, attempt + 1);
     }
 
-    return response;
-  } catch (err: any) {
-    if (attempt < MAX_RETRIES && (err.name === 'AbortError' || err.code === 'UND_ERR_HEADERS_TIMEOUT')) {
-      const delay = RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
-      console.warn(`Gemini API timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+    const isTransient = res.status === 500 || res.status === 503;
+    if (isTransient && attempt < MAX_RETRIES) {
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
       await new Promise(r => setTimeout(r, delay));
-      return fetchGeminiWithRetry(url, body, attempt + 1);
+      return callGemini(model, apiKey, body, attempt + 1);
+    }
+    return res;
+  } catch (err: any) {
+    if (attempt < MAX_RETRIES && err.name === 'AbortError') {
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+      await new Promise(r => setTimeout(r, delay));
+      return callGemini(model, apiKey, body, attempt + 1);
     }
     throw err;
   } finally {
@@ -119,25 +130,50 @@ Respond ONLY with a JSON object matching this schema:
 Ensure the ID field values are unique, starting from "rec-1" to "rec-3". The recommended actions must target the active trains, delay stations, or conflicts detected in the digital twin telemetry.
 Do not include any formatting other than the valid raw JSON object. Do not include markdown code block syntax. Return strictly valid JSON.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    let lastError = 'Unknown error';
+    let responseOk = false;
+    let data: any;
 
-    const response = await fetchGeminiWithRetry(geminiUrl, {
-      contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
-      generationConfig: {
-        temperature: 0.1,
-        responseMimeType: "application/json"
+    for (const model of MODELS) {
+      try {
+        const res = await callGemini(model, apiKey, {
+          contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json"
+          }
+        });
+
+        if (res.ok) {
+          data = await res.json();
+          responseOk = true;
+          break;
+        }
+
+        const errData = await res.json().catch(() => ({}));
+        lastError = errData?.error?.message || `HTTP ${res.status}`;
+        if (res.status !== 404 && res.status !== 429) {
+          return new Response(JSON.stringify({ error: lastError }), {
+            status: res.status, headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (err: any) {
+        lastError = err?.name === 'AbortError' ? 'Gemini request timed out.' : String(err?.message || err);
       }
-    });
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      return new Response(
-        JSON.stringify({ error: data.error?.message || "Gemini API call failed" }),
-        { status: response.status, headers: { 'Content-Type': 'application/json' } }
-      );
     }
 
-    const data = await response.json();
+    if (!responseOk) {
+      const isQuotaError = /quota|rate.limit/i.test(lastError);
+      if (isQuotaError) {
+        return new Response(JSON.stringify({
+          error: 'quota_exceeded',
+          message: 'The Gemini API free tier quota is exhausted. Add your own API key in Settings (gear icon) to continue using the copilot.'
+        }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+      }
+      return new Response(JSON.stringify({ error: lastError }), {
+        status: 502, headers: { 'Content-Type': 'application/json' },
+      });
+    }
     let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     
     // Fallback cleanup of code block syntax if returned
