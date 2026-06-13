@@ -42,12 +42,17 @@ export const CopilotChat: React.FC = () => {
         }),
       });
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${response.status}`);
       }
       const data = await response.json();
       return data.reply ?? 'Unable to get response.';
     } catch (err) {
-      return `Connection error: ${String(err)}`;
+      const msg = String(err);
+      if (msg.includes('429')) {
+        return 'AI service is temporarily rate-limited. Please wait a moment and try again.';
+      }
+      return `Connection error: ${msg}`;
     }
   }
 

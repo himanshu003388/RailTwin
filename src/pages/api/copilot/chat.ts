@@ -2,9 +2,9 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const GEMINI_TIMEOUT_MS = 50_000;
-const MAX_RETRIES = 2;
-const RETRY_BASE_DELAY_MS = 1_500;
+const GEMINI_TIMEOUT_MS = 55_000;
+const MAX_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 2_000;
 
 async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
@@ -27,7 +27,7 @@ async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Pro
       const retryAfter = response.headers.get('retry-after');
       const delay = retryAfter
         ? parseInt(retryAfter, 10) * 1000
-        : RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+        : RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
       console.warn(`Gemini API ${status}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
       await new Promise(r => setTimeout(r, delay));
       return fetchGeminiWithRetry(url, body, attempt + 1);
@@ -36,7 +36,7 @@ async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Pro
     return response;
   } catch (err: any) {
     if (attempt < MAX_RETRIES && (err.name === 'AbortError' || err.code === 'UND_ERR_HEADERS_TIMEOUT')) {
-      const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
       console.warn(`Gemini API timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
       await new Promise(r => setTimeout(r, delay));
       return fetchGeminiWithRetry(url, body, attempt + 1);

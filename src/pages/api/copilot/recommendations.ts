@@ -2,18 +2,46 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const GEMINI_TIMEOUT_MS = 50_000;
+const GEMINI_TIMEOUT_MS = 55_000;
+const MAX_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 2_000;
 
-async function fetchGeminiWithTimeout(url: string, body: object): Promise<Response> {
+async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+
+    if (response.ok) return response;
+
+    const status = response.status;
+    const isTransient = status === 429 || status === 503 || status === 500;
+
+    if (isTransient && attempt < MAX_RETRIES) {
+      const retryAfter = response.headers.get('retry-after');
+      const delay = retryAfter
+        ? parseInt(retryAfter, 10) * 1000
+        : RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
+      console.warn(`Gemini API ${status}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      await new Promise(r => setTimeout(r, delay));
+      return fetchGeminiWithRetry(url, body, attempt + 1);
+    }
+
+    return response;
+  } catch (err: any) {
+    if (attempt < MAX_RETRIES && (err.name === 'AbortError' || err.code === 'UND_ERR_HEADERS_TIMEOUT')) {
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(3, attempt);
+      console.warn(`Gemini API timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      await new Promise(r => setTimeout(r, delay));
+      return fetchGeminiWithRetry(url, body, attempt + 1);
+    }
+    throw err;
   } finally {
     clearTimeout(timer);
   }
@@ -93,7 +121,7 @@ Do not include any formatting other than the valid raw JSON object. Do not inclu
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-    const response = await fetchGeminiWithTimeout(geminiUrl, {
+    const response = await fetchGeminiWithRetry(geminiUrl, {
       contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
       generationConfig: {
         temperature: 0.1,
