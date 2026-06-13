@@ -21,7 +21,23 @@ async function callGemini(model: string, apiKey: string, body: object, attempt =
       signal: controller.signal,
     });
     if (res.ok) return res;
-    const isTransient = res.status === 429 || res.status === 500 || res.status === 503;
+
+    // For 429, parse the retry delay from Gemini's error message and wait
+    if (res.status === 429 && attempt < MAX_RETRIES) {
+      let delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+      try {
+        const errData = await res.clone().json();
+        const msg = errData?.error?.message || '';
+        const match = msg.match(/retry\s+in\s+(\d+(?:\.\d+)?)\s*s/i);
+        if (match) {
+          delay = Math.ceil(parseFloat(match[1]) * 1000) + 1000;
+        }
+      } catch {}
+      await new Promise(r => setTimeout(r, delay));
+      return callGemini(model, apiKey, body, attempt + 1);
+    }
+
+    const isTransient = res.status === 500 || res.status === 503;
     if (isTransient && attempt < MAX_RETRIES) {
       const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
       await new Promise(r => setTimeout(r, delay));
@@ -116,6 +132,13 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
+  const isQuotaError = /quota|rate.limit/i.test(lastError);
+  if (isQuotaError) {
+    return new Response(JSON.stringify({
+      error: 'quota_exceeded',
+      message: 'The Gemini API free tier quota is exhausted. Add your own API key in Settings (gear icon) to continue using the copilot.'
+    }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+  }
   return new Response(JSON.stringify({ error: lastError }), {
     status: 502, headers: { 'Content-Type': 'application/json' },
   });

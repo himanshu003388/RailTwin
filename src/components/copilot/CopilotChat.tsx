@@ -45,6 +45,9 @@ export const CopilotChat: React.FC = () => {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         if (response.status === 429) {
+          if (errData.error === 'quota_exceeded') {
+            return errData.message || 'The Gemini API free tier quota is exhausted. Add your own API key in Settings (gear icon) to continue.';
+          }
           return 'AI service is rate-limited on the server key. Add your own Gemini API key in Settings (gear icon) to avoid this.';
         }
         if (response.status === 503) {
