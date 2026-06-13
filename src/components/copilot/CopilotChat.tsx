@@ -141,12 +141,14 @@ export const CopilotChat: React.FC = () => {
   };
 
   const hasUserMessages = messages.some(m => m.sender === 'user');
+  const hasCopilotMessages = messages.some(m => m.sender === 'copilot');
+  const showEmptyState = !hasUserMessages && !hasCopilotMessages;
 
   return (
     <div className="flex flex-col h-full max-lg:h-[calc(100dvh-48px-12px)] lg:h-[calc(100vh-48px)] bg-bg-page text-text-primary">
       {/* Chat History */}
       <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin">
-        {!hasUserMessages && (
+        {showEmptyState && (
           <div className="flex flex-col items-center justify-center py-8 select-none">
             <Bot className="w-10 h-10 text-border-default mb-3 animate-breath" />
             <span className="text-sm text-text-secondary font-medium mb-1">Ask about corridor status</span>
@@ -234,7 +236,7 @@ export const CopilotChat: React.FC = () => {
 
       {/* Input Area */}
       <div className="border-t border-border-default p-4 bg-bg-card animate-slide-up">
-        {!hasUserMessages && (
+        {showEmptyState && (
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
             {['Which station is most at risk?', "What's the cascade impact?", 'Recommended actions?'].map(q => (
               <button
