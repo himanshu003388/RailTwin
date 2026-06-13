@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { Bot, Send, User } from 'lucide-react';
 
-const CLIENT_TIMEOUT_MS = 65_000;
+const CLIENT_TIMEOUT_MS = 25_000;
 
 async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = CLIENT_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
@@ -169,7 +169,7 @@ export const CopilotChat: React.FC = () => {
               }}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
-              <span>{active ? 'Live AI Agent Mode (Gemini 2.5)' : 'AI Service Unavailable · Configure Settings'}</span>
+              <span>{active ? 'Live AI Agent Mode' : 'AI Service Unavailable · Configure Settings'}</span>
             </div>
             {!active && (
               <div className="mt-4 p-3.5 rounded-lg border border-border-default bg-bg-card max-w-[320px] text-center flex flex-col gap-2 shadow-sm">
