@@ -6,6 +6,12 @@ export const prerender = false;
 export const GET: APIRoute = async () => {
   try {
     const db = getDb();
+    if (!db) {
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     const scenarios = db.prepare(
       'SELECT * FROM scenarios ORDER BY created_at DESC LIMIT 50'
     ).all();
@@ -34,6 +40,12 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const db = getDb();
+    if (!db) {
+      return new Response(
+        JSON.stringify({ error: 'Scenario persistence is unavailable in this environment.', persisted: false }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     const info = db.prepare(
       'INSERT INTO scenarios (name, station, scenario_type, result_json) VALUES (?, ?, ?, ?)'
     ).run(name, station, scenarioType, JSON.stringify(result));

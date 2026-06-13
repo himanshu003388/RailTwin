@@ -33,7 +33,7 @@ export const CopilotChat: React.FC = () => {
 
   async function askGemini(userMessage: string, simulationState: object): Promise<string> {
     try {
-      const response = await fetch(`${getBaseUrl()}api/copilot`, {
+      const response = await fetchWithTimeout(`${getBaseUrl()}api/copilot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -43,16 +43,22 @@ export const CopilotChat: React.FC = () => {
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${errData.error || 'Unknown error'}`);
       }
       const data = await response.json();
       return data.reply ?? 'Unable to get response.';
     } catch (err) {
       const msg = String(err);
-      if (msg.includes('429')) {
-        return 'AI service is temporarily rate-limited. Please wait a moment and try again.';
+      if (msg.includes('AbortError') || msg.includes('aborted')) {
+        return 'AI request timed out. The server may be under load — please try again.';
       }
-      return `Connection error: ${msg}`;
+      if (msg.includes('429')) {
+        return 'AI service is temporarily rate-limited. Please wait a moment and try again. If this persists, configure your own Gemini API key in Settings to avoid shared rate limits.';
+      }
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('TypeError')) {
+        return 'Network error — unable to reach the AI service. Please check your connection and try again.';
+      }
+      return 'AI service request failed. Please try again.';
     }
   }
 

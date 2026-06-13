@@ -81,8 +81,8 @@ const DARK_STYLES = [
 ];
 
 const LIGHT_STYLES = [
-  'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   'https://demotiles.maplibre.org/style.json',
 ];
 
@@ -223,9 +223,9 @@ export const CorridorMap: React.FC = () => {
         type: 'line',
         source: 'corridor-route',
         paint: {
-          'line-color': theme === 'light' ? '#1554b8' : '#3b82f6',
-          'line-width': theme === 'light' ? 4 : 3,
-          'line-opacity': theme === 'light' ? 0.95 : 0.8,
+          'line-color': theme === 'light' ? '#0b2e6f' : '#3b82f6',
+          'line-width': theme === 'light' ? 5 : 3,
+          'line-opacity': theme === 'light' ? 1 : 0.8,
           'line-dasharray': [4, 3]
         }
       });
@@ -308,9 +308,9 @@ export const CorridorMap: React.FC = () => {
         paint: {
           'circle-radius': theme === 'light' ? 9 : 8,
           'circle-color': ['get', 'color'],
-          'circle-stroke-color': theme === 'light' ? '#efebe3' : '#ffffff',
-          'circle-stroke-width': theme === 'light' ? 3 : 2.5,
-          'circle-stroke-opacity': 0.95
+          'circle-stroke-color': theme === 'light' ? '#1f2d44' : '#ffffff',
+          'circle-stroke-width': theme === 'light' ? 2.5 : 2.5,
+          'circle-stroke-opacity': 1
         }
       });
 
@@ -806,7 +806,14 @@ export const CorridorMap: React.FC = () => {
         <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] flex flex-col gap-2.5 pointer-events-auto">
           <div className="flex items-center gap-1.5 border-b border-border-subtle pb-2">
             <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
-            <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">OWM</span>
+            <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">
+              {(() => {
+                const sources = stations.map(s => weatherData?.[s.id]?.source).filter(Boolean);
+                if (sources.includes('openweather')) return 'OWM';
+                if (sources.includes('open-meteo')) return 'OPEN-METEO';
+                return 'LIVE';
+              })()}
+            </span>
           </div>
           <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin">
             {stations.map(s => {

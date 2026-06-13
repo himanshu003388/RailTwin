@@ -904,4 +904,137 @@ select option {
   .right-sidebar { max-width: 100% !important; }
 }
 
+/* ════════════════════════════════════════════════════════════
+   UI/UX POLISH LAYER — drop-in, token-based, theme-aware
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Accessibility: respect reduced motion ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Glassmorphism surface (for HUDs, overlays, mobile nav) ── */
+.glass {
+  background: color-mix(in srgb, var(--color-bg-elevated) 75%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--color-border-default);
+}
+html.light .glass, .light .glass {
+  background: color-mix(in srgb, #ffffff 78%, transparent);
+}
+
+/* ── Animated gradient border (the "wow" frame for hero cards) */
+.gradient-border {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #007cf0, #00dfd8, #7928ca, #ff0080);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: gradient-pan 6s ease infinite;
+  pointer-events: none;
+}
+@keyframes gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* ── Skeleton shimmer for loading states ───────────────────── */
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--color-bg-card) 25%,
+    var(--color-bg-hover) 50%,
+    var(--color-bg-card) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pan 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-pan {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Hover lift for interactive cards ──────────────────────── */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-float);
+}
+
+/* ── Number tabular alignment helper ───────────────────────── */
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAVIGATION — appears < 1024px
+   ════════════════════════════════════════════════════════════ */
+.mobile-nav {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    justify-content: space-around;
+    align-items: stretch;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--color-bg-elevated) 85%, transparent);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-top: 1px solid var(--color-border-default);
+  }
+  /* Give the main content room so the bar never covers content */
+  .dashboard-body { padding-bottom: 64px; }
+}
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-height: 48px; /* WCAG touch target */
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mobile-nav-item[data-active="true"] {
+  color: var(--color-accent-blue);
+  background: var(--color-accent-blue-soft);
+}
+.mobile-nav-item:active { transform: scale(0.94); }
+
+/* Ensure all icon buttons meet the 44px touch floor on touch devices */
+@media (pointer: coarse) {
+  button { min-height: 40px; }
+}
+
+/* ════════════════════════════════════════════════════════════   LIGHT MODE REFINEMENT — deeper canvas, dark visible lines,   richer colour. Overrides earlier light tokens (cascade wins).   ════════════════════════════════════════════════════════════ */html.light, .light {  /* Surfaces — soft slate canvas instead of blinding white.     Cards stay light so content reads, but never pure-white-on-white. */  --color-bg-page:     #dfe5ee;  /* slate-tinted page, easy on eyes */  --color-bg-card:     #f4f7fb;  /* card sits clearly above page */  --color-bg-elevated: #e9eef6;  /* headers / elevated chrome */  --color-bg-hover:    #dce4f0;  --color-bg-sunken:   #ced7e6;  /* inset wells read as recessed */  /* Borders — DARK, high-contrast lines (the core fix) */  --color-border-subtle:  #9aa9bf;  --color-border-default: #6b7d99;  --color-border-hover:   #4f6285;  --color-border-active:  #364a6b;  --color-border-strong:  #1f2d44;  --color-divider-dark:   #2a3a55;  /* Text — deep navy-ink for strong contrast */  --color-text-primary:   #0b1424;  --color-text-secondary: #2c3a52;  --color-text-tertiary:  #4a5a74;  --color-text-muted:     #6c7c95;  /* Accents — richer, more saturated so colour actually shows */  --color-accent-blue:       #1d4ed8;  --color-accent-blue-soft:  rgba(29, 78, 216, 0.16);  --color-accent-blue-glow:  rgba(29, 78, 216, 0.30);  --color-accent-green:      #0f7a3d;  --color-accent-green-soft: rgba(15, 122, 61, 0.15);  --color-accent-green-glow: rgba(15, 122, 61, 0.28);  --color-accent-amber:      #c2660a;  --color-accent-amber-soft: rgba(194, 102, 10, 0.15);  --color-accent-amber-glow: rgba(194, 102, 10, 0.28);  --color-accent-red:        #c81e1e;  --color-accent-red-soft:   rgba(200, 30, 30, 0.15);  --color-accent-red-glow:   rgba(200, 30, 30, 0.30);  --color-accent-purple:      #6d28d9;  --color-accent-purple-soft: rgba(109, 40, 217, 0.15);  --color-accent-purple-glow: rgba(109, 40, 217, 0.28);  --color-accent-cyan:       #0e7490;  --color-accent-cyan-soft:  rgba(14, 116, 144, 0.15);  --color-accent-cyan-glow:  rgba(14, 116, 144, 0.28);  /* Risk tokens — saturated fills with dark borders */  --color-risk-low:           #0f7a3d;  --color-risk-low-bg:        #d4f0df;  --color-risk-low-border:    #0f7a3d;  --color-risk-moderate:      #c2660a;  --color-risk-moderate-bg:   #fdeccf;  --color-risk-moderate-border: #c2660a;  --color-risk-high:          #d4480a;  --color-risk-high-bg:       #fcdcc7;  --color-risk-high-border:   #d4480a;  --color-risk-critical:      #c81e1e;  --color-risk-critical-bg:   #f9d2d2;  --color-risk-critical-border: #c81e1e;  /* Shadows — stronger so cards lift off the deeper canvas */  --shadow-card:  0 0 0 1px #6b7d99 inset,                  0px 1px 2px rgba(20, 35, 60, 0.12),                  0px 2px 6px rgba(20, 35, 60, 0.10);  --shadow-card-elevated: 0 0 0 1px #4f6285 inset,                          0px 4px 12px rgba(20, 35, 60, 0.16),                          0px 12px 28px rgba(20, 35, 60, 0.12);  --shadow-elevated: 0 0 0 1px #6b7d99 inset,                     0px 3px 8px rgba(20, 35, 60, 0.14),                     0px 10px 22px rgba(20, 35, 60, 0.10);  --shadow-float: 0 0 0 1px #4f6285 inset,                  0px 4px 10px rgba(20, 35, 60, 0.14),                  0px 12px 30px rgba(20, 35, 60, 0.14),                  0px 28px 56px rgba(20, 35, 60, 0.10);  --shadow-modal: 0 0 0 1px #4f6285 inset,                  0px 2px 6px rgba(20, 35, 60, 0.16),                  0px 12px 28px rgba(20, 35, 60, 0.18),                  0px 28px 56px rgba(20, 35, 60, 0.16);  /* Supporting tokens used elsewhere in your CSS */  --color-divider:         #6b7d99;  --color-focus-ring:      rgba(29, 78, 216, 0.55);  --color-input-border:    #6b7d99;  --color-input-focus:     #1d4ed8;  --color-scrollbar:       #6b7d99;  --color-scrollbar-hover: #364a6b;  --color-sidebar-bg:      #e9eef6;  --color-sidebar-border:  #6b7d99;}/* Make the page selection + map header chrome read on the deeper canvas */html.light ::selection, .light ::selection {  background: rgba(29, 78, 216, 0.25);  color: #0b1424;}/* Stronger sidebar separation in light mode (your existing rules force   white sidebars on desktop — re-tint them so borders show) */@media (min-width: 641px) {  html.light .sidebar-left, .light .sidebar-left,  html.light .right-sidebar, .light .right-sidebar {    background-image: linear-gradient(135deg, #eef2f9 0%, #e4eaf3 100%) !important;    border-color: #6b7d99 !important;  }}/* Panel headers: give them a real dark accent line in light mode */html.light .panel-header, .light .panel-header {  border-bottom-color: var(--color-border-strong);}
+
 

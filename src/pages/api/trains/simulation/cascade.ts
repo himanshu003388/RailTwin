@@ -25,15 +25,17 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
       const db = getDb();
-      db.prepare(
-        'INSERT INTO scenarios (name, station, scenario_type, result_json) VALUES (?, ?, ?, ?)'
-      ).run(
-        `${scenario} at ${stationId}`,
-        stationId,
-        scenario,
-        JSON.stringify(result)
-      );
-      logAudit('simulation', { stationId, scenario, ...result });
+      if (db) {
+        db.prepare(
+          'INSERT INTO scenarios (name, station, scenario_type, result_json) VALUES (?, ?, ?, ?)'
+        ).run(
+          `${scenario} at ${stationId}`,
+          stationId,
+          scenario,
+          JSON.stringify(result)
+        );
+        logAudit('simulation', { stationId, scenario, ...result });
+      }
     } catch (e) {
       console.error('Failed to save scenario:', e);
     }

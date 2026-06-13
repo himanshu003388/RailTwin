@@ -7,6 +7,12 @@ export const GET: APIRoute = async ({ params }) => {
   try {
     const id = params.id;
     const db = getDb();
+    if (!db) {
+      return new Response(JSON.stringify({ error: 'Scenario not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     const scenario = db.prepare('SELECT * FROM scenarios WHERE id = ?').get(id);
 
     if (!scenario) {
@@ -32,6 +38,12 @@ export const DELETE: APIRoute = async ({ params }) => {
   try {
     const id = params.id;
     const db = getDb();
+    if (!db) {
+      return new Response(JSON.stringify({ error: 'Scenario not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     const scenario = db.prepare('SELECT * FROM scenarios WHERE id = ?').get(id);
     if (!scenario) {

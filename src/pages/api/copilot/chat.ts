@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 export const prerender = false;
 
 const GEMINI_TIMEOUT_MS = 20_000;
-const MAX_RETRIES = 1;
+const MAX_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 1_000;
 
 async function fetchGeminiWithRetry(url: string, body: object, attempt = 0): Promise<Response> {
@@ -133,7 +133,14 @@ Be direct, technical. Use bullet points. Bold key values.`;
     }
 
     const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I was unable to generate a response.";
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) {
+      return new Response(JSON.stringify({ error: 'AI service returned an empty response. Please try again.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     return new Response(JSON.stringify({ message: reply }), {
       status: 200,

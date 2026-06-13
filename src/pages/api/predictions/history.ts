@@ -5,10 +5,16 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ url }) => {
   try {
-    const db = getDb();
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 200);
     const offset = parseInt(url.searchParams.get('offset') || '0');
     const trainId = url.searchParams.get('trainId');
+    const db = getDb();
+    if (!db) {
+      return new Response(JSON.stringify({ predictions: [], total: 0, limit, offset }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     let query = 'SELECT p.* FROM predictions p';
     const params: any[] = [];

@@ -1,18 +1,30 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import os from 'os';
 
-const DB_PATH = path.resolve(process.cwd(), 'railtwin.db');
+// On Vercel the project dir is read-only; only /tmp is writable.
+const DB_PATH = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'railtwin.db')
+  : path.resolve(process.cwd(), 'railtwin.db');
 
 let _db: Database.Database | null = null;
+let _failed = false;
 
-export function getDb(): Database.Database {
-  if (!_db) {
+export function getDb(): Database.Database | null {
+  if (_db) return _db;
+  if (_failed) return null;
+
+  try {
     _db = new Database(DB_PATH);
     _db.pragma('journal_mode = WAL');
     _db.pragma('foreign_keys = ON');
     initSchema(_db);
+    return _db;
+  } catch (err) {
+    console.error('SQLite unavailable, persistence disabled:', err);
+    _failed = true;
+    return null;
   }
-  return _db;
 }
 
 function initSchema(db: Database.Database) {
@@ -54,8 +66,13 @@ function initSchema(db: Database.Database) {
 
 export function logAudit(action: string, details?: Record<string, unknown>) {
   const db = getDb();
-  db.prepare('INSERT INTO audit_log (action, details_json) VALUES (?, ?)').run(
-    action,
-    details ? JSON.stringify(details) : null
-  );
+  if (!db) return; // persistence disabled, fail safe
+  try {
+    db.prepare('INSERT INTO audit_log (action, details_json) VALUES (?, ?)').run(
+      action,
+      details ? JSON.stringify(details) : null,
+    );
+  } catch (err) {
+    console.error('audit log write failed:', err);
+  }
 }

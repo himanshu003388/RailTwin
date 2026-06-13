@@ -2,6 +2,7 @@ import { TopBar } from './layout/TopBar';
 import { Sidebar } from './layout/Sidebar';
 import { MainPanel } from './layout/MainPanel';
 import { RightSidebar } from './layout/RightSidebar';
+import { MobileNav } from './layout/MobileNav';
 
 export default function AppWrapper() {
   return (
@@ -14,6 +15,7 @@ export default function AppWrapper() {
         </main>
         <RightSidebar />
       </div>
+      <MobileNav />
     </div>
   );
 }

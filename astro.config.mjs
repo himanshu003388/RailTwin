@@ -15,14 +15,12 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     ssr: {
-      // Node built-ins used by RailwayDatasetService (server-side only)
-      external: ['fs', 'path'],
-      noExternal: [],
+      external: ['fs', 'path', 'os', 'better-sqlite3'],
     },
     optimizeDeps: {
-      exclude: ['fs', 'path'],
+      exclude: ['fs', 'path', 'os', 'better-sqlite3'],
     },
   },
-  output: 'static',
+  output: 'server',
   adapter: isVercel ? vercel() : node({ mode: 'standalone' })
 });

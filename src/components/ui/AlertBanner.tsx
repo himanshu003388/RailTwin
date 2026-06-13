@@ -89,7 +89,13 @@ export const AlertBanner: React.FC = () => {
               {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
             </span>
             <span className="ml-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border bg-accent-blue-soft text-accent-blue border-accent-blue/30">
-              LIVE OWM
+              {weatherAlert.source === 'open-meteo'
+                ? 'LIVE · OPEN-METEO'
+                : weatherAlert.source === 'openweather'
+                  ? 'LIVE · OWM'
+                  : weatherAlert.source === 'cache'
+                    ? 'CACHED'
+                    : 'LIVE'}
             </span>
           </p>
         </div>

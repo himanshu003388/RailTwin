@@ -2,8 +2,8 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const GEMINI_TIMEOUT_MS = 15_000;
-const MAX_RETRIES = 1;
+const GEMINI_TIMEOUT_MS = 20_000;
+const MAX_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 1_000;
 
 async function fetchWithRetry(url: string, body: object, attempt = 0): Promise<Response> {
@@ -84,22 +84,28 @@ Keep responses under 150 words. Reference train numbers (12301, 12305, etc.) and
     );
 
     if (!response.ok) {
-      const err = await response.text();
-      return new Response(JSON.stringify({ error: `Gemini error: ${err}` }), {
-        status: response.status,
+      return new Response(JSON.stringify({ error: 'AI service request failed. Please try again.' }), {
+        status: 503,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response from AI.';
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      return new Response(JSON.stringify({ error: 'AI service returned an empty response. Please try again.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     return new Response(JSON.stringify({ reply: text }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    return new Response(JSON.stringify({ error: 'AI service encountered an internal error.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

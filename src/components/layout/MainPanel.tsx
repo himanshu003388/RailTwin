@@ -18,7 +18,7 @@ export const MainPanel: React.FC = () => {
       <div
         className={`w-full relative transition-all duration-300 ease-in-out ${
           activePanel === 'map'
-            ? 'flex-1 min-h-0'
+            ? 'flex-1 min-h-0 gradient-border overflow-hidden'
             : 'h-[120px] sm:h-[180px] border-b border-border-default shrink-0 max-md:hidden'
         }`}
       >

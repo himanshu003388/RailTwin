@@ -56,7 +56,7 @@ export interface DemoState {
   demoTime: number;
   isPaused: boolean;
   playbackSpeed: number;
-  weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number; visibility: number };
+  weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number; visibility: number; source?: string };
   weatherData: Record<string, {
     station: string;
     rainfall: number;
@@ -773,7 +773,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
               {
                 id: `copilot-apply-${Date.now()}`,
                 sender: 'copilot',
-                message: `Mitigation dispatched: "${acceptedRec?.action}". Recalculating prediction models…`,
+                message: `Unable to confirm mitigation dispatch: "${acceptedRec?.action}". The AI service is currently unavailable. The intervention has been logged locally.`,
                 timestamp: new Date()
               }
             ]
@@ -1120,7 +1120,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             console.error('Copilot API call failed during demo:', err);
             const apiKey = currentState.geminiApiKey;
             const fallbackMsg = apiKey
-              ? `Copilot analysis request failed: ${err.message || 'unknown error'}. The copilot requires a valid Gemini API key configured in Settings.`
+              ? 'AI service request failed. This may be due to a temporary outage or rate limiting. Please wait a moment and try again, or check your API key in Settings.'
               : 'Copilot is unavailable — no Gemini API key configured. Open Settings and add a GEMINI_API_KEY to enable live AI analysis during the demo.';
             set(state => ({
               copilot: {
@@ -1338,6 +1338,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       let worstTemp = 25;
       let worstHumidity = 80;
       let worstWind = 0;
+      let worstSource: string | undefined;
 
       Object.entries(weatherData).forEach(([code, w]: [string, any]) => {
         if (w.rainfall > maxRainfall) {
@@ -1347,6 +1348,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
           worstTemp = w.temperature;
           worstHumidity = w.humidity;
           worstWind = w.windSpeed;
+          worstSource = w.source;
         } else if (w.visibility < minVisibility) {
           minVisibility = w.visibility;
           if (maxRainfall === 0) {
@@ -1355,6 +1357,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             worstTemp = w.temperature;
             worstHumidity = w.humidity;
             worstWind = w.windSpeed;
+            worstSource = w.source;
           }
         }
       });
@@ -1368,7 +1371,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
             temperature: worstTemp,
             humidity: worstHumidity,
             windSpeed: worstWind,
-            visibility: minVisibility
+            visibility: minVisibility,
+            source: worstSource
           }
         });
       } else {

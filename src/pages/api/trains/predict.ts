@@ -26,16 +26,18 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
       const db = getDb();
-      db.prepare(
-        'INSERT INTO predictions (train_id, predicted_delay, confidence, conditions_json, explanation) VALUES (?, ?, ?, ?, ?)'
-      ).run(
-        trainNo,
-        result.predictedDelay,
-        result.confidence,
-        JSON.stringify({ routeLength: length, stationCongestion, weatherCondition, rainfall }),
-        result.explanation
-      );
-      logAudit('predict', { trainNo, predictedDelay: result.predictedDelay });
+      if (db) {
+        db.prepare(
+          'INSERT INTO predictions (train_id, predicted_delay, confidence, conditions_json, explanation) VALUES (?, ?, ?, ?, ?)'
+        ).run(
+          trainNo,
+          result.predictedDelay,
+          result.confidence,
+          JSON.stringify({ routeLength: length, stationCongestion, weatherCondition, rainfall }),
+          result.explanation
+        );
+        logAudit('predict', { trainNo, predictedDelay: result.predictedDelay });
+      }
     } catch (e) {
       console.error('Failed to save prediction:', e);
     }
