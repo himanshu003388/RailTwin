@@ -115,7 +115,7 @@ export class MLDelayPredictor {
 
     this.loadPromise = (async () => {
       this.model = await loadModel();
-      console.log(`ML model loaded: v${this.model.version}, R²=${this.model.metrics.r2}`);
+      console.info(`ML model loaded: v${this.model.version}, R²=${this.model.metrics.r2}`);
     })();
 
     return this.loadPromise;

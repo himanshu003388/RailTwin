@@ -107,9 +107,6 @@ async function fetchOpenMeteo(stationCode: string): Promise<WeatherData | null> 
   if (!coords) return null;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation&timezone=auto`;
-    if (stationCode === 'mmct' || stationCode === 'ndls') {
-      console.log(`[Weather] Fetching Open-Meteo for ${stationCode} (${coords.name}): ${url}`);
-    }
     const response = await fetch(url);
     if (!response.ok) {
       const text = await response.text().catch(() => '');
@@ -117,9 +114,6 @@ async function fetchOpenMeteo(stationCode: string): Promise<WeatherData | null> 
       return null;
     }
     const data = await response.json();
-    if (stationCode === 'mmct' || stationCode === 'ndls') {
-      console.log(`[Weather] Open-Meteo response for ${stationCode}:`, JSON.stringify(data).slice(0, 500));
-    }
     const current = data.current;
     if (!current) {
       console.error(`[Weather] Open-Meteo ${stationCode} missing "current" in response`);
@@ -160,9 +154,6 @@ async function fetchOpenWeatherMap(stationCode: string, apiKey: string): Promise
   if (!coords) return null;
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lng}&appid=${apiKey}&units=metric`;
-    if (stationCode === 'mmct') {
-      console.log(`[Weather] Fetching OWM for ${stationCode}`);
-    }
     const response = await fetch(url);
     if (!response.ok) {
       const text = await response.text().catch(() => '');
@@ -170,9 +161,6 @@ async function fetchOpenWeatherMap(stationCode: string, apiKey: string): Promise
       return null;
     }
     const data = await response.json();
-    if (stationCode === 'mmct') {
-      console.log(`[Weather] OWM response for ${stationCode}:`, JSON.stringify(data).slice(0, 500));
-    }
     const rainfall = data.rain?.['1h'] || data.rain?.['3h'] || 0;
     let description = data.weather?.[0]?.description || 'Clear sky';
     const icon = data.weather?.[0]?.icon || '01d';
@@ -318,8 +306,6 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
   const stationCodes = Object.keys(STATION_COORDS);
   const needFetch: string[] = [];
 
-  console.log(`[Weather] getCorridorWeather: ${stationCodes.length} stations, apiKey=${!!apiKey}`);
-
   for (const code of stationCodes) {
     const cached = getCachedWeather(code);
     if (cached) { results[code] = cached; continue; }
@@ -327,20 +313,15 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
   }
 
   if (needFetch.length === 0) {
-    console.log(`[Weather] All ${stationCodes.length} stations served from cache`);
     return results;
   }
-
-  console.log(`[Weather] Fetching ${needFetch.length} uncached stations (concurrency=${MAX_CONCURRENT})`);
 
   const liveResults = await asyncPool(needFetch, async (code) => {
     let data = await fetchOpenMeteo(code);
     if (!data && apiKey) {
-      console.log(`[Weather] Open-Meteo failed for ${code}, trying OWM fallback`);
       data = await fetchOpenWeatherMap(code, apiKey);
     }
     if (!data) {
-      console.log(`[Weather] Both APIs failed for ${code}, generating fallback`);
       data = generateFallbackWeather(code);
     }
     return { code, data };
@@ -353,15 +334,9 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
   // Ensure every station has data (fill any gaps with fallback)
   for (const code of stationCodes) {
     if (!results[code]) {
-      console.log(`[Weather] Generating fallback for missing station ${code}`);
       results[code] = generateFallbackWeather(code);
     }
   }
-
-  const liveCount = Object.values(results).filter(r => r.source === 'live').length;
-  const cacheCount = Object.values(results).filter(r => r.source === 'cache').length;
-  const fallbackCount = Object.values(results).filter(r => r.source === 'fallback').length;
-  console.log(`[Weather] Complete: ${liveCount} live, ${cacheCount} cached, ${fallbackCount} fallback`);
 
   return results;
 }
