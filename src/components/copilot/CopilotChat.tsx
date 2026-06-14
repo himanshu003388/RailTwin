@@ -2,87 +2,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { Bot, Send, User } from 'lucide-react';
 
-const CLIENT_TIMEOUT_MS = 25_000;
-
-async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = CLIENT_TIMEOUT_MS): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function getBaseUrl() {
-  const base = import.meta.env.BASE_URL || '/';
-  return base.endsWith('/') ? base : `${base}/`;
-}
-
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
-  const geminiApiKey = useDemoStore(state => state.geminiApiKey);
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
-  // Always starts as true — the server reads GEMINI_API_KEY from Vercel env
-  const [isLiveActive, setIsLiveActive] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const active = isLiveActive || !!geminiApiKey;
-
-  async function askGemini(userMessage: string, simulationState: object): Promise<string> {
-    try {
-      const response = await fetchWithTimeout(`${getBaseUrl()}api/copilot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          simulationState,
-          userApiKey: geminiApiKey || undefined, // key from Settings, if any
-        }),
-      });
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        if (response.status === 429) {
-          if (errData.error === 'quota_exceeded') {
-            return errData.message || 'The Gemini API free tier quota is exhausted. Add your own API key in Settings (gear icon) to continue.';
-          }
-          return 'AI service is rate-limited on the server key. Add your own Gemini API key in Settings (gear icon) to avoid this.';
-        }
-        if (response.status === 503) {
-          return errData.error || 'AI Chat is not configured. Add a Gemini API key in Settings.';
-        }
-        return `AI error: ${errData.error || `HTTP ${response.status}`}`;
-      }
-      const data = await response.json();
-      return data.reply ?? 'Unable to get a response.';
-    } catch (err: any) {
-      if (err?.name === 'AbortError') return 'The AI request timed out. Please try again.';
-      return `Connection error: ${String(err?.message || err)}`;
-    }
+  async function sendMessage(messages: { role: string; text: string }[]) {
+    const res = await fetch("/api/copilot/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+    const data = await res.json();
+    if (res.status === 429) return data.reply;
+    if (!res.ok) throw new Error(data.detail ?? "chat failed");
+    return data.reply;
   }
-
-  // Verify that the server has GEMINI_API_KEY configured in Vercel env
-  useEffect(() => {
-    const checkBackendKey = async () => {
-      try {
-        const res = await fetchWithTimeout(`${getBaseUrl()}api/copilot`);
-        if (res.ok) {
-          const data = await res.json();
-          setIsLiveActive(!!data.hasKey);
-        } else {
-          setIsLiveActive(false);
-        }
-      } catch (e) {
-        console.warn('Could not verify backend API key status', e);
-        setIsLiveActive(false);
-      }
-    };
-
-    checkBackendKey();
-  }, []);
-
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -97,30 +34,23 @@ export const CopilotChat: React.FC = () => {
     const userMsg = text.trim();
     setInputText('');
 
-    const userMsgObj = { id: `user-msg-${Date.now()}`, sender: 'user' as const, message: userMsg, timestamp: new Date() };
-
     useDemoStore.setState(state => ({
       copilot: {
         ...state.copilot,
         thinking: true,
-        messages: [...state.copilot.messages, userMsgObj]
+        messages: [...state.copilot.messages, { id: `user-msg-${Date.now()}`, sender: 'user' as const, message: userMsg, timestamp: new Date() }]
       }
     }));
 
-    const state = useDemoStore.getState();
-    const simulationState = {
-      activeTrains: state.trains?.length ?? 5,
-      stationsAtRisk: state.stations?.filter(s => s.riskLevel && s.riskLevel !== 'low').length ?? 0,
-      totalDelay: state.trains?.reduce((sum, t) => sum + (t.predictedDelay || 0), 0) ?? 0,
-      passengersAffected: state.simulation?.passengersAffected ?? 0,
-      currentEvents: state.predictions?.map(p => `Train ${p.trainId} delayed +${p.delayMinutes}m at ${p.affectedStation.toUpperCase()}`).join(', ') || 'None',
-      weather: state.weatherAlert?.description ?? 'Clear',
-      networkEfficiency: state.networkHealth?.efficiency ?? 100,
-    };
+    const history = [
+      ...messages.map(m => ({
+        role: m.sender === 'user' ? 'user' as const : 'model' as const,
+        text: m.message,
+      })),
+      { role: 'user' as const, text: userMsg },
+    ];
 
-    const reply = await askGemini(userMsg, simulationState);
-
-    setIsLiveActive(true);
+    const reply = await sendMessage(history);
 
     useDemoStore.setState(s => ({
       copilot: {
@@ -170,22 +100,14 @@ export const CopilotChat: React.FC = () => {
             <div
               className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
               style={{
-                background: active ? 'var(--color-risk-low-bg)' : 'var(--color-risk-critical-bg)',
-                border: `1px solid ${active ? 'var(--color-risk-low-border)' : 'var(--color-risk-critical-border)'}`,
-                color: active ? 'var(--color-risk-low)' : 'var(--color-risk-critical)'
+                background: 'var(--color-risk-low-bg)',
+                border: '1px solid var(--color-risk-low-border)',
+                color: 'var(--color-risk-low)'
               }}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
-              <span>{active ? 'AI Active' : 'AI Unavailable · Check Settings'}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-risk-low animate-pulse" />
+              <span>AI Active</span>
             </div>
-            {!active && (
-              <div className="mt-4 p-3.5 rounded-lg border border-border-default bg-bg-card max-w-[320px] text-center flex flex-col gap-2 shadow-sm">
-                <span className="text-[11px] font-semibold text-text-primary">AI Key Required</span>
-                <span className="text-[10px] text-text-tertiary leading-relaxed">
-                  Go to **Settings** (gear icon) and enter your AI key to enable live answers.
-                </span>
-              </div>
-            )}
           </div>
         )}
 
@@ -250,7 +172,7 @@ export const CopilotChat: React.FC = () => {
       <div className="border-t border-border-default p-4 bg-bg-card animate-slide-up">
         {showEmptyState && (
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
-            {['Which station is most at risk?', "What's the cascade impact?", 'Recommended actions?'].map(q => (
+            {['Which station is most at risk?', 'What is the impact so far?', 'Recommended actions?'].map(q => (
               <button
                 key={q}
                 onClick={() => { setInputText(''); handleSend(q); }}
@@ -300,8 +222,8 @@ export const CopilotChat: React.FC = () => {
 
         <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
           <span>AI Chat</span>
-          <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
-          <span className="text-[8px]">{active ? 'ACTIVE' : 'UNAVAILABLE'}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-risk-low animate-pulse" />
+          <span className="text-[8px]">ACTIVE</span>
         </div>
       </div>
     </div>
