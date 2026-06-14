@@ -808,8 +808,9 @@ export const CorridorMap: React.FC = () => {
       </button>
       {/* Mobile overlay — Station Risk legend */}
       {showMapLegend && (
-        <div className="fixed inset-0 z-40 flex flex-col sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowMapLegend(false)}>
-          <div className="mt-auto bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 pb-16 animate-slide-up max-h-[70dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <>
+          <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowMapLegend(false)} />
+          <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-text-primary uppercase tracking-[0.12em]">Legend</span>
               <button onClick={() => setShowMapLegend(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer">
@@ -864,7 +865,7 @@ export const CorridorMap: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* ═══ Live Weather HUD ═══ */}
@@ -929,8 +930,9 @@ export const CorridorMap: React.FC = () => {
       </button>
       {/* Mobile overlay — Live Weather */}
       {showLiveWeather && (
-        <div className="fixed inset-0 z-40 flex flex-col sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowLiveWeather(false)}>
-          <div className="mt-auto bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 pb-16 animate-slide-up max-h-[70dvh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <>
+          <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowLiveWeather(false)} />
+          <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up flex flex-col overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider">Live Weather</span>
@@ -977,7 +979,7 @@ export const CorridorMap: React.FC = () => {
               })}
             </div>
           </div>
-        </div>
+        </>
       )}
 
     </div>
