@@ -6,9 +6,7 @@ const GEMINI_TIMEOUT_MS = 20_000;
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 800;
 
-// Model name: env var overrides the default. gemini-flash-latest always
-// points to Google's latest flash model and won't break on future retirements.
-const MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest';
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-1.5-flash';
 
 async function callGemini(model: string, apiKey: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
@@ -106,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const requestBody = {
     contents: [{ role: 'user', parts: [{ text: `Operator question: ${message}` }] }],
-    systemInstruction: { parts: [{ text: systemPrompt }] },
+    system_instruction: { parts: [{ text: systemPrompt }] },
     generationConfig: { temperature: 0.4, maxOutputTokens: 400 },
   };
 

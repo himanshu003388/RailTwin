@@ -1,10 +1,8 @@
 // Fast, quota-aware Gemini client with retry, backoff, caching, and fallback.
 
-const API_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY ?? "";
+const SERVER_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY ?? "";
 
-// Model name: env var overrides the default. gemini-flash-latest always
-// points to Google's latest flash model and won't break on future retirements.
-const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-flash-latest";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-1.5-flash";
 
 const BASE = "https://generativelanguage.googleapis.com/v1/models";
 const REQUEST_TIMEOUT_MS = 15000;
@@ -49,10 +47,11 @@ function buildBody(system: string, msgs: ChatMessage[]) {
   };
 }
 
-async function callModel(model: string, system: string, msgs: ChatMessage[]): Promise<string> {
-  if (!API_KEY) throw new Error("GEMINI_API_KEY is not set");
+async function callModel(model: string, system: string, msgs: ChatMessage[], userApiKey?: string): Promise<string> {
+  const key = userApiKey || SERVER_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY is not set");
 
-  const url = `${BASE}/${model}:generateContent?key=${API_KEY}`;
+  const url = `${BASE}/${model}:generateContent?key=${key}`;
   const body = JSON.stringify(buildBody(system, msgs));
   let lastErr: unknown;
 
@@ -114,9 +113,9 @@ export class QuotaError extends Error {
  */
 export async function generateChat(
   system: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  userApiKey?: string
 ): Promise<{ text: string; model: string; cached: boolean }> {
-  // Trim history to last 12 turns to save tokens/quota.
   const trimmed = messages.slice(-12);
 
   const key = cacheKey(PRIMARY_MODEL, system, trimmed);
@@ -129,14 +128,14 @@ export async function generateChat(
   let usedModel = PRIMARY_MODEL;
 
   try {
-    text = await callModel(PRIMARY_MODEL, system, trimmed);
+    text = await callModel(PRIMARY_MODEL, system, trimmed, userApiKey);
   } catch (err) {
-    const fallbackModel = "gemini-2.5-flash";
+    const fallbackModel = "gemini-2.0-flash";
     if (PRIMARY_MODEL !== fallbackModel) {
       console.warn(`[Gemini] Primary model ${PRIMARY_MODEL} failed, attempting fallback to ${fallbackModel}:`, err);
       try {
         usedModel = fallbackModel;
-        text = await callModel(fallbackModel, system, trimmed);
+        text = await callModel(fallbackModel, system, trimmed, userApiKey);
       } catch (fallbackErr) {
         console.error(`[Gemini] Fallback model ${fallbackModel} also failed:`, fallbackErr);
         throw err;

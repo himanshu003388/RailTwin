@@ -15,7 +15,8 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "invalid JSON body" }, 400);
   }
 
-  // Accept either { messages: [{role,text}] } or { message: "..." }
+  const userApiKey = body?.userApiKey || undefined;
+
   let messages: ChatMessage[] = [];
   if (Array.isArray(body?.messages)) {
     messages = body.messages
@@ -33,7 +34,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    const result = await generateChat(SYSTEM_PROMPT, messages);
+    const result = await generateChat(SYSTEM_PROMPT, messages, userApiKey);
     return json({ reply: result.text, model: result.model, cached: result.cached }, 200);
   } catch (e) {
     if (e instanceof QuotaError) {
