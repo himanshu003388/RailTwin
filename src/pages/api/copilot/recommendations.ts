@@ -15,14 +15,14 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "invalid JSON body" }, 400);
   }
 
-  // Pass whatever network context the frontend has as a single user message.
-  const context = JSON.stringify(body?.context ?? body ?? {});
+  const userApiKey = body?.userApiKey || undefined;
+  const context = JSON.stringify(body?.systemState ?? body?.context ?? body ?? {});
   const messages: ChatMessage[] = [
     { role: "user", text: `Current network state:\n${context}\n\nGive recommendations.` },
   ];
 
   try {
-    const result = await generateChat(SYSTEM_PROMPT, messages);
+    const result = await generateChat(SYSTEM_PROMPT, messages, userApiKey);
     const recommendations = result.text
       .split("\n")
       .map((l) => l.replace(/^[-*•\d.\s]+/, "").trim())
