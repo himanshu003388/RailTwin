@@ -20,7 +20,7 @@
 
 **[https://rail-twin.vercel.app](https://rail-twin.vercel.app)**
 
-Press `SPACE` or click **Run Demo Scenario** in the sidebar to start a live 50-second disruption simulation showing monsoon cascade delays, AI copilot analysis, and network-wide mitigation recommendations.
+Start a live 50-second disruption simulation showing monsoon cascade delays, AI copilot analysis, and network-wide mitigation recommendations.
 
 ---
 
