@@ -82,11 +82,11 @@ export const HealthDashboard: React.FC = () => {
 
   const systems = [
     { label: 'Weather Monitor',    active: !!weatherAlert,           color: weatherAlert ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: !!weatherAlert },
-    { label: 'Cascade Engine',     active: !!simulation,             color: simulation   ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: !!simulation   },
+    { label: 'Disruption Monitor',  active: !!simulation,             color: simulation   ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: !!simulation   },
     { label: 'Signal Control',     active: true,                     color: 'var(--color-accent-green)', pulse: false },
     { label: 'AI Chat',            active: true,                     color: 'var(--color-accent-green)', pulse: false },
-    { label: 'Prediction Engine',  active: predictions.length > 0,   color: predictions.length > 0 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: predictions.length > 0 },
-    { label: 'Resolution Active',  active: !!resolved,               color: resolved ? 'var(--color-accent-green)' : 'var(--color-border-active)', pulse: false },
+    { label: 'Delay Predictions',  active: predictions.length > 0,   color: predictions.length > 0 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: predictions.length > 0 },
+    { label: 'Fix Applied',  active: !!resolved,               color: resolved ? 'var(--color-accent-green)' : 'var(--color-border-active)', pulse: false },
   ];
 
   return (
@@ -117,7 +117,7 @@ export const HealthDashboard: React.FC = () => {
       >
         <GaugeBar value={networkHealth.efficiency} color="var(--color-accent-blue)"   label="Network Efficiency"    />
         <GaugeBar value={networkHealth.onTimePerf} color="var(--color-accent-green)"  label="On-Time Performance"   />
-        <GaugeBar value={networkHealth.platformUtil} color="var(--color-accent-purple)" label="Platform Utilization" />
+        <GaugeBar value={networkHealth.platformUtil} color="var(--color-accent-purple)" label="Platform Usage" />
       </div>
 
       {/* ── Key Metrics Grid ── */}
@@ -224,7 +224,7 @@ export const HealthDashboard: React.FC = () => {
       </div>
 
       <div className="mt-3 text-[9px] text-text-muted text-center font-mono uppercase tracking-wider pb-1 shrink-0">
-        Real-Time Monitoring · RailTwin AI
+        Live Monitoring · RailTwin AI
       </div>
     </div>
   );

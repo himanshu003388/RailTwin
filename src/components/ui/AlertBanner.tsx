@@ -84,18 +84,12 @@ export const AlertBanner: React.FC = () => {
           <p className="text-xs sm:text-sm text-text-primary flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0">
             <span className="font-bold whitespace-nowrap" style={{ color: 'var(--color-accent-red)' }}>⚠ WEATHER ALERT</span>
             <span className="text-text-secondary hidden sm:inline">—</span>
-            <span className="text-text-primary truncate max-sm:text-[11px]">{alertMessage}. Delay predictions active.</span>
+            <span className="text-text-primary truncate max-sm:text-[11px]">{alertMessage}. Tracking delays.</span>
             <span className="text-text-tertiary text-[10px] sm:text-xs font-mono hidden sm:inline">
-              {weatherAlert.temperature}°C | {weatherAlert.humidity}% RH | Wind {weatherAlert.windSpeed} km/h
+              {weatherAlert.temperature}°C | {weatherAlert.humidity}% humidity | Wind {weatherAlert.windSpeed} km/h
             </span>
             <span className="ml-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border bg-accent-blue-soft text-accent-blue border-accent-blue/30">
-              {weatherAlert.source === 'open-meteo'
-                ? 'LIVE · OPEN-METEO'
-                : weatherAlert.source === 'openweather'
-                  ? 'LIVE · OWM'
-                  : weatherAlert.source === 'cache'
-                    ? 'CACHED'
-                    : 'LIVE'}
+              Live
             </span>
           </p>
         </div>

@@ -92,7 +92,7 @@ export const CorridorMap: React.FC = () => {
   const mapRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [loadingText, setLoadingText] = useState('Connecting to tile server...');
+  const [loadingText, setLoadingText] = useState('Loading map...');
   const [maplibReady, setMaplibReady] = useState(false);
   const [showMapLegend, setShowMapLegend] = useState(false);
   const [showLiveWeather, setShowLiveWeather] = useState(false);
@@ -130,7 +130,7 @@ export const CorridorMap: React.FC = () => {
     mapLoadedRef.current = false;
     setMapLoaded(false);
     setMapError(false);
-    setLoadingText('Loading map tiles...');
+    setLoadingText('Loading map...');
 
     const stylesToUse = theme === 'light' ? LIGHT_STYLES : DARK_STYLES;
 
@@ -161,7 +161,7 @@ export const CorridorMap: React.FC = () => {
         const nextIdx = styleIndexRef.current + 1;
         if (nextIdx < stylesToUse.length) {
           styleIndexRef.current = nextIdx;
-          setLoadingText('Retrying with fallback tiles...');
+          setLoadingText('Trying another map source...');
           initMap(stylesToUse[nextIdx]);
         } else {
           setMapError(true);
@@ -176,7 +176,7 @@ export const CorridorMap: React.FC = () => {
         const nextIdx = styleIndexRef.current + 1;
         if (nextIdx < stylesToUse.length) {
           styleIndexRef.current = nextIdx;
-          setLoadingText('Switching tile source...');
+          setLoadingText('Switching map source...');
           setTimeout(() => {
             if (!destroyed) initMap(stylesToUse[nextIdx]);
           }, 500);
@@ -695,9 +695,9 @@ export const CorridorMap: React.FC = () => {
               ⚠
             </div>
             <div className="text-center">
-              <div className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Map tiles unavailable</div>
+              <div className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Map unavailable</div>
               <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-tertiary)' }}>
-                Could not reach tile servers. Check your network connection.
+                Could not load the map. Check your internet connection.
               </div>
             </div>
             <button
@@ -758,7 +758,7 @@ export const CorridorMap: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
-                <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+                <span className="text-[10px] font-medium text-text-secondary">Low Visibility</span>
               </div>
             </div>
           </div>

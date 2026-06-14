@@ -57,13 +57,13 @@ export const SimulationPanel: React.FC = () => {
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-accent-purple" />
           <h2 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
-            Cascade Simulation Engine
+            Disruption Monitor
           </h2>
         </div>
         <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
           isSimulationActive ? 'text-accent-amber' : 'text-text-muted'
         }`}>
-          {isSimulationActive ? 'Monsoon Disruption — Patna' : 'No active scenario'}
+          {isSimulationActive ? 'Monsoon Disruption — Patna' : 'No active disruption'}
         </span>
       </div>
 
@@ -72,9 +72,9 @@ export const SimulationPanel: React.FC = () => {
         <div className="grid grid-cols-4 max-md:grid-cols-2 gap-2 mb-5">
           {[
             { label: 'Delay',      value: `+${simulation.cascadeDelay}m`,                                    color: simulation.cascadeDelay > 30 ? 'var(--color-accent-red)' : 'var(--color-accent-amber)' },
-            { label: 'Conflicts',  value: `${simulation.conflictsDetected}`,                                  color: 'var(--color-accent-red)'   },
+            { label: 'Issues',     value: `${simulation.conflictsDetected}`,                                  color: 'var(--color-accent-red)'   },
             { label: 'Trains',     value: '3',                                                                color: 'var(--color-accent-amber)' },
-            { label: 'Risk Pax',   value: `${(simulation.passengersAffected / 1000).toFixed(0)}K`,            color: 'var(--color-accent-red)'   },
+            { label: 'At Risk',   value: `${(simulation.passengersAffected / 1000).toFixed(0)}K`,            color: 'var(--color-accent-red)'   },
           ].map(m => (
             <div
               key={m.label}
@@ -97,7 +97,7 @@ export const SimulationPanel: React.FC = () => {
           style={{ background: 'var(--color-bg-card)' }}
         >
           <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium mb-3 w-full border-b border-border-default pb-1.5 text-center">
-            Disruption Propagation Chain
+            Impact Flow
           </h3>
           <div className="flex flex-col items-center gap-1.5 w-full">
             {flowStations.map((station, idx) => {
@@ -164,9 +164,9 @@ export const SimulationPanel: React.FC = () => {
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-12 px-6 text-center select-none mb-5">
           <Zap className="w-10 h-10 text-border-default mb-3" />
-          <span className="text-sm text-text-secondary font-medium mb-1">No active simulation</span>
+          <span className="text-sm text-text-secondary font-medium mb-1">No active disruption</span>
           <span className="text-xs text-text-tertiary mb-4 max-w-[260px] leading-relaxed">
-            The demo triggers a monsoon disruption at Patna, causing cascading delays across the corridor
+            The demo triggers a monsoon disruption at Patna — delays ripple across the corridor
           </span>
           {!demoRunning && (
             <button
@@ -190,10 +190,10 @@ export const SimulationPanel: React.FC = () => {
           <CheckCircle className="w-4 h-4 text-accent-green flex-shrink-0 mt-0.5" style={{ filter: 'drop-shadow(0 0 4px rgba(34,197,94,0.5))' }} />
           <div className="flex flex-col">
             <span className="text-[11px] font-semibold text-accent-green font-sans">
-              ✓ Intervention Applied — {resolved.minutesSaved} minutes saved
+              ✓ Fix applied — saved {resolved.minutesSaved} minutes
             </span>
             <span className="text-[10px] text-accent-green opacity-80 mt-1 leading-relaxed">
-              Cascade delay reduced from 52 → {resolved.newCascadeDelay} minutes · {resolved.conflictsResolved} conflicts resolved · 19,000 passengers notified
+              Delay reduced from 52 → {resolved.newCascadeDelay} min · {resolved.conflictsResolved} issues fixed · 19,000 passengers notified
             </span>
           </div>
         </div>
@@ -205,7 +205,7 @@ export const SimulationPanel: React.FC = () => {
           <div className="flex items-center gap-1.5 border-b border-border-default pb-1.5 mb-2.5">
             <Bot className="w-4 h-4 text-accent-purple" />
             <h3 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
-              AI Chat Recommendations
+              AI Suggestions
             </h3>
           </div>
 
@@ -213,8 +213,8 @@ export const SimulationPanel: React.FC = () => {
             <div className="flex flex-col items-center justify-center py-6 gap-3 border border-border-default rounded-xl bg-bg-card select-none">
               <Loader2 className="w-5 h-5 text-accent-purple animate-spin" />
               <div className="flex flex-col items-center gap-0.5">
-                <span className="text-xs text-text-secondary font-medium">Analyzing digital twin telemetry…</span>
-                <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider">Querying Gemini Agent API</span>
+                <span className="text-xs text-text-secondary font-medium">Analyzing live data…</span>
+                <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider">Asking AI</span>
               </div>
             </div>
           ) : recommendations.length > 0 ? (
@@ -263,7 +263,7 @@ export const SimulationPanel: React.FC = () => {
                             boxShadow: 'var(--glow-purple)',
                           }}
                         >
-                          {alreadyAccepted ? 'Intervention Active' : 'Accept Mitigation'}
+                          {alreadyAccepted ? 'Fix Applied' : 'Apply Fix'}
                         </button>
                       </div>
                     )}
@@ -273,9 +273,9 @@ export const SimulationPanel: React.FC = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-6 px-4 border border-border-default border-dashed rounded-xl bg-bg-card text-center select-none">
-              <span className="text-xs text-text-secondary font-medium mb-1">Analyze Mitigation Options</span>
+              <span className="text-xs text-text-secondary font-medium mb-1">Get AI Suggestions</span>
               <span className="text-[10px] text-text-tertiary mb-3 max-w-[240px] leading-relaxed">
-                Query Gemini to generate structured dispatch mitigations for active platform conflicts.
+                Ask AI to suggest ways to resolve platform conflicts.
               </span>
               <button
                 onClick={generateAIRecommendations}
@@ -283,7 +283,7 @@ export const SimulationPanel: React.FC = () => {
                 style={{ background: 'var(--color-accent-purple)', boxShadow: 'var(--glow-purple)' }}
               >
                 <Bot className="w-3.5 h-3.5" />
-                Generate Mitigations
+                Get Suggestions
               </button>
             </div>
           )}

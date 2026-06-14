@@ -75,7 +75,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default">
           <div className="flex items-center gap-2">
             <Settings className="w-4 h-4 text-accent-blue" />
-            <h2 className="text-sm font-semibold text-text-primary">Live Tracking Configuration</h2>
+            <h2 className="text-sm font-semibold text-text-primary">Settings</h2>
           </div>
           <button
             onClick={onClose}
@@ -91,8 +91,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           {/* Toggle */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-semibold text-text-primary">Enable Live API</span>
-              <span className="text-[10px] text-text-secondary">Fetch real-time delay & speed metrics</span>
+              <span className="text-xs font-semibold text-text-primary">Enable Live Data</span>
+              <span className="text-[10px] text-text-secondary">Load real-time train and weather data</span>
             </div>
             <button
               onClick={() => setEnabled(!enabled)}
@@ -143,7 +143,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             {/* Host Input */}
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider font-mono">
-                RapidAPI Host
+                  API Host
               </label>
               <input
                 type="text"
@@ -183,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 />
               </div>
               <span className="text-[9px] text-text-secondary">
-                Used securely for live AI chat. If left empty, AI Chat runs in mock demo mode.
+                Your key stays private. If left empty, AI Chat works in demo mode.
               </span>
             </div>
             {/* Connection Status & Test Button */}
@@ -201,12 +201,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   )}
                   <span className="text-[10px] text-text-secondary font-mono">
                     {testing
-                      ? 'Testing credentials...'
+                      ? 'Testing…'
                       : testResult === 'success'
-                      ? 'Connection verified'
+                      ? 'Connection OK'
                       : testResult === 'failed'
-                      ? testMessage || 'Invalid credentials'
-                      : 'Test API Connection'}
+                      ? testMessage || 'Invalid key'
+                      : 'Test Connection'}
                   </span>
                 </div>
                 <button

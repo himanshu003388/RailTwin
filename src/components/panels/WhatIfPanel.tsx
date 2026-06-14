@@ -3,8 +3,8 @@ import { useDemoStore } from '../../stores/demoStore';
 import { TestTube, Zap, Users, Clock, ChevronDown } from 'lucide-react';
 
 const SCENARIOS = [
-  { id: 'signal_failure'as const, label: 'Signal Failure',  icon: '🔴', description: 'Electronic interlocking system malfunction' },
-  { id: 'track_damage'  as const, label: 'Track Damage',    icon: '⚡', description: 'Rail fracture or ballast erosion requiring immediate halt' },
+  { id: 'signal_failure'as const, label: 'Signal Failure',  icon: '🔴', description: 'Signal system stops working' },
+  { id: 'track_damage'  as const, label: 'Track Damage',    icon: '⚡', description: 'Track damage requiring an immediate stop' },
 ];
 
 const selectStyle: React.CSSProperties = {
@@ -44,16 +44,16 @@ export const WhatIfPanel: React.FC = () => {
         <div className="flex items-center gap-2">
           <TestTube className="w-4 h-4 text-accent-amber" />
           <h2 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
-            What-If Scenario Builder
+            What-If Planner
           </h2>
         </div>
-        <span className="text-[10px] font-mono text-text-muted">Interactive Simulator</span>
+        <span className="text-[10px] font-mono text-text-muted">What-If Tool</span>
       </div>
 
       {/* ── Config Selects ── */}
       <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3 mb-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Target Station</label>
+          <label className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Station</label>
           <div className="relative">
             <select
               value={whatIfStation}
@@ -114,7 +114,7 @@ export const WhatIfPanel: React.FC = () => {
         onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.1)')}
         onMouseLeave={e => (e.currentTarget.style.filter = '')}
       >
-        Run Simulation Analysis
+        Run Scenario
       </button>
 
       {/* ── Results ── */}
@@ -122,8 +122,8 @@ export const WhatIfPanel: React.FC = () => {
         <div className="flex flex-col gap-3 animate-slide-up">
           <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-2">
             {[
-              { icon: <Clock className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-red)' }} />,    label: 'Cascade', value: `+${whatIfResult.cascadeDelay}m`,                          color: 'var(--color-accent-red)'    },
-              { icon: <Zap   className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-amber)' }} />,  label: 'Conflicts', value: `${whatIfResult.conflictsGenerated}`,                    color: 'var(--color-accent-amber)'  },
+              { icon: <Clock className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-red)' }} />,    label: 'Delay', value: `+${whatIfResult.cascadeDelay}m`,                          color: 'var(--color-accent-red)'    },
+              { icon: <Zap   className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-amber)' }} />,  label: 'Issues', value: `${whatIfResult.conflictsGenerated}`,                    color: 'var(--color-accent-amber)'  },
               { icon: <Users className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-purple)' }} />, label: 'Passengers', value: `${(whatIfResult.passengersAtRisk/1000).toFixed(0)}K`, color: 'var(--color-accent-purple)' },
             ].map(m => (
               <div
@@ -162,7 +162,7 @@ export const WhatIfPanel: React.FC = () => {
           {/* Station Risk Cascade */}
           <div className="border border-border-default rounded-lg p-3" style={{ background: 'var(--color-bg-card)' }}>
             <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider block mb-2">
-              Risk Cascade Propagation
+              Risk Spread
             </span>
             <div className="flex flex-col gap-1.5">
               {Object.entries(whatIfResult.riskLevels).map(([stationId, risks]) => {
@@ -205,13 +205,13 @@ export const WhatIfPanel: React.FC = () => {
           <TestTube className="w-10 h-10 text-border-default mb-3" />
           <span className="text-sm text-text-secondary font-medium mb-1">No scenario results</span>
           <span className="text-xs text-text-tertiary max-w-[260px] leading-relaxed">
-            Select a station and disruption type above, then click "Run Simulation Analysis"
+            Select a station and disruption type above, then click "Run Scenario"
           </span>
         </div>
       )}
 
       <div className="mt-3 text-[10px] text-text-muted text-center font-mono uppercase tracking-wider">
-        What-If Simulator · Cascade Impact Analysis
+        What-If Planner · Impact Analysis
       </div>
     </div>
   );

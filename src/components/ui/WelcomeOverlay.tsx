@@ -7,22 +7,22 @@ const STEPS = [
   {
     icon: MapPin,
     title: 'Live Corridor Map',
-    desc: 'Track 5 trains across 7 stations on the Delhi-Howrah corridor. Color-coded risk levels show crowd density and delay risk in real-time.',
+    desc: 'See 5 trains moving across 7 stations. Colors show which stations are crowded or at risk of delays.',
   },
   {
     icon: Zap,
     title: 'Run the Demo',
-    desc: 'Press the "Run Demo Scenario" button or hit SPACE to start a 50-second simulation of monsoon disruption, cascading delays, and AI mitigation.',
+    desc: 'Press "Run Demo" or hit SPACE to watch a 50-second scenario — monsoon rain causes delays and the system suggests fixes.',
   },
   {
     icon: BarChart3,
     title: 'Explore Panels',
-    desc: 'Switch between 6 views: Map, Train Delays, Simulation, AI Chat, What-If Lab, and System Health. Use keys 1-6 for quick access.',
+    desc: 'Switch between 6 panels: Map, Delays, Disruptions, AI Chat, What-If, and Health. Press keys 1-6 to jump between them.',
   },
   {
     icon: Bot,
     title: 'AI Chat',
-    desc: 'Ask AI Chat about corridor status, cascade impacts, or recommended actions. It analyzes disruptions and suggests mitigations.',
+    desc: 'Ask AI Chat about the corridor, what is affected, or what to do next. It will recommend the best actions to take.',
   },
 ];
 

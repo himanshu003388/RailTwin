@@ -23,8 +23,8 @@ export const TimelineScrubber: React.FC = () => {
     { time:  8, label: 'Prediction',      color: 'var(--color-accent-red)'   },
     { time: 12, label: 'Simulation',      color: 'var(--color-accent-red)'   },
     { time: 18, label: 'AI Chat',         color: 'var(--color-accent-purple)'},
-    { time: 24, label: 'Recommendations', color: 'var(--color-accent-purple)'},
-    { time: 36, label: 'Intervention',    color: 'var(--color-accent-blue)'  },
+    { time: 24, label: 'Suggestions',  color: 'var(--color-accent-purple)'},
+    { time: 36, label: 'Fix Applied',  color: 'var(--color-accent-blue)'  },
     { time: 42, label: 'Resolved',        color: 'var(--color-accent-green)' },
   ];
 

@@ -86,7 +86,7 @@ export const TopBar: React.FC = () => {
           </button>
 
           <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[10px] sm:text-[11px] uppercase tracking-widest truncate">
-            <span className="max-sm:hidden">Ops Center</span>
+            <span className="max-sm:hidden">Control Center</span>
             <span className="text-border-active max-sm:hidden">/</span>
             <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
           </div>
@@ -106,7 +106,7 @@ export const TopBar: React.FC = () => {
                 ? 'bg-accent-amber animate-pulse'
                 : 'bg-accent-blue'
             }`} />
-            <span className="max-sm:hidden">{liveApiEnabled && apiStatus === 'connected' ? 'Live API' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting' : 'Simulated'}</span>
+            <span className="max-sm:hidden">{liveApiEnabled && apiStatus === 'connected' ? 'Live Data' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting…' : 'Demo'}</span>
           </div>
         </div>
 
@@ -194,7 +194,7 @@ export const TopBar: React.FC = () => {
           <button
             onClick={() => setShowSettings(true)}
             className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
-            title="Configure Live API"
+            title="Settings"
           >
             <Settings className="w-3.5 h-3.5" />
           </button>
@@ -241,7 +241,7 @@ export const TopBar: React.FC = () => {
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 5px rgba(34,197,94,0.7)' }} />
               </span>
               <Shield className="w-3.5 h-3.5 max-sm:hidden" />
-              <span className="max-sm:hidden">Nominal</span>
+              <span className="max-sm:hidden">Normal</span>
             </div>
           )}
         </div>

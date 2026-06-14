@@ -163,9 +163,9 @@ export const CopilotChat: React.FC = () => {
         {showEmptyState && (
           <div className="flex flex-col items-center justify-center py-8 select-none">
             <Bot className="w-10 h-10 text-border-default mb-3 animate-breath" />
-            <span className="text-sm text-text-secondary font-medium mb-1">Ask about corridor status</span>
+            <span className="text-sm text-text-secondary font-medium mb-1">Ask about the corridor</span>
             <span className="text-xs text-text-tertiary max-w-[280px] text-center leading-relaxed mb-3">
-              Ask queries about corridor trains, delays, weather impacts, cascade simulations, or general operations.
+              Ask about trains, delays, weather, or anything happening on the corridor.
             </span>
             <div
               className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
@@ -176,13 +176,13 @@ export const CopilotChat: React.FC = () => {
               }}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
-              <span>{active ? 'Live AI Agent Mode' : 'AI Service Unavailable · Configure Settings'}</span>
+              <span>{active ? 'AI Active' : 'AI Unavailable · Check Settings'}</span>
             </div>
             {!active && (
               <div className="mt-4 p-3.5 rounded-lg border border-border-default bg-bg-card max-w-[320px] text-center flex flex-col gap-2 shadow-sm">
-                <span className="text-[11px] font-semibold text-text-primary">Gemini API Key Required</span>
+                <span className="text-[11px] font-semibold text-text-primary">AI Key Required</span>
                 <span className="text-[10px] text-text-tertiary leading-relaxed">
-                  Please open **Settings** (gear icon in the top right) and enter a valid Gemini API Key to enable real-time operational query answering.
+                  Go to **Settings** (gear icon) and enter your AI key to enable live answers.
                 </span>
               </div>
             )}
@@ -204,7 +204,7 @@ export const CopilotChat: React.FC = () => {
             <div key={msg.id} className="flex flex-col gap-1 items-end max-w-[80%] self-end">
               <div className="flex items-center gap-1.5 mr-1 select-none">
                 <User className="w-3.5 h-3.5 text-text-secondary" />
-                <span className="text-xs font-semibold text-text-secondary">Operator</span>
+                <span className="text-xs font-semibold text-text-secondary">You</span>
               </div>
               <div
                 className="rounded-lg rounded-tr-sm p-3 text-sm text-text-primary select-text leading-relaxed"
@@ -239,7 +239,7 @@ export const CopilotChat: React.FC = () => {
             <span className="animate-pulse">●</span>
             <span className="animate-pulse delay-100">●</span>
             <span className="animate-pulse delay-200">●</span>
-            <span className="ml-1 text-xs">RailTwin AI thinking...</span>
+            <span className="ml-1 text-xs">AI thinking…</span>
           </div>
         )}
 
@@ -278,7 +278,7 @@ export const CopilotChat: React.FC = () => {
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             disabled={copilot.thinking}
-            placeholder={copilot.thinking ? "Analyzing corridor state…" : "Ask about corridor status…"}
+            placeholder={copilot.thinking ? "Analyzing…" : "Ask about the corridor…"}
             className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-bg-elevated)',
@@ -299,9 +299,9 @@ export const CopilotChat: React.FC = () => {
         </form>
 
         <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
-          <span>AI Chat · Powered by Gemini Agent API</span>
+          <span>AI Chat</span>
           <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
-          <span className="text-[8px]">{active ? 'LIVE ACTIVE' : 'SERVER UNAVAILABLE'}</span>
+          <span className="text-[8px]">{active ? 'ACTIVE' : 'UNAVAILABLE'}</span>
         </div>
       </div>
     </div>

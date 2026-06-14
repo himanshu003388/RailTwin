@@ -2,20 +2,20 @@ import React, { useEffect } from 'react';
 import { X, Keyboard } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: '1-6', desc: 'Switch panels (Map, Delays, Simulation, AI Chat, What-If, Health)' },
-  { key: 'Space', desc: 'Start / pause the demo' },
-  { key: 'R', desc: 'Reset the demo' },
-  { key: 'M', desc: 'Toggle audio alerts' },
-  { key: 'Esc', desc: 'Return to Map view' },
+  { key: '1-6', desc: 'Switch panels' },
+  { key: 'Space', desc: 'Start / Pause demo' },
+  { key: 'R', desc: 'Reset demo' },
+  { key: 'M', desc: 'Audio on/off' },
+  { key: 'Esc', desc: 'Back to Map' },
 ];
 
 const PANELS = [
-  { num: '1', name: 'Map View', desc: 'Interactive corridor map with live train positions and station risk indicators' },
-  { num: '2', name: 'Train Delays', desc: 'Delay prediction chart showing accumulated delay per station' },
-  { num: '3', name: 'Simulation', desc: 'Cascade simulation engine with conflict detection and AI recommendations' },
-  { num: '4', name: 'AI Chat', desc: 'Ask questions about corridor status and get AI-powered analysis' },
-  { num: '5', name: 'What-If Lab', desc: 'Test disruption scenarios (rainfall, signal failure, track damage, fog)' },
-  { num: '6', name: 'System Health', desc: 'Network efficiency, on-time performance, and platform utilization' },
+  { num: '1', name: 'Map View', desc: 'Map showing live train locations and station risk levels' },
+  { num: '2', name: 'Train Delays', desc: 'Chart showing expected delays at each station' },
+  { num: '3', name: 'Disruptions', desc: 'Tracks disruption effects and suggests fixes' },
+  { num: '4', name: 'AI Chat', desc: 'Ask questions and get AI answers about corridor conditions' },
+  { num: '5', name: 'What-If', desc: 'Test scenarios like rain, signal failure, or track damage' },
+  { num: '6', name: 'System Health', desc: 'Overall health, on-time stats, and platform usage' },
 ];
 
 export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
@@ -44,7 +44,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default">
           <div className="flex items-center gap-2">
             <Keyboard className="w-4 h-4 text-accent-blue" />
-            <h2 className="text-sm font-semibold text-text-primary">Keyboard Shortcuts & Panel Guide</h2>
+            <h2 className="text-sm font-semibold text-text-primary">Help & Shortcuts</h2>
           </div>
           <button
             onClick={onClose}
@@ -59,7 +59,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         <div className="px-4 sm:px-6 py-3 sm:py-4 overflow-y-auto flex flex-col gap-4 sm:gap-6 scrollbar-thin">
           {/* Shortcuts */}
           <div>
-            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Keyboard Shortcuts</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Shortcuts</h3>
             <div className="flex flex-col gap-1.5">
               {SHORTCUTS.map(s => (
                 <div key={s.key} className="flex items-center gap-3 py-1.5">
@@ -74,7 +74,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
 
           {/* Panels */}
           <div>
-            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Panel Overview</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-3">Panels</h3>
             <div className="flex flex-col gap-2">
               {PANELS.map(p => (
                 <div key={p.num} className="flex items-start gap-3 py-2 border-b border-border-subtle last:border-0">

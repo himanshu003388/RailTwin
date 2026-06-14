@@ -1,4 +1,5 @@
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '';
+// Prefer process.env at runtime (Vercel functions); fall back to build-time env.
+const API_KEY = process.env.OPENWEATHER_API_KEY ?? import.meta.env.OPENWEATHER_API_KEY ?? "";
 const CACHE_TTL_MINUTES = 15;
 
 interface WeatherData {
@@ -90,7 +91,7 @@ async function fetchLiveWeather(stationCode: string, apiKey: string): Promise<We
 
 export async function getCorridorWeather(customApiKey?: string): Promise<Record<string, WeatherData>> {
   const results: Record<string, WeatherData> = {};
-  const apiKey = customApiKey || OPENWEATHER_API_KEY;
+  const apiKey = customApiKey || API_KEY;
 
   if (!apiKey) {
     console.warn('OpenWeatherMap API key is not set. Weather data unavailable.');
