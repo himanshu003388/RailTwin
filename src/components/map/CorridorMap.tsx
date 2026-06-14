@@ -95,7 +95,7 @@ export const CorridorMap: React.FC = () => {
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
   const [showMapLegend, setShowMapLegend] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [windowWidth, setWindowWidth] = useState(1024);
   const styleIndexRef = useRef(0);
   // Use a ref to avoid stale closure in setTimeout callbacks
   const mapLoadedRef = useRef(false);
@@ -115,6 +115,7 @@ export const CorridorMap: React.FC = () => {
   // Track window width for responsive legend
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
