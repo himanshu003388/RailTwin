@@ -37,6 +37,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.3",
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "pptxgenjs": "^4.0.1"
   }
 }

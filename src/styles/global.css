@@ -327,8 +327,7 @@ html.light ::selection, .light ::selection {
   .dashboard-main { order: 2; }
 
   /* Force sidebars to full width on small screens */
-  .sidebar-left,
-  .right-sidebar {
+  .sidebar-left {
     width: 100% !important;
     max-width: 100% !important;
     position: fixed !important;
@@ -337,7 +336,19 @@ html.light ::selection, .light ::selection {
     left: 0 !important;
     right: auto !important;
     z-index: 50 !important;
-    transform: translateX(-100%); /* default hidden; components toggle translate to 0 */
+    transform: translateX(-100%);
+  }
+
+  .right-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    transform: translateX(100%);
   }
 
   .sidebar-left.max-lg\:translate-x-0,
