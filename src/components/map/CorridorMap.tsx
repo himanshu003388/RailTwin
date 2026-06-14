@@ -97,6 +97,7 @@ export const CorridorMap: React.FC = () => {
   const [maplibReady, setMaplibReady] = useState(false);
   const [showMapLegend, setShowMapLegend] = useState(false);
   const [showLiveWeather, setShowLiveWeather] = useState(false);
+  const [desktopLegendOpen, setDesktopLegendOpen] = useState(false);
   const styleIndexRef = useRef(0);
   const mapLoadedRef = useRef(false);
 
@@ -614,64 +615,83 @@ export const CorridorMap: React.FC = () => {
         </div>
       </div>
 
-      {/* Desktop Legend */}
+      {/* Desktop Legend — collapsible */}
       <div className="absolute bottom-3 right-3 z-10 max-sm:hidden">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] pointer-events-auto">
-          <div className="mb-3">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-              {[
-                { color: '#16a34a', label: 'Low' },
-                { color: '#d97706', label: 'Moderate' },
-                { color: '#ea580c', label: 'High' },
-                { color: '#dc2626', label: 'Critical' },
-              ].map(r => (
-                <div key={r.label} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
-                  <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
-                </div>
-              ))}
+        {!desktopLegendOpen ? (
+          <button
+            onClick={() => setDesktopLegendOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md text-text-secondary hover:text-text-primary transition-all duration-150 cursor-pointer"
+          >
+            <Layers className="w-4 h-4 text-accent-blue" />
+            <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Legend</span>
+          </button>
+        ) : (
+          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] pointer-events-auto">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
+              <button
+                onClick={() => setDesktopLegendOpen(false)}
+                className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
+              >
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              </button>
             </div>
-          </div>
-          <div className="h-px bg-border-default my-2.5" />
-          <div className="mb-3">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather</div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
-                <span className="text-[10px] font-medium text-text-secondary">Rainfall</span>
+            <div className="mb-3">
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                {[
+                  { color: '#16a34a', label: 'Low' },
+                  { color: '#d97706', label: 'Moderate' },
+                  { color: '#ea580c', label: 'High' },
+                  { color: '#dc2626', label: 'Critical' },
+                ].map(r => (
+                  <div key={r.label} className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
+                    <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
-                <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+            </div>
+            <div className="h-px bg-border-default my-2.5" />
+            <div className="mb-3">
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather</div>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
+                  <span className="text-[10px] font-medium text-text-secondary">Rainfall</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
+                  <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+                </div>
+              </div>
+            </div>
+            <div className="h-px bg-border-default my-2.5" />
+            <div>
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
+              <div className="flex flex-col gap-1.5">
+                {TRAIN_LEGEND.map(t => (
+                  <div key={t.id} className="flex items-center gap-2">
+                    <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
+                    <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
+                    <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-border-subtle">
+              <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span>Direction of travel</span>
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-border-subtle">
+              <div className="text-[8px] text-text-muted leading-tight">
+                Data: Indian Railways · IRCTC schedules · Kaggle datasets
               </div>
             </div>
           </div>
-          <div className="h-px bg-border-default my-2.5" />
-          <div>
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
-            <div className="flex flex-col gap-1.5">
-              {TRAIN_LEGEND.map(t => (
-                <div key={t.id} className="flex items-center gap-2">
-                  <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
-                  <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
-                  <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-2.5 pt-2 border-t border-border-subtle">
-            <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>Direction of travel</span>
-            </div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-border-subtle">
-            <div className="text-[8px] text-text-muted leading-tight">
-              Data: Indian Railways · IRCTC schedules · Kaggle datasets
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       <button onClick={() => setShowMapLegend(true)} className="sm:hidden absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer" style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }} aria-label="Open legend">
