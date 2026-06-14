@@ -95,6 +95,7 @@ export const CorridorMap: React.FC = () => {
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
   const [showMapLegend, setShowMapLegend] = useState(false);
+  const [showLiveWeather, setShowLiveWeather] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1024);
   const styleIndexRef = useRef(0);
   // Use a ref to avoid stale closure in setTimeout callbacks
@@ -736,12 +737,15 @@ export const CorridorMap: React.FC = () => {
         </div>
       </div>
 
-      {/* ═══ Map Legend ═══ */}
-      {/* On desktop (>640px): always shown at bottom-right. On mobile: toggle button at top-right, legend below it */}
-      {/* Expanded legend */}
+      {/* ═══ Map Legend — Station Risk / Weather / Trains ═══ */}
+      {/* Desktop: always shown at bottom-right. Mobile: collapsed button at bottom-right, opens overlay */}
       {(showMapLegend || windowWidth >= 640) && (
-        <div className="absolute bottom-3 right-3 z-20 max-sm:bottom-auto max-sm:top-16 max-sm:right-2">
-          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[180px] pointer-events-auto">
+        <div className="absolute bottom-3 right-3 z-20 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-50">
+          {/* Mobile backdrop */}
+          {windowWidth < 640 && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMapLegend(false)} />
+          )}
+          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-full max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:animate-slide-up pointer-events-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
               <button
@@ -749,7 +753,7 @@ export const CorridorMap: React.FC = () => {
                 className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer sm:hidden"
                 aria-label="Close legend"
               >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
                   <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
@@ -816,68 +820,101 @@ export const CorridorMap: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Collapsed Station Risk button — mobile only */}
+      {!showMapLegend && windowWidth < 640 && (
+        <button
+          onClick={() => setShowMapLegend(true)}
+          className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer"
+          style={{
+            background: 'var(--color-bg-elevated)',
+            color: 'var(--color-text-secondary)',
+          }}
+          aria-label="Open legend"
+        >
+          <AlertTriangle className="w-4 h-4 text-accent-amber" />
+          <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Station Risk</span>
+        </button>
+      )}
 
-      {/* ═══ Weather Info HUD ═══ */}
-      <div className="absolute bottom-3 left-3 z-10 max-sm:left-2 max-sm:right-2">
-        <div className="relative bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] max-sm:w-full flex flex-col gap-2.5 pointer-events-auto">
-          {/* Collapsed legend button — mobile only, above top-right of HUD */}
-          <div className="hidden max-sm:block">
-            {!showMapLegend && windowWidth < 640 && (
+      {/* ═══ Live Weather HUD ═══ */}
+      {/* Desktop: always shown at bottom-left. Mobile: collapsed button at bottom-left, opens overlay */}
+      {(showLiveWeather || windowWidth >= 640) && (
+        <div className="absolute bottom-3 left-3 z-10 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-50 max-sm:left-0">
+          {/* Mobile backdrop */}
+          {windowWidth < 640 && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowLiveWeather(false)} />
+          )}
+          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] max-sm:w-full max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:max-h-[60dvh] max-sm:animate-slide-up flex flex-col gap-2.5 pointer-events-auto">
+            <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
+                <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">
+                  {(() => {
+                    const sources = stations.map(s => weatherData?.[s.id]?.source).filter(Boolean);
+                    if (sources.includes('openweather')) return 'OWM';
+                    if (sources.includes('open-meteo')) return 'OPEN-METEO';
+                    return 'LIVE';
+                  })()}
+                </span>
+              </div>
               <button
-                onClick={() => setShowMapLegend(true)}
-                className="absolute -top-11 right-0 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer"
-                style={{
-                  background: 'var(--color-bg-elevated)',
-                  color: 'var(--color-text-secondary)',
-                }}
-                aria-label="Open legend"
+                onClick={() => setShowLiveWeather(false)}
+                className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer sm:hidden"
+                aria-label="Close weather"
               >
-                <AlertTriangle className="w-4 h-4 text-accent-amber" />
-                <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Station Risk</span>
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5 border-b border-border-subtle pb-2">
-            <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
-            <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">
-              {(() => {
-                const sources = stations.map(s => weatherData?.[s.id]?.source).filter(Boolean);
-                if (sources.includes('openweather')) return 'OWM';
-                if (sources.includes('open-meteo')) return 'OPEN-METEO';
-                return 'LIVE';
-              })()}
-            </span>
-          </div>
-          <div className="flex flex-col gap-1.5 max-h-[140px] max-sm:max-h-[100px] overflow-y-auto pr-0.5 scrollbar-thin">
-            {stations.map(s => {
-              const w = weatherData ? weatherData[s.id] : null;
-              const hasRain = w && w.rainfall > 0;
-              const hasFog = w && w.visibility < 5;
-              let weatherEmoji = '☀️';
-              let weatherColor = 'text-text-muted';
-              if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
-              else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
-              else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
-              return (
-                  <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
-                  className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
-                  title="Click to focus station on map">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
-                      <span className="text-text-tertiary truncate max-w-[65px] max-sm:max-w-[40px]">{s.name}</span>
+            </div>
+            <div className="flex flex-col gap-1.5 max-h-[140px] max-sm:max-h-[40dvh] overflow-y-auto pr-0.5 scrollbar-thin">
+              {stations.map(s => {
+                const w = weatherData ? weatherData[s.id] : null;
+                const hasRain = w && w.rainfall > 0;
+                const hasFog = w && w.visibility < 5;
+                let weatherEmoji = '☀️';
+                let weatherColor = 'text-text-muted';
+                if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
+                else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
+                else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
+                return (
+                    <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
+                    className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
+                    title="Click to focus station on map">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
+                        <span className="text-text-tertiary truncate max-w-[65px] max-sm:max-w-[40px]">{s.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-right max-sm:gap-1">
+                        <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
+                        <span className="text-text-secondary font-medium max-sm:hidden" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
+                        <span className="text-[9px] text-text-muted select-none max-sm:hidden">|</span>
+                        <span className="text-text-secondary w-14 max-sm:w-auto max-sm:text-[8px]" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-right max-sm:gap-1">
-                      <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
-                      <span className="text-text-secondary font-medium max-sm:hidden" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
-                      <span className="text-[9px] text-text-muted select-none max-sm:hidden">|</span>
-                      <span className="text-text-secondary w-14 max-sm:w-auto max-sm:text-[8px]" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
-                    </div>
-                  </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+      {/* Collapsed Live Weather button — mobile only */}
+      {!showLiveWeather && windowWidth < 640 && (
+        <button
+          onClick={() => setShowLiveWeather(true)}
+          className="absolute bottom-3 left-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer"
+          style={{
+            background: 'var(--color-bg-elevated)',
+            color: 'var(--color-text-secondary)',
+          }}
+          aria-label="Open weather"
+        >
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" className="text-accent-blue">
+            <path d="M3 6h6M6 3v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Live Weather</span>
+        </button>
+      )}
 
     </div>
   );
