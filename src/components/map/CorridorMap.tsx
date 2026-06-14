@@ -737,10 +737,10 @@ export const CorridorMap: React.FC = () => {
       </div>
 
       {/* ═══ Map Legend ═══ */}
-      {/* On desktop (>640px): always shown. On mobile: toggle between button and expanded legend */}
+      {/* On desktop (>640px): always shown at bottom-right. On mobile: toggle button at top-right, legend below it */}
       {/* Expanded legend */}
       {(showMapLegend || windowWidth >= 640) && (
-        <div className="absolute bottom-3 right-3 z-10 max-sm:left-2 max-sm:right-auto">
+        <div className="absolute bottom-3 right-3 z-20 max-sm:bottom-auto max-sm:top-16 max-sm:right-2">
           <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[180px] pointer-events-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
@@ -821,7 +821,7 @@ export const CorridorMap: React.FC = () => {
       {!showMapLegend && windowWidth < 640 && (
         <button
           onClick={() => setShowMapLegend(true)}
-          className="absolute bottom-20 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
+          className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
           style={{
             background: 'var(--color-bg-elevated)',
             color: 'var(--color-text-secondary)',
