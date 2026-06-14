@@ -542,11 +542,11 @@ if (typeof window !== 'undefined') {
     const health = computeNetworkHealth(state.trains, state.stationRisks, state.simulation, state.weatherAlert);
     useDemoStore.setState({ loading: false, lastUpdated: new Date(), networkHealth: health });
 
-    // Start live position tick every 3 seconds
+    // Start live position tick every 2 seconds
     if (liveTickInterval) clearInterval(liveTickInterval);
     liveTickInterval = setInterval(() => {
       useDemoStore.getState().refreshLivePositions();
-    }, 3000);
+    }, 2000);
   })();
 }
 

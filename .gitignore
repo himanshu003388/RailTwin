@@ -41,3 +41,6 @@ data/scripts/
 .system_generated/
 
 .vercel
+
+# Agent metadata
+skills-lock.json

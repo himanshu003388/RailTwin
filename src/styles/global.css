@@ -638,6 +638,20 @@ html.light .daylight-gradient-warm, .light .daylight-gradient-warm {
   animation: train-pulse-red 1.5s ease-out infinite;
 }
 
+/* Smooth train marker movement on position updates */
+.maplibregl-marker {
+  transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+/* Train marker float — subtle vertical drift to show movement */
+@keyframes train-float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-4px); }
+}
+.train-float {
+  animation: train-float 2.4s ease-in-out infinite;
+}
+
 /* Marker bounce on delay update */
 @keyframes marker-bounce {
   0%, 100% { transform: translateY(0)  scale(1); }

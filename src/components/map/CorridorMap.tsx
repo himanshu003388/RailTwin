@@ -387,6 +387,7 @@ export const CorridorMap: React.FC = () => {
         el.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer;';
 
         const pill = document.createElement('div');
+        pill.className = 'train-float';
         pill.style.cssText = `
           display:flex; align-items:center; justify-content:center; gap:4px;
           height:26px; padding:0 8px 0 6px;
