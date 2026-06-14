@@ -638,20 +638,7 @@ html.light .daylight-gradient-warm, .light .daylight-gradient-warm {
   animation: train-pulse-red 1.5s ease-out infinite;
 }
 
-/* Smooth train marker movement on position updates */
-.maplibregl-marker {
-  transition: transform 0.5s linear !important;
-}
 
-/* Marker bounce on delay update */
-@keyframes marker-bounce {
-  0%, 100% { transform: translateY(0)  scale(1); }
-  40%       { transform: translateY(-8px) scale(1.12); }
-  60%       { transform: translateY(-3px) scale(1.06); }
-}
-.bounce-marker {
-  animation: marker-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
 
 /* Copilot thinking dots */
 @keyframes bounce-dot {

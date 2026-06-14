@@ -475,11 +475,6 @@ export const CorridorMap: React.FC = () => {
           pill.classList.remove('pulse-amber', 'pulse-red');
         }
 
-        const prevDelay = prevDelaysRef.current[train.id];
-        if (prevDelay !== undefined && prevDelay !== train.predictedDelay) {
-          pill.classList.add('bounce-marker');
-          setTimeout(() => pill.classList.remove('bounce-marker'), 500);
-        }
         prevDelaysRef.current[train.id] = train.predictedDelay;
       }
 
