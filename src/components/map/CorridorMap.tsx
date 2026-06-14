@@ -817,25 +817,26 @@ export const CorridorMap: React.FC = () => {
         </div>
       )}
 
-      {/* Collapsed legend button — mobile only, hidden when legend is open */}
-      {!showMapLegend && windowWidth < 640 && (
-        <button
-          onClick={() => setShowMapLegend(true)}
-          className="absolute top-1/2 right-3 -translate-y-1/2 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
-          style={{
-            background: 'var(--color-bg-elevated)',
-            color: 'var(--color-text-secondary)',
-          }}
-          aria-label="Open legend"
-        >
-          <AlertTriangle className="w-4 h-4 text-accent-amber" />
-          <span className="text-[10px] font-semibold font-sans">Station Risk</span>
-        </button>
-      )}
-
       {/* ═══ Weather Info HUD ═══ */}
       <div className="absolute bottom-3 left-3 z-10 max-sm:left-2 max-sm:right-2">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] max-sm:w-full flex flex-col gap-2.5 pointer-events-auto">
+        <div className="relative bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] max-sm:w-full flex flex-col gap-2.5 pointer-events-auto">
+          {/* Collapsed legend button — mobile only, above top-right of HUD */}
+          <div className="hidden max-sm:block">
+            {!showMapLegend && windowWidth < 640 && (
+              <button
+                onClick={() => setShowMapLegend(true)}
+                className="absolute -top-11 right-0 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer"
+                style={{
+                  background: 'var(--color-bg-elevated)',
+                  color: 'var(--color-text-secondary)',
+                }}
+                aria-label="Open legend"
+              >
+                <AlertTriangle className="w-4 h-4 text-accent-amber" />
+                <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Station Risk</span>
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 border-b border-border-subtle pb-2">
             <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
             <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">
