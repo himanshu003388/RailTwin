@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { AlertBanner } from '../components/ui/AlertBanner';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
-import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
+
 ---
 
 <!doctype html>
@@ -16,9 +16,9 @@ import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 		<title>RailTwin AI — Predictive Digital Twin | Indian Railways</title>
 		
 		<!-- Meta + SEO Details -->
-		<meta name="description" content="RailTwin AI is a Predictive Digital Twin for Indian Railway Operations. Real-time delay prediction, cascading disruption analysis, and AI-powered resolution for the Delhi–Howrah Corridor." />
+		<meta name="description" content="RailTwin AI is a Predictive Digital Twin for Indian Railway Operations. Real-time delay prediction, cascading disruption analysis, and AI-powered resolution for 8 major routes across India." />
 		<meta property="og:title" content="RailTwin AI — Predictive Digital Twin" />
-		<meta property="og:description" content="Real-time delay prediction, cascading disruption analysis, and AI-powered resolution for the Delhi–Howrah Corridor. 23M passengers. 1,531km. Zero delays." />
+		<meta property="og:description" content="Real-time delay prediction, cascading disruption analysis, and AI-powered resolution for 8 major Indian Railways routes. Pan-India coverage across 36 stations." />
 		<meta property="og:type" content="website" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content="RailTwin AI — Predictive Digital Twin" />
@@ -70,7 +70,7 @@ import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 						<span class="text-xl font-bold tracking-tight" style="color: var(--color-text-primary); letter-spacing: -0.03em;">RailTwin</span>
 						<span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: var(--color-accent-purple); border: 1px solid rgba(168,85,247,0.25); box-shadow: 0 0 12px rgba(168,85,247,0.2);">AI</span>
 					</div>
-					<span class="font-mono text-[11px] uppercase tracking-[0.18em]" style="color: var(--color-text-tertiary);">Predictive Digital Twin · Indian Railways</span>
+					<span class="font-mono text-[11px] uppercase tracking-[0.18em]" style="color: var(--color-text-tertiary);">8 Routes · 36 Stations · Pan-India</span>
 				</div>
 
 				<!-- Progress Track with shimmer -->
@@ -89,9 +89,9 @@ import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 		<script is:inline>
 			// Cycle loading status messages for a more premium feel
 			const loadingMessages = [
-				'Initializing Operations Center',
-				'Loading ML prediction models',
-				'Syncing Delhi–Howrah corridor',
+				'Connecting to live network',
+				'Computing train positions',
+				'Syncing national network data',
 				'Connecting to live data feeds',
 			];
 			let msgIdx = 0;
@@ -114,7 +114,6 @@ import { WelcomeOverlay } from '../components/ui/WelcomeOverlay';
 
 		<AlertBanner client:load />
 		<KeyboardShortcuts client:load />
-		<WelcomeOverlay client:load />
 		<slot />
 		<ToastContainer client:load />
 	</body>

@@ -6,13 +6,14 @@ const GEMINI_TIMEOUT_MS = 20_000;
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 800;
 
-// Models tried in order — fall back if one is unavailable for the key.
-const MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+// Model name: env var overrides the default. gemini-flash-latest always
+// points to Google's latest flash model and won't break on future retirements.
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest';
 
 async function callGemini(model: string, apiKey: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -95,13 +96,13 @@ export const POST: APIRoute = async ({ request }) => {
 
   const sim = simulationState || {};
   const systemPrompt =
-    `You are RailTwin AI, an expert Indian Railways copilot for the Delhi–Howrah Corridor.\n` +
-    `Active Trains=${sim.activeTrains ?? 5}, Stations at Risk=${sim.stationsAtRisk ?? 0}, ` +
+    `You are RailTwin AI, an expert Indian Railways copilot monitoring 8 major routes across India.\n` +
+    `Active Trains=${sim.activeTrains ?? 8}, Stations at Risk=${sim.stationsAtRisk ?? 0}, ` +
     `Total Delay=${sim.totalDelay ?? 0}min, Passengers Affected=${sim.passengersAffected ?? 0}, ` +
     `Weather=${sim.weather ?? 'Clear'}, Efficiency=${sim.networkEfficiency ?? 100}%, ` +
     `Current Events=${sim.currentEvents ?? 'None'}.\n` +
     `Answer concisely (under 150 words), use bullet points, bold key values, and reference train numbers ` +
-    `(12301, 12305...) and station codes (NDLS, CNB, ALD, PNBE, HWH).`;
+    `(12951 Mumbai Rajdhani, 12423 Dibrugarh Rajdhani, etc.) and station codes (MMCT, NDLS, HWH, MAS, SBC, GHY, DBRG, etc.).`;
 
   const requestBody = {
     contents: [{ role: 'user', parts: [{ text: `Operator question: ${message}` }] }],
@@ -109,40 +110,38 @@ export const POST: APIRoute = async ({ request }) => {
     generationConfig: { temperature: 0.4, maxOutputTokens: 400 },
   };
 
-  let lastError = 'Unknown error';
-  for (const model of MODELS) {
-    try {
-      const res = await callGemini(model, apiKey, requestBody);
-      if (res.ok) {
-        const data = await res.json();
-        const reply =
-          data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join('') ||
-          'I could not generate a response. Please rephrase.';
-        return new Response(JSON.stringify({ reply }), {
-          status: 200, headers: { 'Content-Type': 'application/json' },
-        });
-      }
-      // Capture error; if it's a 404 (bad model) or 429 (rate-limited on that model), try the next model.
-      const errData = await res.json().catch(() => ({}));
-      lastError = errData?.error?.message || `HTTP ${res.status}`;
-      if (res.status !== 404 && res.status !== 429) {
-        return new Response(JSON.stringify({ error: lastError }), {
-          status: res.status, headers: { 'Content-Type': 'application/json' },
-        });
-      }
-    } catch (err: any) {
-      lastError = err?.name === 'AbortError' ? 'Gemini request timed out.' : String(err?.message || err);
+  try {
+    const res = await callGemini(MODEL, apiKey, requestBody);
+    if (res.ok) {
+      const data = await res.json();
+      const reply =
+        data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join('') ||
+        'I could not generate a response. Please rephrase.';
+      return new Response(JSON.stringify({ reply }), {
+        status: 200, headers: { 'Content-Type': 'application/json' },
+      });
     }
-  }
+    const errData = await res.json().catch(() => ({}));
+    const errMsg = errData?.error?.message || `HTTP ${res.status}`;
 
-  const isQuotaError = /quota|rate.limit/i.test(lastError);
-  if (isQuotaError) {
+    // User-friendly messages for common errors
+    if (res.status === 404) {
+      return new Response(JSON.stringify({
+        reply: '⚠ **AI assistant is temporarily unavailable** — the language model I use has been retired by Google. An admin can fix this by setting `GEMINI_MODEL` to a current model name in the project environment variables.'
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (res.status === 429 || /quota|rate.limit/i.test(errMsg)) {
+      return new Response(JSON.stringify({
+        reply: '⚠ **AI assistant is temporarily unavailable** — the free API quota has been exhausted. Add your own Gemini API key in Settings (gear icon) to continue using the copilot.'
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
     return new Response(JSON.stringify({
-      error: 'quota_exceeded',
-      message: 'The Gemini API free tier quota is exhausted. Add your own API key in Settings (gear icon) to continue using the copilot.'
-    }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+      reply: '⚠ **AI assistant is temporarily unavailable**. Please try again later.'
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  } catch (err: any) {
+    const errMsg = err?.name === 'AbortError' ? 'request timed out' : String(err?.message || err);
+    return new Response(JSON.stringify({
+      reply: `⚠ **AI assistant is temporarily unavailable** (${errMsg}). Please try again later.`
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
-  return new Response(JSON.stringify({ error: lastError }), {
-    status: 502, headers: { 'Content-Type': 'application/json' },
-  });
 };

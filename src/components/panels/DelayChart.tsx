@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Train, Play } from 'lucide-react';
+import { Train } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -14,11 +14,9 @@ import {
 export const DelayChart: React.FC = () => {
   const trains      = useDemoStore(state => state.trains);
   const predictions = useDemoStore(state => state.predictions);
-  const startDemo   = useDemoStore(state => state.startDemo);
-  const demoRunning = useDemoStore(state => state.demoRunning);
   const stations    = useDemoStore(state => state.stations) || [];
 
-  const [selectedTrainId, setSelectedTrainId] = useState('12301');
+  const [selectedTrainId, setSelectedTrainId] = useState(trains[0]?.id || '12951');
   const [expandedPredId, setExpandedPredId] = useState<string | null>(null);
 
   const sortedStations = [...stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
@@ -64,18 +62,8 @@ export const DelayChart: React.FC = () => {
           <Train className="w-10 h-10 text-border-default mb-3" />
           <span className="text-sm text-text-secondary font-medium mb-1">No data yet</span>
           <span className="text-xs text-text-tertiary mb-4 max-w-[260px] leading-relaxed">
-            Run the demo to see live delay tracking and warnings
+            Live delay predictions will appear here once AI monitoring detects anomalies across the network.
           </span>
-          {!demoRunning && (
-            <button
-              onClick={startDemo}
-              className="flex items-center gap-2 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all duration-150 active:scale-[0.98]"
-              style={{ background: 'var(--color-accent-blue)', boxShadow: 'var(--glow-blue)' }}
-            >
-              <Play className="w-3 h-3" />
-              Start Demo
-            </button>
-          )}
         </div>
       ) : (
         <>

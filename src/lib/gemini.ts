@@ -2,11 +2,11 @@
 
 const API_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY ?? "";
 
-// Flash models = high free-tier quota + low latency. Pro = tiny daily cap.
-const PRIMARY_MODEL = "gemini-2.0-flash";
-const FALLBACK_MODEL = "gemini-1.5-flash";
+// Model name: env var overrides the default. gemini-flash-latest always
+// points to Google's latest flash model and won't break on future retirements.
+const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-flash-latest";
 
-const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const BASE = "https://generativelanguage.googleapis.com/v1/models";
 const REQUEST_TIMEOUT_MS = 15000;
 const MAX_RETRIES = 2;
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -82,6 +82,10 @@ async function callModel(model: string, system: string, msgs: ChatMessage[]): Pr
       throw lastErr;
     }
 
+    if (res.status === 404) {
+      throw new Error(`Model '${model}' not found — it may have been deprecated. Check GEMINI_MODEL env var.`);
+    }
+
     if (res.status >= 500) {
       lastErr = new Error(`Gemini ${res.status}`);
       if (attempt < MAX_RETRIES) {
@@ -127,10 +131,16 @@ export async function generateChat(
   try {
     text = await callModel(PRIMARY_MODEL, system, trimmed);
   } catch (err) {
-    if (err instanceof QuotaError) {
-      // Primary quota gone → try the fallback flash model.
-      usedModel = FALLBACK_MODEL;
-      text = await callModel(FALLBACK_MODEL, system, trimmed);
+    const fallbackModel = "gemini-2.5-flash";
+    if (PRIMARY_MODEL !== fallbackModel) {
+      console.warn(`[Gemini] Primary model ${PRIMARY_MODEL} failed, attempting fallback to ${fallbackModel}:`, err);
+      try {
+        usedModel = fallbackModel;
+        text = await callModel(fallbackModel, system, trimmed);
+      } catch (fallbackErr) {
+        console.error(`[Gemini] Fallback model ${fallbackModel} also failed:`, fallbackErr);
+        throw err;
+      }
     } else {
       throw err;
     }

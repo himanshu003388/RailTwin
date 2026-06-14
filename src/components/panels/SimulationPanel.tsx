@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Zap, Bot, ArrowDown, CloudRain, CheckCircle, Play, Loader2 } from 'lucide-react';
+import { Zap, Bot, ArrowDown, CheckCircle, Loader2 } from 'lucide-react';
 
 export const SimulationPanel: React.FC = () => {
   const simulation    = useDemoStore(state => state.simulation);
@@ -9,8 +9,6 @@ export const SimulationPanel: React.FC = () => {
   const copilot       = useDemoStore(state => state.copilot);
   const acceptRecommendation = useDemoStore(state => state.acceptRecommendation);
   const generateAIRecommendations = useDemoStore(state => state.generateAIRecommendations);
-  const startDemo     = useDemoStore(state => state.startDemo);
-  const demoRunning   = useDemoStore(state => state.demoRunning);
   const stations      = useDemoStore(state => state.stations) || [];
 
   const isSimulationActive = !!simulation;
@@ -63,7 +61,7 @@ export const SimulationPanel: React.FC = () => {
         <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
           isSimulationActive ? 'text-accent-amber' : 'text-text-muted'
         }`}>
-          {isSimulationActive ? 'Monsoon Disruption — Patna' : 'No active disruption'}
+          {isSimulationActive ? 'Active Disruption' : 'No active disruption'}
         </span>
       </div>
 
@@ -105,9 +103,6 @@ export const SimulationPanel: React.FC = () => {
               let cardStyle: React.CSSProperties = {};
               let textClass = 'text-text-tertiary';
               let delayLabel = station.delay;
-
-              const isFirstImpacted = simulation?.stationsImpacted[0] === station.id;
-
               if (isNormal) {
                 cardStyle = { background: 'var(--color-bg-elevated)', borderColor: 'var(--color-border-default)', color: 'var(--color-text-tertiary)' };
               } else if (isResolved) {
@@ -120,9 +115,6 @@ export const SimulationPanel: React.FC = () => {
                   <React.Fragment key={station.id}>
                     {idx > 0 && <ArrowDown className="w-3.5 h-3.5 text-border-active" />}
                     <div className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm" style={{ background: redShade, borderColor: 'var(--color-accent-red)' }}>
-                      {isFirstImpacted && !isResolved && (
-                        <CloudRain className="absolute top-1 right-1.5 w-3 h-3 text-accent-red animate-pulse" />
-                      )}
                       <span className="text-[11px] font-bold font-mono uppercase tracking-widest" style={{ color: 'var(--color-text-tertiary)' }}>{station.code}</span>
                       <span className="text-[9px] opacity-80 select-none truncate max-w-[110px]">{station.name}</span>
                       {delayLabel && (
@@ -142,9 +134,6 @@ export const SimulationPanel: React.FC = () => {
                     className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300"
                     style={cardStyle}
                   >
-                    {isFirstImpacted && !isResolved && (
-                      <CloudRain className="absolute top-1 right-1.5 w-3 h-3 text-accent-red animate-pulse" />
-                    )}
                     <span className={`text-[11px] font-bold font-mono uppercase tracking-widest ${textClass}`}>{station.code}</span>
                     <span className="text-[9px] opacity-70 select-none truncate max-w-[110px]">{station.name}</span>
                     {delayLabel && (
@@ -166,18 +155,8 @@ export const SimulationPanel: React.FC = () => {
           <Zap className="w-10 h-10 text-border-default mb-3" />
           <span className="text-sm text-text-secondary font-medium mb-1">No active disruption</span>
           <span className="text-xs text-text-tertiary mb-4 max-w-[260px] leading-relaxed">
-            The demo triggers a monsoon disruption at Patna — delays ripple across the corridor
+            Network is operating normally. Disruptions detected by AI monitoring will appear here.
           </span>
-          {!demoRunning && (
-            <button
-              onClick={startDemo}
-              className="flex items-center gap-2 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all duration-150 active:scale-[0.98]"
-              style={{ background: 'var(--color-accent-blue)', boxShadow: 'var(--glow-blue)' }}
-            >
-              <Play className="w-3 h-3" />
-              Start Demo
-            </button>
-          )}
         </div>
       )}
 
@@ -279,7 +258,7 @@ export const SimulationPanel: React.FC = () => {
               </span>
               <button
                 onClick={generateAIRecommendations}
-                className="flex items-center gap-1.5 text-white text-[10px] font-semibold font-mono uppercase tracking-wider px-3.5 py-1.5 rounded transition-all duration-150 active:scale-[0.98] cursor-pointer hover:brightness-115"
+                className="flex items-center gap-1.5 text-white text-[10px] font-semibold font-mono uppercase tracking-wider px-3.5 py-1.5 rounded transition-all duration-150 active:scale-[0.98] cursor-pointer hover:brightness-110"
                 style={{ background: 'var(--color-accent-purple)', boxShadow: 'var(--glow-purple)' }}
               >
                 <Bot className="w-3.5 h-3.5" />

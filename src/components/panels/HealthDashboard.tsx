@@ -55,6 +55,7 @@ const MetricTile: React.FC<{
 );
 
 export const HealthDashboard: React.FC = () => {
+  const loading = useDemoStore(state => state.loading);
   const networkHealth = useDemoStore(state => state.networkHealth);
   const trains        = useDemoStore(state => state.trains);
   const stationRisks  = useDemoStore(state => state.stationRisks);
@@ -89,6 +90,15 @@ export const HealthDashboard: React.FC = () => {
     { label: 'Delay Predictions',  active: predictions.length > 0,   color: predictions.length > 0 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: predictions.length > 0 },
     { label: 'Fix Applied',  active: !!resolved,               color: resolved ? 'var(--color-accent-green)' : 'var(--color-border-active)', pulse: false },
   ];
+
+  if (loading && trains.length === 0) {
+    return (
+      <div className="flex flex-col h-full bg-bg-page text-text-primary items-center justify-center py-12">
+        <div className="w-5 h-5 border-2 border-accent-blue border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="text-[10px] font-mono text-text-muted">Loading health data...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary select-none animate-panel-in overflow-y-auto scrollbar-thin pr-0.5">

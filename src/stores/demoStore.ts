@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { CORRIDOR, TRAINS, interpolateTrainPosition, getCorridorDistance, type Train } from '../data/corridor';
-import { DEMO_TIMELINE } from '../data/mockScenario';
+import { ALL_STATIONS, TRAINS, interpolateTrainPosition, getSegmentDistance, getTrainRoute, computeLivePositions, type Train } from '../data/corridor';
 import { fetchLiveTrainStatus, normalizeLiveTrainData } from '../services/railwayService';
 import { HistoricalDelayPredictionEngine } from '../services/HistoricalDelayPredictionEngine';
 import { railwayDataset } from '../services/RailwayDatasetService';
@@ -44,58 +43,25 @@ export interface WhatIfResult {
 }
 
 export interface NetworkHealth {
-  efficiency: number; // 0-100
-  onTimePerf: number; // 0-100
-  platformUtil: number; // 0-100
+  efficiency: number;
+  onTimePerf: number;
+  platformUtil: number;
   signalStatus: 'operational' | 'degraded' | 'disrupted';
   activeAlerts: number;
 }
 
-export interface DemoState {
-  demoRunning: boolean;
-  demoTime: number;
-  isPaused: boolean;
-  playbackSpeed: number;
+export interface LiveState {
+  loading: boolean;
+  lastUpdated: Date | null;
   weatherAlert: null | { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number; visibility: number; source?: string };
-  weatherData: Record<string, {
-    station: string;
-    rainfall: number;
-    description: string;
-    temperature: number;
-    humidity: number;
-    windSpeed: number;
-    visibility: number;
-    source: string;
-  }> | null;
+  weatherData: Record<string, { station: string; rainfall: number; description: string; temperature: number; humidity: number; windSpeed: number; visibility: number; source: string }> | null;
   trains: Train[];
   stationRisks: Record<string, StationRisk>;
-  predictions: Array<{
-    trainId: string;
-    delayMinutes: number;
-    affectedStation: string;
-    confidence: number;
-    timestamp: number;
-    explanation?: string;
-  }>;
-  simulation: null | {
-    conflictsDetected: number;
-    cascadeDelay: number;
-    passengersAffected: number;
-    stationsImpacted: string[];
-    running: boolean;
-  };
-  copilot: {
-    thinking: boolean;
-    messages: CopilotMessage[];
-    recommendations: Recommendation[];
-  };
+  predictions: Array<{ trainId: string; delayMinutes: number; affectedStation: string; confidence: number; timestamp: number; explanation?: string }>;
+  simulation: null | { conflictsDetected: number; cascadeDelay: number; passengersAffected: number; stationsImpacted: string[]; running: boolean };
+  copilot: { thinking: boolean; messages: CopilotMessage[]; recommendations: Recommendation[] };
   intervention: null | { accepted: string; operator: string };
-  resolved: null | {
-    newCascadeDelay: number;
-    conflictsResolved: number;
-    riskReduction: string;
-    minutesSaved: number;
-  };
+  resolved: null | { newCascadeDelay: number; conflictsResolved: number; riskReduction: string; minutesSaved: number };
   activePanel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health';
   toasts: Toast[];
   whatIfStation: string;
@@ -113,19 +79,11 @@ export interface DemoState {
   mobileLeftOpen: boolean;
   mobileRightOpen: boolean;
 
-  // Actions
   recalculateDynamicPredictions: () => Promise<void>;
   setMobileLeftOpen: (open: boolean) => void;
   setMobileRightOpen: (open: boolean) => void;
-  startDemo: () => void;
-  resetDemo: () => void;
-  pauseDemo: () => void;
-  resumeDemo: () => void;
-  seekTo: (time: number) => void;
-  setPlaybackSpeed: (speed: number) => void;
   setActivePanel: (panel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health') => void;
   acceptRecommendation: (id: string) => void;
-  tickDemo: (second: number) => void | Promise<void>;
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
   setWhatIfStation: (station: string) => void;
@@ -134,52 +92,27 @@ export interface DemoState {
   toggleAudio: () => void;
   toggleTheme: () => void;
   setTheme: (theme: 'dark' | 'light') => void;
-  setApiConfig: (config: { enabled: boolean, key: string, host: string }) => void;
+  setApiConfig: (config: { enabled: boolean; key: string; host: string }) => void;
   setGeminiApiKey: (key: string) => void;
   updateLiveTrainsFromApi: () => Promise<void>;
   generateAIRecommendations: () => Promise<void>;
   fetchLiveWeatherForCorridor: () => Promise<void>;
+  refreshLivePositions: () => void;
 }
 
-// Global timers references
-let timerInterval: any = null;
-let eventTimeouts: any[] = [];
-
-// Concurrency guard for live API updates
 let liveApiUpdating = false;
+let liveTickInterval: any = null;
 
 function getBaseUrl() {
   const base = import.meta.env.BASE_URL || '/';
   return base.endsWith('/') ? base : `${base}/`;
 }
 
-const nameToIdMap: Record<string, string> = {
-  'new delhi': 'ndls',
-  'kanpur central': 'cnb',
-  'kanpur': 'cnb',
-  'prayagraj junction': 'ald',
-  'allahabad': 'ald',
-  'prayagraj': 'ald',
-  'patna junction': 'pnbe',
-  'patna': 'pnbe',
-  'howrah junction': 'hwh',
-  'howrah': 'hwh'
-};
-
-function nameToId(name: string): string {
-  if (!name) return 'ndls';
-  return nameToIdMap[name.toLowerCase()] || 'ndls';
-}
-
 const createInitialStationRisks = (stationsList?: any[]): Record<string, StationRisk> => {
   const risks: Record<string, StationRisk> = {};
-  const list = stationsList || CORRIDOR.stations;
+  const list = stationsList || ALL_STATIONS;
   list.forEach(station => {
-    risks[station.id] = {
-      crowdRisk: 'low',
-      delayRisk: 'low',
-      platformConflicts: 0
-    };
+    risks[station.id] = { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 };
   });
   return risks;
 };
@@ -187,57 +120,61 @@ const createInitialStationRisks = (stationsList?: any[]): Record<string, Station
 const computeNetworkHealth = (
   trains: Train[],
   stationRisks: Record<string, StationRisk>,
-  simulation: DemoState['simulation'],
-  weatherAlert: DemoState['weatherAlert']
+  simulation: LiveState['simulation'],
+  weatherAlert: LiveState['weatherAlert'],
 ): NetworkHealth => {
   const totalDelay = trains.reduce((sum, t) => sum + t.predictedDelay, 0);
   const avgDelay = trains.length > 0 ? totalDelay / trains.length : 0;
   const onTimeTrains = trains.filter(t => t.predictedDelay === 0).length;
   const onTimePerf = trains.length > 0 ? Math.round((onTimeTrains / trains.length) * 100) : 100;
-
   const totalCapacity = trains.reduce((sum, t) => sum + t.capacity, 0);
   const totalPassengers = trains.reduce((sum, t) => sum + t.passengerCount, 0);
   const platformUtil = totalCapacity > 0 ? Math.round((totalPassengers / totalCapacity) * 100) : 0;
-
   const hasCritical = Object.values(stationRisks).some(r => r.crowdRisk === 'critical' || r.delayRisk === 'critical');
   const hasHigh = Object.values(stationRisks).some(r => r.crowdRisk === 'high' || r.delayRisk === 'high');
   const signalStatus = hasCritical ? 'disrupted' : hasHigh ? 'degraded' : 'operational';
-
   const efficiency = Math.max(0, Math.min(100, Math.round(100 - avgDelay * 2 - (simulation?.conflictsDetected || 0) * 10)));
   const activeAlerts = (weatherAlert ? 1 : 0) + (simulation ? simulation.conflictsDetected : 0);
-
   return { efficiency, onTimePerf, platformUtil, signalStatus, activeAlerts };
 };
 
+function getLiveInitialTrains(): Train[] {
+  const base = JSON.parse(JSON.stringify(TRAINS)) as Train[];
+  if (typeof window === 'undefined') return base;
+  try {
+    const positions = computeLivePositions();
+    return base.map(t => {
+      const pos = positions.find(p => p.id === t.id);
+      return pos ? { ...t, ...pos } : t;
+    });
+  } catch {
+    return base;
+  }
+}
+
+const initialTrains = getLiveInitialTrains();
+const initialStations = JSON.parse(JSON.stringify(ALL_STATIONS));
+
 const initialStoreState = {
-  demoRunning: false,
-  demoTime: 0,
-  isPaused: false,
-  playbackSpeed: 1,
+  loading: true,
+  lastUpdated: null as Date | null,
   weatherAlert: null,
   weatherData: null,
-  stations: JSON.parse(JSON.stringify(CORRIDOR.stations)),
-  trains: JSON.parse(JSON.stringify(TRAINS)),
-  stationRisks: createInitialStationRisks(CORRIDOR.stations),
+  stations: initialStations,
+  trains: initialTrains,
+  stationRisks: createInitialStationRisks(initialStations),
   predictions: [],
   simulation: null,
   copilot: {
     thinking: false,
-    messages: [
-      {
-        id: 'init-msg',
-        sender: 'system' as const,
-        message: 'RailTwin Operations Center Initialized. Awaiting weather data...',
-        timestamp: new Date()
-      }
-    ],
-    recommendations: []
+    messages: [{ id: 'init-msg', sender: 'system' as const, message: 'RailTwin Operations Center Initialized. 8 trains actively monitored across India.', timestamp: new Date() }],
+    recommendations: [],
   },
   intervention: null,
   resolved: null,
   activePanel: 'map' as const,
   toasts: [],
-  whatIfStation: 'pnbe',
+  whatIfStation: 'ndls',
   whatIfScenario: 'signal_failure' as const,
   whatIfResult: null,
   networkHealth: { efficiency: 100, onTimePerf: 100, platformUtil: 73, signalStatus: 'operational' as const, activeAlerts: 0 },
@@ -252,139 +189,80 @@ const initialStoreState = {
   mobileRightOpen: false,
 };
 
-export const useDemoStore = create<DemoState>((set, get) => ({
+export const useDemoStore = create<LiveState>((set, get) => ({
   ...initialStoreState,
 
   addToast: (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    const newToast = { ...toast, id };
-    set(state => ({ toasts: [...state.toasts, newToast] }));
+    set(state => ({ toasts: [...state.toasts, { ...toast, id }] }));
   },
 
-  removeToast: (id) => {
-    set(state => ({ toasts: state.toasts.filter(t => t.id !== id) }));
-  },
+  removeToast: (id) => set(state => ({ toasts: state.toasts.filter(t => t.id !== id) })),
 
   setMobileLeftOpen: (open) => set({ mobileLeftOpen: open }),
   setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
 
   recalculateDynamicPredictions: async () => {
-    const { trains, weatherData, stationRisks, stations } = get();
+    const { trains, weatherData, stationRisks } = get();
     if (!weatherData) return;
-
     const updatedTrains = [...trains];
     const newPredictions: any[] = [];
     const newStationRisks = { ...stationRisks };
-    
     for (const train of trains) {
-      // Get route length
       const route = await railwayDataset.getRouteByTrainNo(train.id);
-      let routeLengthKm = 1531;
+      let routeLengthKm = 1500;
       if (route) {
         let length = 0;
-        for (let i = 0; i < route.route.length - 1; i++) {
-          const fromId = nameToId(route.route[i]);
-          const toId = nameToId(route.route[i+1]);
-          length += getCorridorDistance(fromId, toId, stations);
+        const trainRouteStations = getTrainRoute(train.id);
+        for (let i = 0; i < trainRouteStations.length - 1; i++) {
+          length += getSegmentDistance(train.id, trainRouteStations[i].id, trainRouteStations[i + 1].id);
         }
-        routeLengthKm = length || 1531;
+        routeLengthKm = length || 1500;
       }
-
-      // Check weather at next station
       const targetStationId = train.nextStation || train.currentStation;
       const stationWeather = weatherData[targetStationId];
       const congestion = stationRisks[targetStationId]?.crowdRisk || 'low';
-      
       let weatherCondition = 'Clear';
       let rainfall = 0;
-      let visibility = 10;
-      
       if (stationWeather) {
         rainfall = stationWeather.rainfall;
-        visibility = stationWeather.visibility;
-        
-        if (visibility < 1) {
-          weatherCondition = 'Fog';
-        } else if (rainfall > 50) {
-          weatherCondition = 'Heavy Rain';
-        } else if (rainfall > 0) {
-          weatherCondition = 'Rain';
-        } else {
+        if (stationWeather.visibility < 1) weatherCondition = 'Fog';
+        else if (rainfall > 50) weatherCondition = 'Heavy Rain';
+        else if (rainfall > 0) weatherCondition = 'Rain';
+        else {
           const desc = stationWeather.description.toLowerCase();
-          if (desc.includes('fog') || desc.includes('mist')) {
-            weatherCondition = 'Fog';
-          } else if (desc.includes('rain') || desc.includes('drizzle')) {
-            weatherCondition = rainfall > 50 ? 'Heavy Rain' : 'Rain';
-          } else {
-            weatherCondition = 'Clear';
-          }
+          if (desc.includes('fog') || desc.includes('mist')) weatherCondition = 'Fog';
+          else if (desc.includes('rain') || desc.includes('drizzle')) weatherCondition = rainfall > 50 ? 'Heavy Rain' : 'Rain';
+          else weatherCondition = 'Clear';
         }
       }
-
-      // Prediction Engine
       const pred = await HistoricalDelayPredictionEngine.predict({
-        trainNo: train.id,
-        routeLengthKm,
-        stationCongestion: congestion,
-        weatherCondition,
-        rainfallMmHr: rainfall
+        trainNo: train.id, routeLengthKm, stationCongestion: congestion, weatherCondition, rainfallMmHr: rainfall,
       });
-
       const trainIdx = updatedTrains.findIndex(t => t.id === train.id);
-      if (trainIdx !== -1) {
-        updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
-      }
-
+      if (trainIdx !== -1) updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
       if (pred.predictedDelay > 0) {
-        newPredictions.push({
-          trainId: train.id,
-          delayMinutes: pred.predictedDelay,
-          affectedStation: targetStationId,
-          confidence: pred.confidence,
-          timestamp: get().demoTime,
-          explanation: pred.explanation
-        });
-
-        // Update station delay risk
-        if (newStationRisks[targetStationId]) {
-          newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
-        }
+        newPredictions.push({ trainId: train.id, delayMinutes: pred.predictedDelay, affectedStation: targetStationId, confidence: pred.confidence, timestamp: Date.now(), explanation: pred.explanation });
+        if (newStationRisks[targetStationId]) newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
       }
     }
-
-    set({
-      trains: updatedTrains,
-      predictions: newPredictions,
-      stationRisks: newStationRisks
-    });
+    set({ trains: updatedTrains, predictions: newPredictions, stationRisks: newStationRisks });
   },
 
-  toggleAudio: () => {
-    set(state => ({ audioEnabled: !state.audioEnabled }));
-  },
+  toggleAudio: () => set(state => ({ audioEnabled: !state.audioEnabled })),
 
   toggleTheme: () => {
     const nextTheme = get().theme === 'dark' ? 'light' : 'dark';
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('theme', nextTheme);
-    }
-    if (nextTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem('theme', nextTheme);
+    if (nextTheme === 'light') document.documentElement.classList.add('light');
+    else document.documentElement.classList.remove('light');
     set({ theme: nextTheme });
   },
 
   setTheme: (theme) => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('theme', theme);
-    }
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem('theme', theme);
+    if (theme === 'light') document.documentElement.classList.add('light');
+    else document.documentElement.classList.remove('light');
     set({ theme });
   },
 
@@ -394,238 +272,57 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       localStorage.setItem('railtwin-rapidapi-key', config.key);
       localStorage.setItem('railtwin-rapidapi-host', config.host);
     }
-    set({
-      liveApiEnabled: config.enabled,
-      rapidApiKey: config.key,
-      rapidApiHost: config.host,
-      apiStatus: config.enabled ? (config.key ? 'connecting' : 'disconnected') : 'disconnected'
-    });
-
+    set({ liveApiEnabled: config.enabled, rapidApiKey: config.key, rapidApiHost: config.host, apiStatus: config.enabled ? (config.key ? 'connecting' : 'disconnected') : 'disconnected' });
     if (config.enabled && config.key) {
-      get().addToast({
-        type: 'info',
-        title: 'Live Tracking Enabled',
-        message: 'Connecting to Indian Railways feeds...'
-      });
-      // Fetch status immediately — status will update to 'connected' on success
+      get().addToast({ type: 'info', title: 'Live Tracking Enabled', message: 'Connecting to Indian Railways feeds...' });
       get().updateLiveTrainsFromApi();
     } else {
-      get().addToast({
-        type: 'info',
-        title: 'Simulation Active',
-        message: 'Running Delhi–Howrah high-fidelity simulator'
-      });
+      get().addToast({ type: 'info', title: 'Simulation Active', message: 'Running national network simulator' });
     }
   },
 
   setGeminiApiKey: (key) => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('railtwin-gemini-api-key', key);
-    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem('railtwin-gemini-api-key', key);
     set({ geminiApiKey: key });
   },
 
   updateLiveTrainsFromApi: async () => {
     const { liveApiEnabled, rapidApiKey, rapidApiHost, trains } = get();
     if (!liveApiEnabled || !rapidApiKey) return;
-
-    // Guard against concurrent calls
     if (liveApiUpdating) return;
     liveApiUpdating = true;
-
     try {
       const updatedTrains = [...trains];
       let hasChange = false;
-
-      // Update each train in parallel
       const updatePromises = trains.map(async (train) => {
         try {
           const apiData = await fetchLiveTrainStatus(train.id, rapidApiKey, rapidApiHost);
           const normalized = normalizeLiveTrainData(train.id, apiData, train);
-          
-          // Interpolate new coordinate if position/progress changes
           if (normalized.currentStation || normalized.routeProgress !== undefined) {
             const merged = { ...train, ...normalized } as Train;
             normalized.coordinates = interpolateTrainPosition(merged);
           }
-
           return { id: train.id, normalized };
-        } catch (e) {
-          console.error(`Failed live update for train ${train.id}`, e);
-          return null;
-        }
+        } catch (e) { return null; }
       });
-
       const results = await Promise.all(updatePromises);
       results.forEach(res => {
         if (res) {
           const idx = updatedTrains.findIndex(t => t.id === res.id);
-          if (idx !== -1) {
-            updatedTrains[idx] = { ...updatedTrains[idx], ...res.normalized };
-            hasChange = true;
-          }
+          if (idx !== -1) { updatedTrains[idx] = { ...updatedTrains[idx], ...res.normalized }; hasChange = true; }
         }
       });
-
-      if (hasChange) {
-        set({ trains: updatedTrains, apiStatus: 'connected' });
-      }
+      if (hasChange) set({ trains: updatedTrains, apiStatus: 'connected' });
     } catch (e) {
       console.error('Failed to update live trains from API', e);
       set({ apiStatus: 'error' });
-    } finally {
-      liveApiUpdating = false;
-    }
+    } finally { liveApiUpdating = false; }
   },
 
-  pauseDemo: () => {
-    set({ isPaused: true });
-  },
+  setActivePanel: (panel) => set({ activePanel: panel, mobileLeftOpen: false, mobileRightOpen: false }),
 
-  resumeDemo: () => {
-    set({ isPaused: false });
-  },
-
-  seekTo: (time: number) => {
-    const clampedTime = Math.max(0, Math.min(time, 50));
-    // Always advance train positions on seek (Bug 5 fix)
-    const state = get();
-    const updatedTrains = state.trains.map(train => {
-      const newCoords = interpolateTrainPosition(
-        { ...train, routeProgress: train.routeProgress },
-        state.stations
-      );
-      return { ...train, coordinates: newCoords };
-    });
-    set({ demoTime: clampedTime, trains: updatedTrains });
-    // Also process the event at this time if one exists
-    const event = DEMO_TIMELINE.find(e => e.time === clampedTime);
-    if (event) {
-      get().tickDemo(clampedTime);
-    }
-  },
-
-  setPlaybackSpeed: (speed: number) => {
-    set({ playbackSpeed: speed });
-  },
-
-  startDemo: () => {
-    if (timerInterval) clearInterval(timerInterval);
-    eventTimeouts.forEach(clearTimeout);
-    eventTimeouts = [];
-
-    const current = get();
-    set({
-      ...initialStoreState,
-      stations: current.stations,
-      trains: JSON.parse(JSON.stringify(current.trains)),
-      stationRisks: createInitialStationRisks(current.stations),
-      demoRunning: true,
-      isPaused: false,
-      activePanel: 'map',
-      // Preserve live API config from current state
-      liveApiEnabled: current.liveApiEnabled,
-      rapidApiKey: current.rapidApiKey,
-      rapidApiHost: current.rapidApiHost,
-      apiStatus: current.apiStatus,
-      geminiApiKey: current.geminiApiKey
-    });
-
-    DEMO_TIMELINE.forEach(event => {
-      const timeout = setTimeout(() => {
-        const state = get();
-        if (state.demoRunning && !state.isPaused && state.demoTime <= event.time) {
-          state.tickDemo(event.time);
-        }
-      }, event.time * 1000 / get().playbackSpeed);
-      eventTimeouts.push(timeout);
-    });
-
-    timerInterval = setInterval(() => {
-      const state = get();
-      if (state.demoRunning && !state.isPaused) {
-        const nextTime = state.demoTime + state.playbackSpeed;
-
-        // Advance train positions
-        const updatedTrains = state.trains.map(train => {
-          const distance = getCorridorDistance(train.currentStation, train.nextStation, state.stations);
-          const speedKmPerSec = train.speed / 3600;
-          const progressIncrement = distance > 0 ? (speedKmPerSec / distance) : 0;
-          const newProgress = Math.min(train.routeProgress + progressIncrement, 1);
-          const newCoords = interpolateTrainPosition({ ...train, routeProgress: newProgress }, state.stations);
-          return { ...train, routeProgress: newProgress, coordinates: newCoords };
-        });
-
-        set({ demoTime: nextTime, trains: updatedTrains });
-
-        // Update network health
-        const currentState = get();
-        const health = computeNetworkHealth(
-          currentState.trains,
-          currentState.stationRisks,
-          currentState.simulation,
-          currentState.weatherAlert
-        );
-        set({ networkHealth: health });
-
-        // Automated Panel Switches & States
-        if (nextTime === 8) {
-          set({ activePanel: 'delays' });
-        } else if (nextTime === 12) {
-          set({ activePanel: 'simulation' });
-        } else if (nextTime === 50) {
-          set({ activePanel: 'map', demoRunning: false });
-          if (timerInterval) clearInterval(timerInterval);
-        }
-
-        // Audio alert for critical events
-        if (currentState.audioEnabled && (nextTime === 0 || nextTime === 12 || nextTime === 42)) {
-          try {
-            const ctx = new AudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            gain.gain.value = 0.1;
-            osc.frequency.value = nextTime === 42 ? 880 : 440;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.2);
-          } catch (e) { /* Audio not available */ }
-        }
-      }
-    }, 1000);
-  },
-
-  resetDemo: () => {
-    if (timerInterval) clearInterval(timerInterval);
-    eventTimeouts.forEach(clearTimeout);
-    eventTimeouts = [];
-    const current = get();
-    set({
-      ...initialStoreState,
-      stations: current.stations,
-      trains: JSON.parse(JSON.stringify(current.trains)),
-      stationRisks: createInitialStationRisks(current.stations),
-      theme: get().theme,
-      liveApiEnabled: get().liveApiEnabled,
-      rapidApiKey: get().rapidApiKey,
-      rapidApiHost: get().rapidApiHost,
-      apiStatus: get().apiStatus,
-      geminiApiKey: get().geminiApiKey
-    });
-  },
-
-  setActivePanel: (panel) => {
-    set({ activePanel: panel, mobileLeftOpen: false, mobileRightOpen: false });
-  },
-
-  setWhatIfStation: (station) => {
-    set({ whatIfStation: station, whatIfResult: null });
-  },
-
-  setWhatIfScenario: (scenario) => {
-    set({ whatIfScenario: scenario, whatIfResult: null });
-  },
+  setWhatIfStation: (station) => set({ whatIfStation: station, whatIfResult: null }),
+  setWhatIfScenario: (scenario) => set({ whatIfScenario: scenario, whatIfResult: null }),
 
   runWhatIf: async () => {
     const state = get();
@@ -633,721 +330,128 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     const scenario = state.whatIfScenario;
     const station = state.stations.find(s => s.id === stationId);
     if (!station) return;
-
     try {
       const baseUrl = import.meta.env.BASE_URL || '/';
       const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
       const response = await fetch(`${normalizedBase}api/trains/simulation/cascade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stationId, scenario })
+        body: JSON.stringify({ stationId, scenario }),
       });
-
-      if (!response.ok) throw new Error("Cascade simulation failed");
+      if (!response.ok) throw new Error('Cascade simulation failed');
       const resultData = await response.json();
-
-      // Find trains that pass through or near this station
-      const affectedTrains = state.trains.filter(t =>
-        t.currentStation === stationId || t.nextStation === stationId
-      ).map(t => t.id);
-
-      // Also affect trains downstream
-      const sortedStations = [...state.stations].sort((a, b) => a.kmFromOrigin - b.kmFromOrigin);
-      const stationIdx = sortedStations.findIndex(s => s.id === stationId);
-      const downstreamIds = sortedStations.slice(stationIdx + 1).map(s => s.id);
-      const downstreamTrains = state.trains.filter(t =>
-        downstreamIds.includes(t.nextStation) && !affectedTrains.includes(t.id)
-      ).map(t => t.id);
-
-      const allAffected = [...affectedTrains, ...downstreamTrains];
-
-      // Compute risk levels for affected stations
+      const affectedTrains = state.trains.filter(t => {
+        const route = getTrainRoute(t.id);
+        return route.some(s => s.id === stationId);
+      }).map(t => t.id);
       const riskLevels: Record<string, { crowdRisk: string; delayRisk: string }> = {};
-      const impactedStationIds = [stationId, ...downstreamIds];
-      impactedStationIds.forEach(id => {
-        const isSource = id === stationId;
-        riskLevels[id] = {
-          crowdRisk: isSource ? 'critical' : downstreamIds.indexOf(id) < 2 ? 'high' : 'moderate',
-          delayRisk: isSource ? 'critical' : 'high'
-        };
+      const impactedStationIds = [stationId, ...resultData.stationsImpacted || []].filter((v: string, i: number, a: string[]) => a.indexOf(v) === i);
+      impactedStationIds.forEach((id: string, i: number) => {
+        riskLevels[id] = { crowdRisk: i === 0 ? 'critical' : 'high', delayRisk: i === 0 ? 'critical' : 'high' };
       });
-
       const result: WhatIfResult = {
-        station: stationId,
-        scenario,
-        affectedTrains: allAffected,
+        station: stationId, scenario, affectedTrains,
         cascadeDelay: resultData.cascadeDelay,
         passengersAtRisk: resultData.passengersAffected,
         conflictsGenerated: resultData.conflictsDetected,
-        riskLevels
+        riskLevels,
       };
-
       set({ whatIfResult: result });
-
-      get().addToast({
-        type: 'info',
-        title: 'What-If Analysis Complete',
-        message: `${scenario.replace('_', ' ')} at ${station.name}: ${resultData.cascadeDelay}min cascade, ${allAffected.length} trains affected`
-      });
+      get().addToast({ type: 'info', title: 'What-If Analysis Complete', message: `${scenario.replace('_', ' ')} at ${station.name}: ${resultData.cascadeDelay}min cascade, ${affectedTrains.length} trains affected` });
     } catch (e) {
       console.error(e);
-      get().addToast({
-        type: 'error',
-        title: 'Simulation Error',
-        message: 'Could not communicate with the cascade simulation server.'
-      });
+      get().addToast({ type: 'error', title: 'Simulation Error', message: 'Could not communicate with the cascade simulation server.' });
     }
   },
 
   acceptRecommendation: (id) => {
-    const updatedRecommendations = get().copilot.recommendations.map(r =>
-      r.id === id ? { ...r, accepted: true } : r
-    );
+    const updatedRecommendations = get().copilot.recommendations.map(r => r.id === id ? { ...r, accepted: true } : r);
     const acceptedRec = get().copilot.recommendations.find(r => r.id === id);
-
     set(state => ({
       copilot: {
         ...state.copilot,
         recommendations: updatedRecommendations,
-        messages: [
-          ...state.copilot.messages,
-          {
-            id: `user-msg-${Date.now()}`,
-            sender: 'user',
-            message: `Accepted recommendation: ${acceptedRec?.action}`,
-            timestamp: new Date()
-          }
-        ]
+        messages: [...state.copilot.messages, { id: `user-msg-${Date.now()}`, sender: 'user', message: `Accepted recommendation: ${acceptedRec?.action}`, timestamp: new Date() }],
       },
-      intervention: {
-        accepted: id,
-        operator: 'OP-01'
-      }
+      intervention: { accepted: id, operator: 'OP-01' },
     }));
-
-    // Call Gemini API for copilot response to accepted recommendation
     const stateForApi = get();
-    const systemStateForApi = {
-      trains: stateForApi.trains,
-      weatherAlert: stateForApi.weatherAlert,
-      stationRisks: stateForApi.stationRisks,
-      predictions: stateForApi.predictions,
-      simulation: stateForApi.simulation,
-      intervention: stateForApi.intervention,
-      resolved: stateForApi.resolved,
-      networkHealth: stateForApi.networkHealth
-    };
-
+    const systemStateForApi = { trains: stateForApi.trains, weatherAlert: stateForApi.weatherAlert, stationRisks: stateForApi.stationRisks, predictions: stateForApi.predictions, simulation: stateForApi.simulation, intervention: stateForApi.intervention, resolved: stateForApi.resolved, networkHealth: stateForApi.networkHealth };
     (async () => {
       try {
         const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: [
-              ...stateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
-              { sender: 'user', message: `I accepted the recommendation: "${acceptedRec?.action}". Confirm the dispatch and explain what happens next.` }
-            ],
+            messages: [...stateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })), { sender: 'user', message: `I accepted the recommendation: "${acceptedRec?.action}". Confirm the dispatch.` }],
             systemState: systemStateForApi,
-            userApiKey: stateForApi.geminiApiKey
-          })
+            userApiKey: stateForApi.geminiApiKey,
+          }),
         });
-
         if (response.ok) {
           const data = await response.json();
           const aiText = data.reply ?? data.message ?? 'Intervention confirmed.';
-          set(state => ({
-            copilot: {
-              ...state.copilot,
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `copilot-apply-${Date.now()}`,
-                  sender: 'copilot',
-                  message: aiText,
-                  timestamp: new Date()
-                }
-              ]
-            }
-          }));
-        } else {
-          throw new Error(`API returned ${response.status}`);
-        }
+          set(state => ({ copilot: { ...state.copilot, messages: [...state.copilot.messages, { id: `copilot-apply-${Date.now()}`, sender: 'copilot', message: aiText, timestamp: new Date() }] } }));
+        } else throw new Error(`API returned ${response.status}`);
       } catch (err: any) {
-        console.error('Copilot API call failed on accept recommendation:', err);
-        set(state => ({
-          copilot: {
-            ...state.copilot,
-            messages: [
-              ...state.copilot.messages,
-              {
-                id: `copilot-apply-${Date.now()}`,
-                sender: 'copilot',
-                message: `Unable to confirm mitigation dispatch: "${acceptedRec?.action}". The AI service is currently unavailable. The intervention has been logged locally.`,
-                timestamp: new Date()
-              }
-            ]
-          }
-        }));
+        console.error('Copilot API call failed:', err);
+        set(state => ({ copilot: { ...state.copilot, messages: [...state.copilot.messages, { id: `copilot-apply-${Date.now()}`, sender: 'copilot', message: `Unable to confirm: "${acceptedRec?.action}". AI service unavailable.`, timestamp: new Date() }] } }));
       }
     })();
-
-    const timeout = setTimeout(() => {
-      if (!get().demoRunning) return;
+    setTimeout(() => {
       if (get().resolved) return;
-
       const state = get();
+      const trainIds = state.trains.map(t => t.id);
+      const affectedIds = trainIds.slice(0, Math.min(2, trainIds.length));
       const resolvedTrains = state.trains.map(t => {
-        if (t.id === '12381') {
-          return {
-            ...t,
-            currentStation: 'ald',
-            predictedDelay: 18,
-            routeProgress: 0.5,
-            coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.5 }, state.stations)
-          };
-        }
-        if (t.id === '12301') {
-          return { ...t, predictedDelay: 19 };
-        }
+        if (affectedIds.includes(t.id)) return { ...t, predictedDelay: Math.max(0, t.predictedDelay - 15) };
         return t;
       });
-
-      get().addToast({
-        type: 'success',
-        title: 'Mitigation Successful',
-        message: 'Intervention applied. 33 minutes saved.'
-      });
-
-      set(state => ({
-        stationRisks: {
-          ...state.stationRisks,
-          pnbe: { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 }
-        },
+      get().addToast({ type: 'success', title: 'Mitigation Successful', message: 'Intervention applied. Delays reduced.' });
+      const updatedStationRisks = { ...state.stationRisks };
+      if (state.whatIfStation && updatedStationRisks[state.whatIfStation]) {
+        updatedStationRisks[state.whatIfStation] = { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 };
+      }
+      set({
+        stationRisks: updatedStationRisks,
         trains: resolvedTrains,
-        simulation: state.simulation
-          ? { ...state.simulation, cascadeDelay: 19, conflictsDetected: 0 }
-          : null,
-        resolved: {
-          newCascadeDelay: 19,
-          conflictsResolved: 3,
-          riskReduction: 'CRITICAL→MODERATE',
-          minutesSaved: 33
-        },
-        copilot: {
-          ...state.copilot,
-          messages: state.copilot.messages
-        }
-      }));
+        simulation: state.simulation ? { ...state.simulation, cascadeDelay: Math.round(state.simulation.cascadeDelay * 0.5), conflictsDetected: 0 } : null,
+        resolved: { newCascadeDelay: Math.round((state.simulation?.cascadeDelay || 40) * 0.5), conflictsResolved: state.simulation?.conflictsDetected || 0, riskReduction: 'HIGH→MODERATE', minutesSaved: 25 },
+        copilot: { ...state.copilot, messages: state.copilot.messages },
+      });
     }, 1500);
-    eventTimeouts.push(timeout);
-
-    // Call Gemini API for resolution confirmation message
-    const resolvedStateForApi = get();
-    const resolvedSystemState = {
-      trains: resolvedStateForApi.trains,
-      weatherAlert: resolvedStateForApi.weatherAlert,
-      stationRisks: resolvedStateForApi.stationRisks,
-      predictions: resolvedStateForApi.predictions,
-      simulation: resolvedStateForApi.simulation,
-      intervention: resolvedStateForApi.intervention,
-      resolved: resolvedStateForApi.resolved,
-      networkHealth: resolvedStateForApi.networkHealth
-    };
-
-    (async () => {
-      try {
-        const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [
-              ...resolvedStateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
-              { sender: 'user', message: 'The mitigation intervention has been applied. Confirm the resolution and summarize the updated corridor status.' }
-            ],
-            systemState: resolvedSystemState,
-            userApiKey: resolvedStateForApi.geminiApiKey
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          set(state => ({
-            copilot: {
-              ...state.copilot,
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `copilot-res-${Date.now()}`,
-                  sender: 'copilot',
-                  message: data.message,
-                  timestamp: new Date()
-                }
-              ]
-            }
-          }));
-        }
-      } catch (err) {
-        console.error('Copilot API call failed on resolution:', err);
-      }
-    })();
-  },
-
-  tickDemo: async (second) => {
-    const event = DEMO_TIMELINE.find(e => e.time === second);
-    if (!event) return;
-
-    const { type, payload } = event;
-
-    switch (type) {
-      case 'prediction': {
-        const trainId = payload.trainId;
-        const affectedStation = payload.affectedStation;
-
-        // Get train's route to calculate route length
-        const route = await railwayDataset.getRouteByTrainNo(trainId);
-        let routeLengthKm = 1531; // fallback
-        if (route) {
-          let length = 0;
-          for (let i = 0; i < route.route.length - 1; i++) {
-            const fromId = nameToId(route.route[i]);
-            const toId = nameToId(route.route[i+1]);
-            length += getCorridorDistance(fromId, toId, get().stations);
-          }
-          routeLengthKm = length || 1531;
-        }
-
-        // Get station congestion level from current risks state
-        const congestion = get().stationRisks[affectedStation]?.crowdRisk || 'low';
-
-        // Check if there is live weather data for this station
-        const weatherData = get().weatherData;
-        const stationWeather = weatherData?.[affectedStation];
-
-        let weatherCondition = 'Clear';
-        let rainfall = 0;
-        let visibility = 10;
-
-        if (stationWeather) {
-          rainfall = stationWeather.rainfall;
-          visibility = stationWeather.visibility;
-          
-          if (visibility < 1) {
-            weatherCondition = 'Fog';
-          } else if (rainfall > 50) {
-            weatherCondition = 'Heavy Rain';
-          } else if (rainfall > 0) {
-            weatherCondition = 'Rain';
-          } else {
-            const desc = stationWeather.description.toLowerCase();
-            if (desc.includes('fog') || desc.includes('mist')) {
-              weatherCondition = 'Fog';
-            } else if (desc.includes('rain') || desc.includes('drizzle')) {
-              weatherCondition = rainfall > 50 ? 'Heavy Rain' : 'Rain';
-            } else {
-              weatherCondition = 'Clear';
-            }
-          }
-        } else {
-          // Fallback to weatherAlert if weatherData is not loaded
-          const weatherAlert = get().weatherAlert;
-          const isAlertActive = weatherAlert && weatherAlert.station === affectedStation;
-          weatherCondition = isAlertActive
-            ? (weatherAlert.rainfall > 50 ? 'Heavy Rain' : 'Rain')
-            : 'Clear';
-          rainfall = isAlertActive ? weatherAlert.rainfall : 0;
-        }
-
-        // Run prediction dynamically using the engine
-        const pred = await HistoricalDelayPredictionEngine.predict({
-          trainNo: trainId,
-          routeLengthKm,
-          stationCongestion: congestion,
-          weatherCondition,
-          rainfallMmHr: rainfall
-        });
-
-        set(state => {
-          const updatedTrains = state.trains.map(t =>
-            t.id === trainId ? { ...t, predictedDelay: pred.predictedDelay } : t
-          );
-          const currentRisk = state.stationRisks[affectedStation];
-
-          get().addToast({
-            type: 'warning',
-            title: 'Delay Accumulation',
-            message: `${trainId}: +${pred.predictedDelay} min predicted delay (Dynamic)`
-          });
-
-          return {
-            trains: updatedTrains,
-            predictions: [
-              ...state.predictions,
-              {
-                trainId,
-                delayMinutes: pred.predictedDelay,
-                affectedStation,
-                confidence: pred.confidence,
-                timestamp: second,
-                explanation: pred.explanation
-              }
-            ],
-            stationRisks: {
-              ...state.stationRisks,
-              [affectedStation]: { ...currentRisk, delayRisk: pred.predictedDelay > 30 ? 'high' : 'moderate' }
-            },
-            copilot: {
-              ...state.copilot,
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `pred-msg-${Date.now()}`,
-                  sender: 'system',
-                  message: `Predictive Alert: Train ${trainId} expected to accumulate ${pred.predictedDelay} min delay at ${affectedStation.toUpperCase()} (Confidence: ${Math.round(pred.confidence * 100)}%).`,
-                  timestamp: new Date()
-                }
-              ]
-            }
-          };
-        });
-        break;
-      }
-
-      case 'simulation': {
-        get().addToast({
-          type: 'error',
-          title: 'Simulation Complete',
-          message: 'Simulation complete: 3 platform conflicts, 19K passengers at risk'
-        });
-
-        set(() => ({
-          simulation: {
-            conflictsDetected: payload.conflictsDetected,
-            cascadeDelay: payload.cascadeDelay,
-            passengersAffected: payload.passengersAffected,
-            stationsImpacted: payload.stationsImpacted,
-            running: true
-          }
-        }));
-
-        const simulationTimeout = setTimeout(() => {
-          if (!get().demoRunning) return;
-          set(state => ({
-            simulation: state.simulation ? { ...state.simulation, running: false } : null,
-            stationRisks: {
-              ...state.stationRisks,
-              pnbe: { crowdRisk: 'critical', delayRisk: 'critical', platformConflicts: 3 }
-            },
-            copilot: {
-              ...state.copilot,
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `sim-msg-${Date.now()}`,
-                  sender: 'system',
-                  message: `Simulation Complete: 3 conflicts detected at PNBE. Projected cascade delay is ${payload.cascadeDelay} mins.`,
-                  timestamp: new Date()
-                }
-              ]
-            }
-          }));
-        }, 500);
-        eventTimeouts.push(simulationTimeout);
-        break;
-      }
-
-      case 'copilot':
-        if (payload.thinking) {
-          get().addToast({
-            type: 'ai',
-            title: 'Copilot Active',
-            message: 'Copilot analyzing corridor impact...'
-          });
-
-          set(state => ({
-            copilot: {
-              ...state.copilot,
-              thinking: true,
-              messages: [
-                ...state.copilot.messages,
-                {
-                  id: `cop-think-${Date.now()}`,
-                  sender: 'copilot',
-                  message: payload.message,
-                  timestamp: new Date()
-                }
-              ]
-            }
-          }));
-
-          // Call real Gemini API for copilot analysis
-          const currentState = get();
-          const systemStateForCopilot = {
-            trains: currentState.trains,
-            weatherAlert: currentState.weatherAlert,
-            stationRisks: currentState.stationRisks,
-            predictions: currentState.predictions,
-            simulation: currentState.simulation,
-            intervention: currentState.intervention,
-            resolved: currentState.resolved,
-            networkHealth: currentState.networkHealth
-          };
-
-          try {
-            const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                messages: [
-                  { sender: 'user', message: 'Analyze the current corridor situation. What is the impact of the monsoon disruption? Provide a brief operational assessment and key concerns.' }
-                ],
-                systemState: systemStateForCopilot,
-                userApiKey: currentState.geminiApiKey
-              })
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              // chat.ts returns { reply }, standardize on that field (Bug 2 fix)
-              const aiText = data.reply ?? data.message ?? 'No response from AI.';
-              set(state => ({
-                copilot: {
-                  ...state.copilot,
-                  thinking: false,
-                  messages: [
-                    ...state.copilot.messages,
-                    {
-                      id: `cop-api-${Date.now()}`,
-                      sender: 'copilot',
-                      message: aiText,
-                      timestamp: new Date()
-                    }
-                  ]
-                }
-              }));
-            } else {
-              throw new Error(`API returned ${response.status}`);
-            }
-          } catch (err: any) {
-            console.error('Copilot API call failed during demo:', err);
-            const apiKey = currentState.geminiApiKey;
-            const fallbackMsg = apiKey
-              ? 'AI service request failed. This may be due to a temporary outage or rate limiting. Please wait a moment and try again, or check your API key in Settings.'
-              : 'Copilot is unavailable — no Gemini API key configured. Open Settings and add a GEMINI_API_KEY to enable live AI analysis during the demo.';
-            set(state => ({
-              copilot: {
-                ...state.copilot,
-                thinking: false,
-                messages: [
-                  ...state.copilot.messages,
-                  {
-                    id: `cop-fallback-${Date.now()}`,
-                    sender: 'copilot',
-                    message: fallbackMsg,
-                    timestamp: new Date()
-                  }
-                ]
-              }
-            }));
-          }
-        }
-        break;
-
-      case 'intervention':
-        if (!get().intervention) {
-          get().acceptRecommendation('rec-1');
-        }
-        break;
-
-      case 'resolved': {
-        if (get().resolved) return;
-
-        get().addToast({
-          type: 'success',
-          title: 'Disruption Resolved',
-          message: 'Intervention applied. 33 minutes saved.'
-        });
-
-        const state = get();
-        const resolvedTrains = state.trains.map(t => {
-          if (t.id === '12381') {
-            return {
-              ...t,
-              currentStation: 'ald',
-              predictedDelay: 18,
-              routeProgress: 0.5,
-              coordinates: interpolateTrainPosition({ ...t, currentStation: 'ald', nextStation: 'pnbe', routeProgress: 0.5 }, state.stations)
-            };
-          }
-          if (t.id === '12301') {
-            return { ...t, predictedDelay: 19 };
-          }
-          return t;
-        });
-
-        set(state => ({
-          stationRisks: {
-            ...state.stationRisks,
-            pnbe: { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 }
-          },
-          trains: resolvedTrains,
-          simulation: state.simulation
-            ? { ...state.simulation, cascadeDelay: payload.newCascadeDelay, conflictsDetected: 0 }
-            : null,
-          resolved: {
-            newCascadeDelay: payload.newCascadeDelay,
-            conflictsResolved: payload.conflictsResolved,
-            riskReduction: payload.riskReduction,
-            minutesSaved: payload.minutesSaved
-          }
-        }));
-
-        // Call Gemini API for auto-resolution confirmation
-        const resolvedAutoState = get();
-        const resolvedAutoSystemState = {
-          trains: resolvedAutoState.trains,
-          weatherAlert: resolvedAutoState.weatherAlert,
-          stationRisks: resolvedAutoState.stationRisks,
-          predictions: resolvedAutoState.predictions,
-          simulation: resolvedAutoState.simulation,
-          intervention: resolvedAutoState.intervention,
-          resolved: resolvedAutoState.resolved,
-          networkHealth: resolvedAutoState.networkHealth
-        };
-
-        (async () => {
-          try {
-            const response = await fetch(`${getBaseUrl()}api/copilot/chat`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                messages: [
-                  ...resolvedAutoState.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })),
-                  { sender: 'user', message: `Conflict resolution has been auto-applied. New cascade delay is ${payload.newCascadeDelay} mins. Summarize the resolution outcome.` }
-                ],
-                systemState: resolvedAutoSystemState,
-                userApiKey: resolvedAutoState.geminiApiKey
-              })
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              set(state => ({
-                copilot: {
-                  ...state.copilot,
-                  messages: [
-                    ...state.copilot.messages,
-                    {
-                      id: `cop-res-auto-${Date.now()}`,
-                      sender: 'copilot',
-                      message: data.message,
-                      timestamp: new Date()
-                    }
-                  ]
-                }
-              }));
-            }
-          } catch (err) {
-            console.error('Copilot API call failed on auto-resolution:', err);
-          }
-        })();
-        break;
-      }
-    }
   },
 
   generateAIRecommendations: async () => {
     const state = get();
     if (!state.simulation) return;
-
-    set(s => ({
-      copilot: {
-        ...s.copilot,
-        thinking: true
-      }
-    }));
-
+    set(s => ({ copilot: { ...s.copilot, thinking: true } }));
     try {
       const baseUrl = import.meta.env.BASE_URL || '/';
       const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      const systemState = {
-        trains: state.trains,
-        weatherAlert: state.weatherAlert,
-        stationRisks: state.stationRisks,
-        predictions: state.predictions,
-        simulation: state.simulation,
-        networkHealth: state.networkHealth
-      };
-
+      const systemState = { trains: state.trains, weatherAlert: state.weatherAlert, stationRisks: state.stationRisks, predictions: state.predictions, simulation: state.simulation, networkHealth: state.networkHealth };
       const response = await fetch(`${normalizedBase}api/copilot/recommendations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemState,
-          userApiKey: state.geminiApiKey
-        })
+        body: JSON.stringify({ systemState, userApiKey: state.geminiApiKey }),
       });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Server returned status ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
       const data = await response.json();
-      // Bug 3 fix: API may return string[] or Recommendation[]; normalize to Recommendation[]
       const rawRecs: any[] = Array.isArray(data.recommendations) ? data.recommendations : [];
       const recommendations: Recommendation[] = rawRecs.map((rec, idx) => {
-        // Handle both string items and already-structured Recommendation objects
         if (typeof rec === 'string') {
-          return {
-            id: `rec-${idx + 1}`,
-            priority: idx + 1,
-            action: rec,
-            impact: idx === 0 ? 'High — prevents cascade delay' : idx === 1 ? 'Medium — reduces platform conflicts' : 'Low — improves passenger flow',
-            accepted: false,
-          } as Recommendation;
+          return { id: `rec-${idx + 1}`, priority: idx + 1, action: rec, impact: idx === 0 ? 'High — prevents cascade delay' : idx === 1 ? 'Medium — reduces conflicts' : 'Low — improves flow', accepted: false } as Recommendation;
         }
         return { ...rec, accepted: rec.accepted ?? false } as Recommendation;
       });
-      
-      set(s => ({
-        copilot: {
-          ...s.copilot,
-          thinking: false,
-          recommendations,
-          messages: [
-            ...s.copilot.messages,
-            {
-              id: `cop-rec-${Date.now()}`,
-              sender: 'copilot',
-              message: `AI analysis complete. Digital twin suggests ${recommendations.length} mitigation action${recommendations.length !== 1 ? 's' : ''}. Operational hold at the optimal conflict point is recommended.`,
-              timestamp: new Date()
-            }
-          ]
-        }
-      }));
-
-      get().addToast({
-        type: 'success',
-        title: 'Mitigations Generated',
-        message: `Generated ${data.recommendations.length} dispatch recommendations using Gemini.`
-      });
-
+      set(s => ({ copilot: { ...s.copilot, thinking: false, recommendations, messages: [...s.copilot.messages, { id: `cop-rec-${Date.now()}`, sender: 'copilot', message: `AI analysis: ${recommendations.length} mitigation actions suggested.`, timestamp: new Date() }] } }));
+      get().addToast({ type: 'success', title: 'Mitigations Generated', message: `Generated ${recommendations.length} recommendations.` });
     } catch (err: any) {
-      console.error('Failed to generate recommendations:', err);
-      set(s => ({
-        copilot: {
-          ...s.copilot,
-          thinking: false
-        }
-      }));
-      get().addToast({
-        type: 'error',
-        title: 'AI Analysis Failed',
-        message: err.message || 'Could not fetch mitigations.'
-      });
+      set(s => ({ copilot: { ...s.copilot, thinking: false } }));
+      get().addToast({ type: 'error', title: 'AI Analysis Failed', message: err.message || 'Failed to generate recommendations.' });
     }
   },
+
   fetchLiveWeatherForCorridor: async () => {
     try {
       const baseUrl = import.meta.env.BASE_URL || '/';
@@ -1356,8 +460,6 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       if (!res.ok) throw new Error('Failed to fetch weather');
       const weatherData = await res.json();
       set({ weatherData });
-
-      // Update weatherAlert dynamically based on the worst weather station
       let worstStation: string | null = null;
       let maxRainfall = 0;
       let minVisibility = 10;
@@ -1365,95 +467,87 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       let worstTemp = 25;
       let worstHumidity = 80;
       let worstWind = 0;
-      let worstSource: string | undefined;
-
       Object.entries(weatherData).forEach(([code, w]: [string, any]) => {
-        if (w.rainfall > maxRainfall) {
-          maxRainfall = w.rainfall;
-          worstStation = code;
-          worstDesc = w.description;
-          worstTemp = w.temperature;
-          worstHumidity = w.humidity;
-          worstWind = w.windSpeed;
-          worstSource = w.source;
-        } else if (w.visibility < minVisibility) {
-          minVisibility = w.visibility;
-          if (maxRainfall === 0) {
-            worstStation = code;
-            worstDesc = w.description;
-            worstTemp = w.temperature;
-            worstHumidity = w.humidity;
-            worstWind = w.windSpeed;
-            worstSource = w.source;
-          }
-        }
+        if (w.rainfall > maxRainfall) { maxRainfall = w.rainfall; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; }
+        if (w.visibility < minVisibility && maxRainfall === 0) { minVisibility = w.visibility; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; }
       });
-
       if (worstStation && (maxRainfall > 0 || minVisibility < 10)) {
-        set({
-          weatherAlert: {
-            station: worstStation,
-            rainfall: maxRainfall,
-            description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'),
-            temperature: worstTemp,
-            humidity: worstHumidity,
-            windSpeed: worstWind,
-            visibility: minVisibility,
-            source: worstSource
-          }
-        });
-      } else {
-        set({ weatherAlert: null });
-      }
+        set({ weatherAlert: { station: worstStation, rainfall: maxRainfall, description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'), temperature: worstTemp, humidity: worstHumidity, windSpeed: worstWind, visibility: minVisibility } });
+      } else set({ weatherAlert: null });
+      await get().recalculateDynamicPredictions();
+    } catch (err) { console.error('Failed to fetch weather:', err); }
+  },
 
-      // Bug 8 fix: defer recalculation to next microtask so weatherAlert state is committed first
-      await Promise.resolve();
-      get().recalculateDynamicPredictions();
-    } catch (err) {
-      console.error('Failed to fetch live weather for corridor:', err);
+  refreshLivePositions: () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const positions = computeLivePositions();
+      const currentTrains = get().trains;
+      const updatedTrains = currentTrains.map(t => {
+        const pos = positions.find(p => p.id === t.id);
+        return pos ? { ...t, ...pos } : t;
+      });
+      const health = computeNetworkHealth(
+        updatedTrains,
+        get().stationRisks,
+        get().simulation,
+        get().weatherAlert,
+      );
+      set({ trains: updatedTrains, lastUpdated: new Date(), networkHealth: health });
+    } catch {
+      // silently ignore
     }
-  }
+  },
 }));
 
-// Fetch network data dynamically on initialization
-export const fetchInitialData = async () => {
-  try {
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    const stationsRes = await fetch(`${normalizedBase}api/stations`);
-    const trainsRes = await fetch(`${normalizedBase}api/trains`);
-    if (stationsRes.ok && trainsRes.ok) {
-      const stations = await stationsRes.json();
-      const trains = await trainsRes.json();
-      
-      const risks: Record<string, StationRisk> = {};
-      stations.forEach((station: any) => {
-        risks[station.id] = {
-          crowdRisk: 'low',
-          delayRisk: 'low',
-          platformConflicts: 0
-        };
-      });
-
-      useDemoStore.setState({
-        stations,
-        trains,
-        stationRisks: risks
-      });
-
-      // Fetch live weather data
-      await useDemoStore.getState().fetchLiveWeatherForCorridor();
-
-      // Update network health
-      const state = useDemoStore.getState();
-      const health = computeNetworkHealth(trains, risks, state.simulation, state.weatherAlert);
-      useDemoStore.setState({ networkHealth: health });
-    }
-  } catch (err) {
-    console.error("Failed to load network data dynamically, using fallback state:", err);
-  }
-};
-
+// Auto-initialize on app load
 if (typeof window !== 'undefined') {
-  fetchInitialData();
+  // Compute live positions immediately
+  const positions = computeLivePositions();
+  if (positions.length > 0) {
+    const trains = useDemoStore.getState().trains.map(t => {
+      const pos = positions.find(p => p.id === t.id);
+      return pos ? { ...t, ...pos } : t;
+    });
+    useDemoStore.setState({ trains, loading: true });
+  }
+
+  // Fetch initial data
+  (async () => {
+    try {
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const [stationsRes, trainsRes] = await Promise.all([
+        fetch(`${normalizedBase}api/stations`).catch(() => null),
+        fetch(`${normalizedBase}api/trains`).catch(() => null),
+      ]);
+      if (stationsRes?.ok && trainsRes?.ok) {
+        const stations = await stationsRes.json();
+        const apiTrains = await trainsRes.json();
+        const livePositions = computeLivePositions();
+        const mergedTrains = apiTrains.map((t: any) => {
+          const pos = livePositions.find(p => p.id === t.id);
+          return pos ? { ...t, ...pos } : t;
+        });
+        const risks: Record<string, StationRisk> = {};
+        stations.forEach((station: any) => { risks[station.id] = { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 }; });
+        useDemoStore.setState({ stations, trains: mergedTrains, stationRisks: risks });
+      }
+    } catch (err) { console.error('Failed to load network data:', err); }
+
+    // Fetch weather
+    await useDemoStore.getState().fetchLiveWeatherForCorridor();
+
+    const state = useDemoStore.getState();
+    const health = computeNetworkHealth(state.trains, state.stationRisks, state.simulation, state.weatherAlert);
+    useDemoStore.setState({ loading: false, lastUpdated: new Date(), networkHealth: health });
+
+    // Start live position tick every 3 seconds
+    if (liveTickInterval) clearInterval(liveTickInterval);
+    liveTickInterval = setInterval(() => {
+      useDemoStore.getState().refreshLivePositions();
+    }, 3000);
+  })();
 }
+
+export { computeLivePositions };

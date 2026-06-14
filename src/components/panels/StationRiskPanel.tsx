@@ -130,6 +130,7 @@ const StationCard: React.FC<StationCardProps> = ({
 };
 
 export const StationRiskPanel: React.FC = () => {
+  const loading = useDemoStore(state => state.loading);
   const stationRisks = useDemoStore(state => state.stationRisks);
   const predictions = useDemoStore(state => state.predictions);
   const weatherData = useDemoStore(state => state.weatherData);
@@ -152,6 +153,23 @@ export const StationRiskPanel: React.FC = () => {
   const formattedPassengers = passengersAtRisk >= 1000
     ? `${(passengersAtRisk / 1000).toFixed(0)}K`
     : passengersAtRisk.toString();
+
+  if (loading && stations.length === 0) {
+    return (
+      <div className="flex flex-col h-full bg-bg-page text-text-primary items-center justify-center py-12">
+        <div className="w-5 h-5 border-2 border-accent-blue border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="text-[10px] font-mono text-text-muted">Loading station data...</span>
+      </div>
+    );
+  }
+
+  if (stations.length === 0) {
+    return (
+      <div className="flex flex-col h-full bg-bg-page text-text-primary items-center justify-center py-12">
+        <span className="text-[10px] font-mono text-text-muted">No station data available</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary">

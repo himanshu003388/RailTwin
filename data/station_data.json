@@ -1,32 +1,254 @@
 [
   {
+    "code": "MMCT",
+    "name": "Mumbai Central",
+    "lat": 19.0656,
+    "lng": 72.8318,
+    "zone": "WR"
+  },
+  {
+    "code": "BRC",
+    "name": "Vadodara",
+    "lat": 22.3087,
+    "lng": 73.181,
+    "zone": "WR"
+  },
+  {
+    "code": "RTM",
+    "name": "Ratlam",
+    "lat": 23.3294,
+    "lng": 75.034,
+    "zone": "WR"
+  },
+  {
+    "code": "KOTA",
+    "name": "Kota",
+    "lat": 25.176,
+    "lng": 75.8567,
+    "zone": "WCR"
+  },
+  {
     "code": "NDLS",
     "name": "New Delhi",
-    "lat": 28.642314,
-    "lng": 77.22000399999999
+    "lat": 28.6423,
+    "lng": 77.22,
+    "zone": "NR"
+  },
+  {
+    "code": "MAS",
+    "name": "Chennai Central",
+    "lat": 13.0827,
+    "lng": 80.2707,
+    "zone": "SR"
+  },
+  {
+    "code": "KPD",
+    "name": "Katpadi Jn",
+    "lat": 12.9665,
+    "lng": 79.1505,
+    "zone": "SR"
+  },
+  {
+    "code": "JTJ",
+    "name": "Jolarpettai",
+    "lat": 12.561,
+    "lng": 78.572,
+    "zone": "SR"
+  },
+  {
+    "code": "SBC",
+    "name": "KSR Bengaluru",
+    "lat": 12.9757,
+    "lng": 77.5665,
+    "zone": "SWR"
+  },
+  {
+    "code": "MYS",
+    "name": "Mysuru Jn",
+    "lat": 12.3086,
+    "lng": 76.6551,
+    "zone": "SWR"
+  },
+  {
+    "code": "HWH",
+    "name": "Howrah Jn",
+    "lat": 22.5841,
+    "lng": 88.341,
+    "zone": "ER"
+  },
+  {
+    "code": "BLS",
+    "name": "Balasore",
+    "lat": 21.4974,
+    "lng": 86.9298,
+    "zone": "ER"
+  },
+  {
+    "code": "BBS",
+    "name": "Bhubaneswar",
+    "lat": 20.2585,
+    "lng": 85.8413,
+    "zone": "ECR"
+  },
+  {
+    "code": "VZ",
+    "name": "Vijayawada Jn",
+    "lat": 16.5173,
+    "lng": 80.6172,
+    "zone": "SCR"
+  },
+  {
+    "code": "DBRG",
+    "name": "Dibrugarh",
+    "lat": 27.4629,
+    "lng": 95.0031,
+    "zone": "NFR"
+  },
+  {
+    "code": "GHY",
+    "name": "Guwahati",
+    "lat": 26.1808,
+    "lng": 91.7454,
+    "zone": "NFR"
+  },
+  {
+    "code": "NJP",
+    "name": "New Jalpaiguri",
+    "lat": 26.714,
+    "lng": 88.4255,
+    "zone": "NFR"
+  },
+  {
+    "code": "BJU",
+    "name": "Barauni Jn",
+    "lat": 25.462,
+    "lng": 85.986,
+    "zone": "ECR"
+  },
+  {
+    "code": "MGS",
+    "name": "Mughalsarai Jn",
+    "lat": 25.2834,
+    "lng": 83.1164,
+    "zone": "ECR"
+  },
+  {
+    "code": "PURI",
+    "name": "Puri",
+    "lat": 19.8135,
+    "lng": 85.8312,
+    "zone": "ECR"
+  },
+  {
+    "code": "KUR",
+    "name": "Khurda Road Jn",
+    "lat": 20.1903,
+    "lng": 85.8492,
+    "zone": "ECR"
+  },
+  {
+    "code": "BHC",
+    "name": "Bhadrak",
+    "lat": 21.0586,
+    "lng": 86.5193,
+    "zone": "ECR"
+  },
+  {
+    "code": "GAYA",
+    "name": "Gaya Jn",
+    "lat": 24.7911,
+    "lng": 84.9992,
+    "zone": "ECR"
+  },
+  {
+    "code": "TVC",
+    "name": "Thiruvananthapuram Central",
+    "lat": 8.5089,
+    "lng": 76.9551,
+    "zone": "SR"
+  },
+  {
+    "code": "ERS",
+    "name": "Ernakulam Jn",
+    "lat": 9.9795,
+    "lng": 76.2853,
+    "zone": "SR"
+  },
+  {
+    "code": "PGT",
+    "name": "Palakkad Jn",
+    "lat": 10.7907,
+    "lng": 76.6516,
+    "zone": "SR"
+  },
+  {
+    "code": "MAQ",
+    "name": "Mangaluru Central",
+    "lat": 12.8694,
+    "lng": 74.8452,
+    "zone": "SR"
+  },
+  {
+    "code": "MRJ",
+    "name": "Miraj Jn",
+    "lat": 16.8299,
+    "lng": 74.6373,
+    "zone": "CR"
+  },
+  {
+    "code": "PUNE",
+    "name": "Pune Jn",
+    "lat": 18.5289,
+    "lng": 73.873,
+    "zone": "CR"
+  },
+  {
+    "code": "CSMT",
+    "name": "Chhatrapati Shivaji Maharaj Terminus",
+    "lat": 18.94,
+    "lng": 72.8353,
+    "zone": "CR"
+  },
+  {
+    "code": "BSL",
+    "name": "Bhusaval Jn",
+    "lat": 21.0469,
+    "lng": 75.7775,
+    "zone": "CR"
+  },
+  {
+    "code": "BPL",
+    "name": "Bhopal Jn",
+    "lat": 23.2556,
+    "lng": 77.4129,
+    "zone": "WCR"
+  },
+  {
+    "code": "AGC",
+    "name": "Agra Cantt",
+    "lat": 27.1598,
+    "lng": 78.0085,
+    "zone": "NCR"
+  },
+  {
+    "code": "JRE",
+    "name": "Jalandhar City",
+    "lat": 31.329,
+    "lng": 75.5505,
+    "zone": "NR"
+  },
+  {
+    "code": "FZR",
+    "name": "Firozpur Cantt",
+    "lat": 30.9399,
+    "lng": 74.6079,
+    "zone": "NR"
   },
   {
     "code": "CNB",
     "name": "Kanpur Central",
-    "lat": 26.454240000000002,
-    "lng": 80.350966
-  },
-  {
-    "code": "ALD",
-    "name": "Prayagraj Junction",
-    "lat": 25.446241,
-    "lng": 81.828816
-  },
-  {
-    "code": "PNBE",
-    "name": "Patna Junction",
-    "lat": 25.60256,
-    "lng": 85.136824
-  },
-  {
-    "code": "HWH",
-    "name": "Howrah Junction",
-    "lat": 22.584077999999998,
-    "lng": 88.34099900000001
+    "lat": 26.4542,
+    "lng": 80.351,
+    "zone": "NCR"
   }
 ]

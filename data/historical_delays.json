@@ -1,2150 +1,3458 @@
-﻿[
-    {
-        "trainNo":  "12301",
-        "avgDelay":  22,
-        "month":  "July",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  35,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  12,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  42,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  18,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  28,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  15,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  32,
-        "month":  "August",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  8,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  45,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  10,
-        "month":  "February",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  25,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  55,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  14,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  38,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  20,
-        "month":  "October",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  12,
-        "month":  "July",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  22,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  5,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  28,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  8,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  32,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  7,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  18,
-        "month":  "August",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  4,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  25,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  6,
-        "month":  "February",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  15,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  35,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  5,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  10,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  9,
-        "month":  "October",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  18,
-        "month":  "July",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  32,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  8,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  35,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  10,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  40,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  12,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  25,
-        "month":  "August",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  7,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  32,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  9,
-        "month":  "February",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  20,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  48,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  6,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  15,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  11,
-        "month":  "October",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  44,
-        "month":  "January",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  20,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  46,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  25,
-        "month":  "February",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  41,
-        "month":  "February",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  29,
-        "month":  "February",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  49,
-        "month":  "March",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  29,
-        "month":  "March",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  39,
-        "month":  "March",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  44,
-        "month":  "April",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  65,
-        "month":  "April",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  31,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  30,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  38,
-        "month":  "May",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  50,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  28,
-        "month":  "May",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  103,
-        "month":  "June",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  46,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  43,
-        "month":  "June",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  63,
-        "month":  "June",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  53,
-        "month":  "July",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  59,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  71,
-        "month":  "August",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  34,
-        "month":  "August",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  29,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  48,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  83,
-        "month":  "September",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  78,
-        "month":  "September",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  25,
-        "month":  "October",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  20,
-        "month":  "October",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  26,
-        "month":  "October",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  55,
-        "month":  "November",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  22,
-        "month":  "November",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12259",
-        "avgDelay":  24,
-        "month":  "December",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  25,
-        "month":  "January",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  17,
-        "month":  "January",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  29,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  69,
-        "month":  "February",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  55,
-        "month":  "February",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  43,
-        "month":  "February",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  29,
-        "month":  "March",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  14,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  54,
-        "month":  "March",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  29,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  29,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  23,
-        "month":  "April",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  48,
-        "month":  "May",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  60,
-        "month":  "May",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  40,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  49,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  48,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  21,
-        "month":  "June",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  43,
-        "month":  "July",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  17,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  58,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  22,
-        "month":  "August",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  44,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  35,
-        "month":  "August",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  54,
-        "month":  "September",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  79,
-        "month":  "September",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  28,
-        "month":  "September",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  38,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  38,
-        "month":  "October",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  30,
-        "month":  "October",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  23,
-        "month":  "October",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  13,
-        "month":  "November",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  32,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  14,
-        "month":  "November",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  32,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  27,
-        "month":  "December",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  44,
-        "month":  "December",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12260",
-        "avgDelay":  56,
-        "month":  "December",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  25,
-        "month":  "January",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  15,
-        "month":  "January",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  21,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  61,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  45,
-        "month":  "February",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  44,
-        "month":  "February",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  47,
-        "month":  "February",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  45,
-        "month":  "March",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  23,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  32,
-        "month":  "March",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  40,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  32,
-        "month":  "April",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  53,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  23,
-        "month":  "May",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  39,
-        "month":  "May",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  87,
-        "month":  "June",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  37,
-        "month":  "June",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  59,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  35,
-        "month":  "June",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  25,
-        "month":  "July",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  34,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  106,
-        "month":  "August",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  46,
-        "month":  "August",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  46,
-        "month":  "September",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  93,
-        "month":  "September",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  51,
-        "month":  "September",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  42,
-        "month":  "September",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  47,
-        "month":  "October",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  32,
-        "month":  "October",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  54,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  35,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  37,
-        "month":  "November",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12301",
-        "avgDelay":  41,
-        "month":  "December",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  35,
-        "month":  "January",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  49,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  62,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  30,
-        "month":  "February",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  37,
-        "month":  "February",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  73,
-        "month":  "February",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  39,
-        "month":  "March",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  62,
-        "month":  "March",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  15,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  38,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  31,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  47,
-        "month":  "April",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  39,
-        "month":  "April",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  20,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  34,
-        "month":  "May",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  22,
-        "month":  "May",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  82,
-        "month":  "June",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  19,
-        "month":  "June",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  78,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  50,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  58,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  45,
-        "month":  "July",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  80,
-        "month":  "July",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  35,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  38,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  21,
-        "month":  "August",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  15,
-        "month":  "September",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  39,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  49,
-        "month":  "September",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  57,
-        "month":  "September",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  20,
-        "month":  "October",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  45,
-        "month":  "October",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  48,
-        "month":  "October",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  27,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  16,
-        "month":  "November",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  36,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  50,
-        "month":  "November",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  22,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  33,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12302",
-        "avgDelay":  81,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  56,
-        "month":  "January",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  34,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  46,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  87,
-        "month":  "February",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  28,
-        "month":  "February",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  22,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  27,
-        "month":  "March",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  53,
-        "month":  "April",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  40,
-        "month":  "April",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  36,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  38,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  46,
-        "month":  "May",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  41,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  63,
-        "month":  "May",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  15,
-        "month":  "June",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  33,
-        "month":  "June",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  60,
-        "month":  "June",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  60,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  86,
-        "month":  "July",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  56,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  26,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  49,
-        "month":  "August",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  38,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  46,
-        "month":  "September",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  14,
-        "month":  "September",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  94,
-        "month":  "September",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  42,
-        "month":  "October",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  28,
-        "month":  "October",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  37,
-        "month":  "October",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  20,
-        "month":  "November",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  31,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  53,
-        "month":  "November",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  20,
-        "month":  "December",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12305",
-        "avgDelay":  73,
-        "month":  "December",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  55,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  58,
-        "month":  "January",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  35,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  53,
-        "month":  "February",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  59,
-        "month":  "February",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  52,
-        "month":  "February",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  47,
-        "month":  "March",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  10,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  62,
-        "month":  "March",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  23,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  9,
-        "month":  "April",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  17,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  14,
-        "month":  "April",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  39,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  49,
-        "month":  "May",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  36,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  42,
-        "month":  "May",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  18,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  108,
-        "month":  "June",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  28,
-        "month":  "June",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  47,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  86,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  106,
-        "month":  "July",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  19,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  54,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  48,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  38,
-        "month":  "August",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  51,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  24,
-        "month":  "August",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  67,
-        "month":  "September",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  43,
-        "month":  "September",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  83,
-        "month":  "September",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  24,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  39,
-        "month":  "October",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  24,
-        "month":  "October",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  21,
-        "month":  "October",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  27,
-        "month":  "October",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  35,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  23,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  49,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  13,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  30,
-        "month":  "December",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12306",
-        "avgDelay":  80,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  27,
-        "month":  "January",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  45,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  83,
-        "month":  "January",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  18,
-        "month":  "January",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  18,
-        "month":  "February",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  42,
-        "month":  "February",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  45,
-        "month":  "February",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  39,
-        "month":  "March",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  20,
-        "month":  "March",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  13,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  35,
-        "month":  "March",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  22,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  13,
-        "month":  "April",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  42,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  57,
-        "month":  "April",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  33,
-        "month":  "May",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  16,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  29,
-        "month":  "May",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  98,
-        "month":  "June",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  26,
-        "month":  "June",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  39,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  21,
-        "month":  "June",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  15,
-        "month":  "July",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  83,
-        "month":  "July",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  39,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  61,
-        "month":  "August",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  22,
-        "month":  "August",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  33,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  103,
-        "month":  "August",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  41,
-        "month":  "September",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  59,
-        "month":  "September",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  93,
-        "month":  "September",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  62,
-        "month":  "September",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  54,
-        "month":  "October",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  10,
-        "month":  "October",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  17,
-        "month":  "October",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  63,
-        "month":  "October",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  31,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  33,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  28,
-        "month":  "November",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  37,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  45,
-        "month":  "December",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  28,
-        "month":  "December",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  24,
-        "month":  "December",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12381",
-        "avgDelay":  58,
-        "month":  "December",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  51,
-        "month":  "January",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  40,
-        "month":  "January",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  64,
-        "month":  "January",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  86,
-        "month":  "January",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  33,
-        "month":  "February",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  21,
-        "month":  "February",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  35,
-        "month":  "February",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  11,
-        "month":  "March",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  22,
-        "month":  "March",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  36,
-        "month":  "March",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  36,
-        "month":  "March",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  14,
-        "month":  "April",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  27,
-        "month":  "April",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  20,
-        "month":  "April",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  32,
-        "month":  "April",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  17,
-        "month":  "May",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  58,
-        "month":  "May",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  50,
-        "month":  "May",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  46,
-        "month":  "May",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  66,
-        "month":  "June",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  65,
-        "month":  "June",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  19,
-        "month":  "June",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  55,
-        "month":  "June",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  61,
-        "month":  "July",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  39,
-        "month":  "July",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  35,
-        "month":  "July",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  91,
-        "month":  "July",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  35,
-        "month":  "August",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  48,
-        "month":  "August",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  79,
-        "month":  "August",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  36,
-        "month":  "August",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  37,
-        "month":  "September",
-        "weather":  "Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  36,
-        "month":  "September",
-        "weather":  "Heatwave"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  95,
-        "month":  "September",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  32,
-        "month":  "October",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  41,
-        "month":  "October",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  9,
-        "month":  "October",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  38,
-        "month":  "November",
-        "weather":  "Heavy Rain"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  37,
-        "month":  "November",
-        "weather":  "Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  51,
-        "month":  "November",
-        "weather":  "Monsoon"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  80,
-        "month":  "December",
-        "weather":  "Heavy Fog"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  16,
-        "month":  "December",
-        "weather":  "Clear"
-    },
-    {
-        "trainNo":  "12382",
-        "avgDelay":  20,
-        "month":  "December",
-        "weather":  "Rain"
-    }
+[
+  {
+    "trainNo": "12951",
+    "avgDelay": 7.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 7.1,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 7.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 11.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 7.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 0.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 17.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 14.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 14.9,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 16.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 17.2,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 21.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 25.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 22.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 18.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 16.9,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 23.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 28.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 8.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 7.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 10.7,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 0.7,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 6.4,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 10.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 12.4,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 6.8,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 9.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 9.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 11.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 2.4,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 18.8,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 8.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 2.9,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 13.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 11.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 20.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 33.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 23.9,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 34.2,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 25.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 29.6,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 28.5,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 30.6,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 34.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 33.2,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 31.7,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 33.2,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 32.4,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 12.9,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 12.4,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 13.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 18.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 14.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 27.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 3.9,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 2.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 11.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 15.1,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 10.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 12.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 29.1,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 21.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 14.9,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 19.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 26.8,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 14.8,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 22.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 23.3,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 20.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 25.6,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 24.9,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12951",
+    "avgDelay": 33.6,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 8.1,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 2.0,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 2.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 0.8,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 9.8,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 2.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 12.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 16.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 9.4,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 11.5,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 3.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 7.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 16.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 21.1,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 25.0,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 18.9,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 20.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 19.8,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 10.4,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 9.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 6.4,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 0,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 9.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 6.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 11.1,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 4.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 14.8,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 3.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 13.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 5.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 10.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 7.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 12.2,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 20.1,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 17.1,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 16.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 15.1,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 30.6,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 29.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 24.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 23.9,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 27.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 35.6,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 21.7,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 24.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 33.8,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 24.8,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 25.2,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 13.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 6.8,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 14.1,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 7.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 17.4,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 13.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 16.4,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 6.4,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 11.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 0,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 4.4,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 6.6,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 27.7,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 10.6,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 24.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 22.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 26.7,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 22.6,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 19.3,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 16.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 12.8,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 20.0,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 18.0,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12007",
+    "avgDelay": 29.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 2.9,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.6,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 0,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 4.0,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 10.1,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 21.2,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 13.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 8.4,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.5,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.5,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 25.7,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 20.4,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 23.5,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 26.4,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 23.0,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.4,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.8,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 4.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 6.6,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 13.4,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 6.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 8.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 12.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 3.4,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.5,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 15.1,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 11.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 18.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 17.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 9.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.6,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 27.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 20.6,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 30.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 27.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 24.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 30.6,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 30.4,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 25.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 30.0,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 33.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 24.4,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 29.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 14.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 25.3,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 4.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 17.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 12.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 13.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 15.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 6.0,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 17.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 3.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 7.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 3.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 16.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 20.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 18.6,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 21.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 9.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 30.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 19.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 28.7,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 15.0,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 21.5,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 35.8,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12245",
+    "avgDelay": 15.7,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 0.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 5.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 10.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 11.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 14.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 6.7,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 8.0,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 13.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 22.2,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 18.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 6.2,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 15.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 29.0,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 32.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 24.8,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 23.5,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 15.8,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 17.8,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 8.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 10.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 10.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 5.6,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 2.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 4.1,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 2.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 11.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 6.3,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 10.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 15.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 16.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 21.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 14.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 12.3,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 12.6,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 23.6,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 35.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 32.4,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 46.7,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 29.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 33.1,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 31.5,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 28.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 41.6,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 37.5,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 23.0,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 28.0,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 32.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 19.9,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 9.3,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 4.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 6.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 15.6,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 15.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 9.7,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 4.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 1.9,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 0,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 9.6,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 9.9,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 27.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 26.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 21.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 28.7,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 21.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 18.7,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 19.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 19.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 11.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 22.8,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 23.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12423",
+    "avgDelay": 20.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 11.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 16.9,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 23.6,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 15.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 12.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 12.0,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 22.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 16.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 22.4,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 23.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.2,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 27.7,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 34.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 25.4,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 23.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 30.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 31.1,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 11.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 25.0,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 17.8,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 5.5,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 17.8,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 13.0,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 15.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 17.3,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 17.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 4.8,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 9.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 18.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 29.5,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.5,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 12.7,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 26.8,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 13.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 45.1,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 38.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 31.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 47.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 40.2,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 27.5,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 38.5,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 33.3,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 37.6,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 34.7,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 43.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 29.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 24.6,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.1,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 18.9,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 24.1,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 24.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 19.6,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 18.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 15.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 10.3,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 23.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 19.0,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 14.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 25.8,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 25.1,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 35.2,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 28.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 31.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 28.1,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 28.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.8,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 28.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 33.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12801",
+    "avgDelay": 32.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 14.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 10.7,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 10.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 11.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 10.1,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 19.3,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 22.8,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 30.9,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 34.4,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 23.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 15.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 21.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 28.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 21.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 27.7,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 30.4,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 26.7,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 25.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 11.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 23.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 14.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 10.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 13.1,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 19.8,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 11.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 17.4,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 18.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 18.7,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 22.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 12.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 28.7,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 19.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 21.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 29.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 27.1,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 23.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 31.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 39.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 33.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 32.4,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 33.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 38.2,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 26.4,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 38.8,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 37.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 34.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 42.2,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 40.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 20.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 19.6,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 26.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 15.4,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 21.3,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 19.8,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 15.3,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 16.1,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 15.2,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 20.7,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 16.1,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 13.4,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 22.9,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 32.6,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 31.6,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 36.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 25.3,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 29.1,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 28.7,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 28.6,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 29.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 20.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 33.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12625",
+    "avgDelay": 32.3,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 23.7,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 29.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 16.4,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 17.8,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.0,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 27.7,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 17.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 28.4,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 13.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 15.9,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 19.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 37.3,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 27.7,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 30.9,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 26.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 35.1,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 26.5,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 24.6,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 13.0,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 14.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.6,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.1,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 25.1,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 12.0,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 15.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 15.1,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 21.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 19.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 25.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 30.3,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 23.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 25.3,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 26.9,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 33.6,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 39.5,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 38.2,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 34.8,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 43.4,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 37.1,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 41.7,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 30.5,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 45.2,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 33.3,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 36.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 45.3,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 33.3,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 25.6,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 26.4,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 21.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 32.7,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 33.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 16.1,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 10.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 22.0,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 11.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 16.1,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 18.6,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 21.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 30.9,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 32.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 28.1,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 38.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 29.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 33.7,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 29.4,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 32.5,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 31.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 31.2,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 26.9,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12137",
+    "avgDelay": 36.0,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 15.1,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 9.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 11.7,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 12.2,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 12.6,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 9.5,
+    "month": "Jan",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 17.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 20.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 16.3,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 11.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 16.1,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 6.6,
+    "month": "Feb",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 22.0,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 24.1,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 28.2,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 22.8,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 26.6,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 22.0,
+    "month": "Mar",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 2.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 0.9,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 3.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 1.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 11.2,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 7.0,
+    "month": "Apr",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 10.9,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 8.4,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 13.2,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 13.3,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 4.8,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 6.6,
+    "month": "May",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 13.3,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 7.9,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 19.4,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 21.9,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 16.0,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 13.5,
+    "month": "Jun",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 35.5,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 18.3,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 30.9,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 30.7,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 27.1,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 37.0,
+    "month": "Jul",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 34.9,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 28.7,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 29.6,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 28.1,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 27.4,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 23.5,
+    "month": "Aug",
+    "weather": "Monsoon"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 22.9,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 21.1,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 20.0,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 10.5,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 26.4,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 25.9,
+    "month": "Sep",
+    "weather": "Rain"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 8.9,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 3.5,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 3.7,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 10.1,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 3.4,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 7.8,
+    "month": "Oct",
+    "weather": "Clear"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 27.4,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 14.5,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 32.0,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 29.8,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 15.8,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 14.9,
+    "month": "Nov",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 20.6,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 16.8,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 20.7,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 9.1,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 20.9,
+    "month": "Dec",
+    "weather": "Fog"
+  },
+  {
+    "trainNo": "12301",
+    "avgDelay": 31.0,
+    "month": "Dec",
+    "weather": "Fog"
+  }
 ]

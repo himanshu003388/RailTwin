@@ -1,0 +1,443 @@
+[
+  {
+    "trainNo": "12951",
+    "stationCode": "MMCT",
+    "day": 1,
+    "arrival": "16:35",
+    "departure": "16:35",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12951",
+    "stationCode": "BRC",
+    "day": 1,
+    "arrival": "19:36",
+    "departure": "19:41",
+    "distanceKm": 392,
+    "platform": null
+  },
+  {
+    "trainNo": "12951",
+    "stationCode": "RTM",
+    "day": 1,
+    "arrival": "21:39",
+    "departure": "21:44",
+    "distanceKm": 648,
+    "platform": null
+  },
+  {
+    "trainNo": "12951",
+    "stationCode": "KOTA",
+    "day": 1,
+    "arrival": "23:51",
+    "departure": "23:56",
+    "distanceKm": 924,
+    "platform": null
+  },
+  {
+    "trainNo": "12951",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "03:14",
+    "departure": "03:14",
+    "distanceKm": 1354,
+    "platform": null
+  },
+  {
+    "trainNo": "12007",
+    "stationCode": "MAS",
+    "day": 1,
+    "arrival": "06:00",
+    "departure": "06:00",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12007",
+    "stationCode": "KPD",
+    "day": 1,
+    "arrival": "07:11",
+    "departure": "07:16",
+    "distanceKm": 130,
+    "platform": null
+  },
+  {
+    "trainNo": "12007",
+    "stationCode": "JTJ",
+    "day": 1,
+    "arrival": "08:02",
+    "departure": "08:07",
+    "distanceKm": 214,
+    "platform": null
+  },
+  {
+    "trainNo": "12007",
+    "stationCode": "SBC",
+    "day": 1,
+    "arrival": "09:26",
+    "departure": "09:31",
+    "distanceKm": 359,
+    "platform": null
+  },
+  {
+    "trainNo": "12007",
+    "stationCode": "MYS",
+    "day": 1,
+    "arrival": "10:47",
+    "departure": "10:47",
+    "distanceKm": 499,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "HWH",
+    "day": 1,
+    "arrival": "22:30",
+    "departure": "22:30",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "BLS",
+    "day": 1,
+    "arrival": "00:18",
+    "departure": "00:23",
+    "distanceKm": 235,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "BBS",
+    "day": 1,
+    "arrival": "01:55",
+    "departure": "02:00",
+    "distanceKm": 435,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "VZ",
+    "day": 1,
+    "arrival": "05:28",
+    "departure": "05:33",
+    "distanceKm": 886,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "MAS",
+    "day": 1,
+    "arrival": "08:44",
+    "departure": "08:49",
+    "distanceKm": 1299,
+    "platform": null
+  },
+  {
+    "trainNo": "12245",
+    "stationCode": "SBC",
+    "day": 1,
+    "arrival": "10:36",
+    "departure": "10:36",
+    "distanceKm": 1531,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "DBRG",
+    "day": 1,
+    "arrival": "13:00",
+    "departure": "13:00",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "GHY",
+    "day": 1,
+    "arrival": "17:33",
+    "departure": "17:38",
+    "distanceKm": 500,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "NJP",
+    "day": 1,
+    "arrival": "20:38",
+    "departure": "20:43",
+    "distanceKm": 830,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "BJU",
+    "day": 1,
+    "arrival": "23:20",
+    "departure": "23:25",
+    "distanceKm": 1118,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "MGS",
+    "day": 1,
+    "arrival": "00:51",
+    "departure": "00:56",
+    "distanceKm": 1275,
+    "platform": null
+  },
+  {
+    "trainNo": "12423",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "06:23",
+    "departure": "06:23",
+    "distanceKm": 1875,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "PURI",
+    "day": 1,
+    "arrival": "08:00",
+    "departure": "08:00",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "BBS",
+    "day": 1,
+    "arrival": "08:37",
+    "departure": "08:47",
+    "distanceKm": 61,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "KUR",
+    "day": 1,
+    "arrival": "09:00",
+    "departure": "09:10",
+    "distanceKm": 82,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "BHC",
+    "day": 1,
+    "arrival": "10:20",
+    "departure": "10:30",
+    "distanceKm": 198,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "HWH",
+    "day": 1,
+    "arrival": "13:31",
+    "departure": "13:41",
+    "distanceKm": 499,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "GAYA",
+    "day": 1,
+    "arrival": "17:31",
+    "departure": "17:41",
+    "distanceKm": 882,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "MGS",
+    "day": 1,
+    "arrival": "18:36",
+    "departure": "18:46",
+    "distanceKm": 973,
+    "platform": null
+  },
+  {
+    "trainNo": "12801",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "00:13",
+    "departure": "00:13",
+    "distanceKm": 1518,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "TVC",
+    "day": 1,
+    "arrival": "16:45",
+    "departure": "16:45",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "ERS",
+    "day": 1,
+    "arrival": "19:12",
+    "departure": "19:22",
+    "distanceKm": 220,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "PGT",
+    "day": 1,
+    "arrival": "20:29",
+    "departure": "20:39",
+    "distanceKm": 320,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "MAQ",
+    "day": 1,
+    "arrival": "00:00",
+    "departure": "00:10",
+    "distanceKm": 622,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "MRJ",
+    "day": 1,
+    "arrival": "05:29",
+    "departure": "05:39",
+    "distanceKm": 1100,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "PUNE",
+    "day": 1,
+    "arrival": "09:19",
+    "departure": "09:29",
+    "distanceKm": 1430,
+    "platform": null
+  },
+  {
+    "trainNo": "12625",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "19:54",
+    "departure": "19:54",
+    "distanceKm": 2368,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "CSMT",
+    "day": 1,
+    "arrival": "20:00",
+    "departure": "20:00",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "BSL",
+    "day": 1,
+    "arrival": "01:54",
+    "departure": "02:04",
+    "distanceKm": 501,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "BPL",
+    "day": 1,
+    "arrival": "05:16",
+    "departure": "05:26",
+    "distanceKm": 773,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "AGC",
+    "day": 1,
+    "arrival": "10:28",
+    "departure": "10:38",
+    "distanceKm": 1201,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "12:10",
+    "departure": "12:20",
+    "distanceKm": 1332,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "JRE",
+    "day": 1,
+    "arrival": "17:02",
+    "departure": "17:12",
+    "distanceKm": 1732,
+    "platform": null
+  },
+  {
+    "trainNo": "12137",
+    "stationCode": "FZR",
+    "day": 1,
+    "arrival": "17:56",
+    "departure": "17:56",
+    "distanceKm": 1795,
+    "platform": null
+  },
+  {
+    "trainNo": "12301",
+    "stationCode": "HWH",
+    "day": 1,
+    "arrival": "16:55",
+    "departure": "16:55",
+    "distanceKm": 0,
+    "platform": null
+  },
+  {
+    "trainNo": "12301",
+    "stationCode": "GAYA",
+    "day": 1,
+    "arrival": "20:30",
+    "departure": "20:35",
+    "distanceKm": 465,
+    "platform": null
+  },
+  {
+    "trainNo": "12301",
+    "stationCode": "MGS",
+    "day": 1,
+    "arrival": "21:17",
+    "departure": "21:22",
+    "distanceKm": 555,
+    "platform": null
+  },
+  {
+    "trainNo": "12301",
+    "stationCode": "CNB",
+    "day": 1,
+    "arrival": "23:52",
+    "departure": "23:57",
+    "distanceKm": 881,
+    "platform": null
+  },
+  {
+    "trainNo": "12301",
+    "stationCode": "NDLS",
+    "day": 1,
+    "arrival": "04:18",
+    "departure": "04:18",
+    "distanceKm": 1446,
+    "platform": null
+  }
+]

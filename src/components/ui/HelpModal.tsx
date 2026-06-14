@@ -3,10 +3,8 @@ import { X, Keyboard } from 'lucide-react';
 
 const SHORTCUTS = [
   { key: '1-6', desc: 'Switch panels' },
-  { key: 'Space', desc: 'Start / Pause demo' },
-  { key: 'R', desc: 'Reset demo' },
-  { key: 'M', desc: 'Audio on/off' },
-  { key: 'Esc', desc: 'Back to Map' },
+  { key: 'M', desc: 'Toggle audio alerts' },
+  { key: 'Esc', desc: 'Back to Map View' },
 ];
 
 const PANELS = [
@@ -64,7 +62,7 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
               {SHORTCUTS.map(s => (
                 <div key={s.key} className="flex items-center gap-3 py-1.5">
                   <kbd className="min-w-[48px] px-2 py-1 bg-bg-elevated border border-border-default rounded text-[11px] font-mono text-text-secondary text-center shadow-sm">
-                    {s.key}
+                     {s.key}
                   </kbd>
                   <span className="text-xs text-text-secondary">{s.desc}</span>
                 </div>
@@ -88,6 +86,14 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* About & Data Sources */}
+          <div>
+            <h3 className="text-[10px] uppercase tracking-[0.15em] text-text-tertiary font-medium mb-2">About & Data Sources</h3>
+            <p className="text-[11px] text-text-secondary leading-relaxed">
+              RailTwin AI is a predictive digital twin prototype for Indian Railways operations. Its predictive metrics are backed by historical train performance data (compiled from the Kaggle Indian Railways Dataset) and designed to sync with live NTES / IRCTC API feeds.
+            </p>
           </div>
         </div>
 

@@ -26,8 +26,8 @@ export const MobileNav: React.FC = () => {
           aria-label={label}
           onClick={() => setActivePanel(id as any)}
         >
-          <Icon className="w-5 h-5" strokeWidth={activePanel === id ? 2.4 : 1.8} />
-          <span>{label}</span>
+          <Icon className="w-5 h-5 shrink-0" strokeWidth={activePanel === id ? 2.4 : 1.8} />
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{label}</span>
         </button>
       ))}
     </nav>

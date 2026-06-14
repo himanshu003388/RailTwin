@@ -44,16 +44,19 @@ export const AlertBanner: React.FC = () => {
 
   if (!visible || !weatherAlert) return null;
 
-  const stationMap: Record<string, string> = {
-    ndls: 'New Delhi',
-    cnb: 'Kanpur Central',
-    ald: 'Prayagraj',
-    pnbe: 'Patna Junction',
-    hwh: 'Howrah Junction'
+  const stationNameMap: Record<string, string> = {
+    ndls: 'New Delhi', mmct: 'Mumbai Central', brc: 'Vadodara', rtm: 'Ratlam', kota: 'Kota',
+    mas: 'Chennai Central', kpd: 'Katpadi', jtj: 'Jolarpettai', sbc: 'Bengaluru', mys: 'Mysuru',
+    hwh: 'Howrah', bls: 'Balasore', bbs: 'Bhubaneswar', vz: 'Vijayawada',
+    dbrg: 'Dibrugarh', ghy: 'Guwahati', njp: 'New Jalpaiguri', bju: 'Barauni', mgs: 'Mughalsarai',
+    puri: 'Puri', kur: 'Khurda Road', bhc: 'Bhadrak', gaya: 'Gaya',
+    tvc: 'Thiruvananthapuram', ers: 'Ernakulam', pgt: 'Palakkad', maq: 'Mangaluru',
+    mrj: 'Miraj', pune: 'Pune', csmt: 'CSM Terminus', bsl: 'Bhusaval',
+    bpl: 'Bhopal', agc: 'Agra', jre: 'Jalandhar', fzr: 'Firozpur', cnb: 'Kanpur',
   };
 
   const getStationName = (code: string) => {
-    return stationMap[code.toLowerCase()] || code.toUpperCase();
+    return stationNameMap[code.toLowerCase()] || code.toUpperCase();
   };
 
   const alertMessage = weatherAlert.description.toLowerCase().includes('detected near')

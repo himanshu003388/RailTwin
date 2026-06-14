@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Shield, ShieldAlert, Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List } from 'lucide-react';
+import { Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List } from 'lucide-react';
 import { HelpModal } from '../ui/HelpModal';
 import { SettingsModal } from '../ui/SettingsModal';
 
 export const TopBar: React.FC = () => {
-  const demoRunning = useDemoStore(state => state.demoRunning);
   const audioEnabled = useDemoStore(state => state.audioEnabled);
   const toggleAudio = useDemoStore(state => state.toggleAudio);
   const theme = useDemoStore(state => state.theme);
   const toggleTheme = useDemoStore(state => state.toggleTheme);
   const liveApiEnabled = useDemoStore(state => state.liveApiEnabled);
   const apiStatus = useDemoStore(state => state.apiStatus);
+  const loading = useDemoStore(state => state.loading);
+  const lastUpdated = useDemoStore(state => state.lastUpdated);
   const mobileLeftOpen = useDemoStore(state => state.mobileLeftOpen);
   const setMobileLeftOpen = useDemoStore(state => state.setMobileLeftOpen);
   const mobileRightOpen = useDemoStore(state => state.mobileRightOpen);
@@ -40,35 +41,34 @@ export const TopBar: React.FC = () => {
   // Live API Polling
   useEffect(() => {
     const updateLiveTrains = useDemoStore.getState().updateLiveTrainsFromApi;
-    
-    // Fetch immediately if enabled
     if (liveApiEnabled) {
       updateLiveTrains();
     }
-
     const intervalId = setInterval(() => {
       const state = useDemoStore.getState();
       if (state.liveApiEnabled) {
         state.updateLiveTrainsFromApi();
       }
-    }, 30000); // Poll every 30 seconds
-
+    }, 30000);
     return () => clearInterval(intervalId);
   }, [liveApiEnabled]);
 
   // Weather API Polling
   useEffect(() => {
     const fetchWeather = useDemoStore.getState().fetchLiveWeatherForCorridor;
-    fetchWeather(); // Fetch immediately on load
-
-    const intervalId = setInterval(fetchWeather, 3 * 60 * 1000); // Poll every 3 minutes
+    fetchWeather();
+    const intervalId = setInterval(fetchWeather, 3 * 60 * 1000);
     return () => clearInterval(intervalId);
   }, []);
+
+  const lastUpdatedStr = lastUpdated
+    ? lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
 
   return (
     <>
       <header
-        className="h-12 border-b border-border-default px-2 sm:px-4 flex flex-wrap items-center justify-between gap-2 text-sm select-none shrink-0"
+        className="h-12 border-b border-border-default px-2 sm:px-4 flex flex-wrap items-center justify-between gap-1 sm:gap-2 text-sm select-none shrink-0 overflow-hidden"
         style={{
           background: 'linear-gradient(90deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 50%, rgba(37,99,235,0.05) 100%)',
           boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3), inset 0 -2px 0 var(--color-accent-blue-soft), inset 0 0 20px rgba(37,99,235,0.08)',
@@ -76,7 +76,6 @@ export const TopBar: React.FC = () => {
       >
         {/* ── Breadcrumb Left ── */}
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-          {/* Hamburger button on < lg */}
           <button
             onClick={() => setMobileLeftOpen(!mobileLeftOpen)}
             className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
@@ -88,10 +87,31 @@ export const TopBar: React.FC = () => {
           <div className="flex items-center gap-1.5 text-text-tertiary font-mono text-[10px] sm:text-[11px] uppercase tracking-widest truncate">
             <span className="max-sm:hidden">Control Center</span>
             <span className="text-border-active max-sm:hidden">/</span>
-            <span className="text-text-secondary font-semibold tracking-wide">Delhi–Howrah</span>
+            <span className="text-text-secondary font-semibold tracking-wide">National Network</span>
           </div>
+
+          {/* LIVE Indicator */}
           <div
-            className={`flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 ${
+            className="flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 bg-accent-green-soft text-accent-green border-accent-green/20"
+          >
+            <span className="relative flex w-1.5 h-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+              <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-accent-green" style={{ boxShadow: '0 0 6px rgba(34,197,94,0.8)' }} />
+            </span>
+            <span className="max-sm:hidden">LIVE</span>
+          </div>
+
+          {/* Loading indicator */}
+          {loading && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border bg-accent-amber-soft text-accent-amber border-accent-amber/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-amber animate-pulse" />
+              <span>Connecting…</span>
+            </div>
+          )}
+
+          {/* API Status */}
+          <div
+            className={`hidden sm:flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 ${
               liveApiEnabled && apiStatus === 'connected'
                 ? 'bg-accent-green-soft text-accent-green border-accent-green/20'
                 : liveApiEnabled && apiStatus === 'connecting'
@@ -106,13 +126,13 @@ export const TopBar: React.FC = () => {
                 ? 'bg-accent-amber animate-pulse'
                 : 'bg-accent-blue'
             }`} />
-            <span className="max-sm:hidden">{liveApiEnabled && apiStatus === 'connected' ? 'Live Data' : liveApiEnabled && apiStatus === 'connecting' ? 'Connecting…' : 'Demo'}</span>
+            <span className="max-sm:hidden">{liveApiEnabled && apiStatus === 'connected' ? 'API' : liveApiEnabled && apiStatus === 'connecting' ? '…' : 'Simulated'}</span>
           </div>
         </div>
 
         {/* ── Center Stat Pills ── */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Live Clock — highlighted */}
+          {/* Live Clock */}
           <div
             className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-text-secondary text-[10px] sm:text-[11px] font-mono"
             style={{
@@ -159,7 +179,15 @@ export const TopBar: React.FC = () => {
 
         {/* ── Right Controls ── */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Timeline & Station Risks toggle button on < lg */}
+          {/* Last updated */}
+          {lastUpdatedStr && (
+            <div className="hidden lg:flex items-center gap-1 text-[9px] font-mono text-text-muted mr-1">
+              <span>Updated</span>
+              <span className="text-text-tertiary">{lastUpdatedStr}</span>
+            </div>
+          )}
+
+          {/* Timeline & Station Risks toggle */}
           <button
             onClick={() => setMobileRightOpen(!mobileRightOpen)}
             className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
@@ -213,37 +241,19 @@ export const TopBar: React.FC = () => {
           </button>
 
           {/* System Status Badge */}
-          {demoRunning ? (
-            <div
-              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-amber text-[10px] sm:text-[11px] font-mono font-semibold shrink-0 animate-badge-glow"
-              style={{
-                background: 'rgba(245,158,11,0.10)',
-                border: '1px solid rgba(245,158,11,0.35)',
-                color: 'var(--color-accent-amber)',
-              }}
-            >
-              <span className="relative flex w-2 h-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-amber opacity-75" />
-                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-amber" style={{ boxShadow: '0 0 6px rgba(245,158,11,0.8)' }} />
-              </span>
-              <ShieldAlert className="w-3.5 h-3.5 max-sm:hidden" />
-              <span className="max-sm:hidden">Demo Active</span>
-            </div>
-          ) : (
-            <div
-              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-green text-[10px] sm:text-[11px] font-mono font-semibold shrink-0"
-              style={{
-                background: 'rgba(34,197,94,0.07)',
-                border: '1px solid rgba(34,197,94,0.2)',
-              }}
-            >
-              <span className="relative flex w-2 h-2">
-                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 5px rgba(34,197,94,0.7)' }} />
-              </span>
-              <Shield className="w-3.5 h-3.5 max-sm:hidden" />
-              <span className="max-sm:hidden">Normal</span>
-            </div>
-          )}
+          <div
+            className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-green text-[10px] sm:text-[11px] font-mono font-semibold shrink-0"
+            style={{
+              background: 'rgba(34,197,94,0.07)',
+              border: '1px solid rgba(34,197,94,0.2)',
+            }}
+          >
+            <span className="relative flex w-2 h-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+              <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 5px rgba(34,197,94,0.7)' }} />
+            </span>
+            <span className="max-sm:hidden">Operational</span>
+          </div>
         </div>
       </header>
 
