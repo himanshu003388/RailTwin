@@ -205,7 +205,7 @@ export const SimulationPanel: React.FC = () => {
           <div className="flex items-center gap-1.5 border-b border-border-default pb-1.5 mb-2.5">
             <Bot className="w-4 h-4 text-accent-purple" />
             <h3 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
-              AI Copilot Recommendations
+              AI Chat Recommendations
             </h3>
           </div>
 

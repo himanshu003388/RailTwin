@@ -6,7 +6,7 @@ const ITEMS = [
   { id: 'map', label: 'Map', Icon: Map },
   { id: 'delays', label: 'Delays', Icon: TrendingUp },
   { id: 'simulation', label: 'Sim', Icon: Activity },
-  { id: 'copilot', label: 'Copilot', Icon: Bot },
+  { id: 'copilot', label: 'AI Chat', Icon: Bot },
   { id: 'whatif', label: 'What-If', Icon: FlaskConical },
   { id: 'health', label: 'Health', Icon: HeartPulse },
 ] as const;

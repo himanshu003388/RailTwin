@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { X, Keyboard } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: '1-6', desc: 'Switch panels (Map, Delays, Simulation, Copilot, What-If, Health)' },
+  { key: '1-6', desc: 'Switch panels (Map, Delays, Simulation, AI Chat, What-If, Health)' },
   { key: 'Space', desc: 'Start / pause the demo' },
   { key: 'R', desc: 'Reset the demo' },
   { key: 'M', desc: 'Toggle audio alerts' },
@@ -13,7 +13,7 @@ const PANELS = [
   { num: '1', name: 'Map View', desc: 'Interactive corridor map with live train positions and station risk indicators' },
   { num: '2', name: 'Train Delays', desc: 'Delay prediction chart showing accumulated delay per station' },
   { num: '3', name: 'Simulation', desc: 'Cascade simulation engine with conflict detection and AI recommendations' },
-  { num: '4', name: 'AI Copilot', desc: 'Ask questions about corridor status and get AI-powered analysis' },
+  { num: '4', name: 'AI Chat', desc: 'Ask questions about corridor status and get AI-powered analysis' },
   { num: '5', name: 'What-If Lab', desc: 'Test disruption scenarios (rainfall, signal failure, track damage, fog)' },
   { num: '6', name: 'System Health', desc: 'Network efficiency, on-time performance, and platform utilization' },
 ];

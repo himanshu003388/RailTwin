@@ -56,7 +56,7 @@ const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <div
-      className="bg-bg-card border rounded-lg p-3 mb-2 transition-all duration-300"
+      className="bg-bg-card border rounded-lg p-3 max-sm:p-2 mb-2 transition-all duration-300"
       style={{
         borderColor: isFlash ? flashBorderColor : 'var(--color-border-default)',
         boxShadow:   isFlash ? `0 0 10px ${flashBorderColor}33` : 'var(--shadow-card)',
@@ -156,7 +156,7 @@ export const StationRiskPanel: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary">
       {/* 2x2 Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-4 max-sm:gap-1.5 max-sm:mb-3">
         <StatCard
           label="Active Trains"
           value={activeTrainsCount}
@@ -181,8 +181,8 @@ export const StationRiskPanel: React.FC = () => {
       </div>
 
       {/* Header with Live Dot */}
-      <div className="flex items-center justify-between border-b border-border-default pb-2 mb-3">
-        <span className="text-xs uppercase tracking-[0.12em] text-text-tertiary font-medium select-none">
+      <div className="flex items-center justify-between border-b border-border-default pb-2 mb-3 max-sm:pb-1.5 max-sm:mb-2">
+        <span className="text-xs uppercase tracking-[0.12em] text-text-tertiary font-medium select-none max-sm:text-[10px]">
           Live Stations Status
         </span>
         <div className="flex items-center gap-1.5">
@@ -203,7 +203,7 @@ export const StationRiskPanel: React.FC = () => {
       </div>
 
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100dvh-320px)] pr-0.5 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto max-h-[calc(100dvh-320px)] max-sm:max-h-[calc(100dvh-260px)] pr-0.5 scrollbar-thin">
         {stations.map(station => {
           const risks = stationRisks[station.id] || {
             crowdRisk: 'low',

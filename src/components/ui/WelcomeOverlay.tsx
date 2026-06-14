@@ -17,12 +17,12 @@ const STEPS = [
   {
     icon: BarChart3,
     title: 'Explore Panels',
-    desc: 'Switch between 6 views: Map, Train Delays, Simulation, AI Copilot, What-If Lab, and System Health. Use keys 1-6 for quick access.',
+    desc: 'Switch between 6 views: Map, Train Delays, Simulation, AI Chat, What-If Lab, and System Health. Use keys 1-6 for quick access.',
   },
   {
     icon: Bot,
-    title: 'AI Copilot',
-    desc: 'Ask the AI copilot about corridor status, cascade impacts, or recommended actions. It analyzes disruptions and suggests mitigations.',
+    title: 'AI Chat',
+    desc: 'Ask AI Chat about corridor status, cascade impacts, or recommended actions. It analyzes disruptions and suggests mitigations.',
   },
 ];
 

@@ -51,7 +51,7 @@ export const CopilotChat: React.FC = () => {
           return 'AI service is rate-limited on the server key. Add your own Gemini API key in Settings (gear icon) to avoid this.';
         }
         if (response.status === 503) {
-          return errData.error || 'AI Copilot is not configured. Add a Gemini API key in Settings.';
+          return errData.error || 'AI Chat is not configured. Add a Gemini API key in Settings.';
         }
         return `AI error: ${errData.error || `HTTP ${response.status}`}`;
       }
@@ -219,7 +219,7 @@ export const CopilotChat: React.FC = () => {
             <div key={msg.id} className="flex flex-col gap-1 items-start max-w-[85%] self-start">
               <div className="flex items-center gap-1.5 ml-1 select-none">
                 <Bot className="w-3.5 h-3.5 text-accent-purple" />
-                <span className="text-xs font-semibold text-accent-purple">RailTwin Copilot</span>
+                <span className="text-xs font-semibold text-accent-purple">AI Chat</span>
                 <span className="text-[10px] text-text-muted font-mono">{timeLabel}</span>
               </div>
               <div
@@ -299,7 +299,7 @@ export const CopilotChat: React.FC = () => {
         </form>
 
         <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
-          <span>RailTwin Copilot · Powered by Gemini Agent API</span>
+          <span>AI Chat · Powered by Gemini Agent API</span>
           <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-risk-low animate-pulse' : 'bg-risk-critical'}`} />
           <span className="text-[8px]">{active ? 'LIVE ACTIVE' : 'SERVER UNAVAILABLE'}</span>
         </div>

@@ -183,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 />
               </div>
               <span className="text-[9px] text-text-secondary">
-                Used securely for live AI chat. If left empty, Copilot runs in mock demo mode.
+                Used securely for live AI chat. If left empty, AI Chat runs in mock demo mode.
               </span>
             </div>
             {/* Connection Status & Test Button */}

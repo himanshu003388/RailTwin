@@ -726,51 +726,51 @@ export const CorridorMap: React.FC = () => {
       </div>
 
       {/* ═══ Map Legend ═══ */}
-      <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px]">
+      <div className="absolute bottom-3 right-3 z-10 pointer-events-none max-sm:bottom-[180px] max-sm:right-2">
+        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[160px] max-sm:p-2">
           {/* Station risk section */}
-          <div className="mb-3">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+          <div className="mb-3 max-sm:mb-2">
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Station Risk</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 max-sm:gap-x-1.5">
               {[
                 { color: '#16a34a', label: 'Low' },
                 { color: '#d97706', label: 'Moderate' },
                 { color: '#ea580c', label: 'High' },
                 { color: '#dc2626', label: 'Critical' },
               ].map(r => (
-                <div key={r.label} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
-                  <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
+                <div key={r.label} className="flex items-center gap-1.5 max-sm:gap-1">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 max-sm:w-2 max-sm:h-2" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
+                  <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">{r.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-border-default my-2.5" />
+          <div className="h-px bg-border-default my-2.5 max-sm:my-1.5" />
 
           {/* Weather Legend */}
-          <div className="mb-3">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather Layers</div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
-                <span className="text-[10px] font-medium text-text-secondary">Rainfall Zone</span>
+          <div className="mb-3 max-sm:mb-2">
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Weather Layers</div>
+            <div className="flex flex-col gap-1.5 max-sm:gap-1">
+              <div className="flex items-center gap-2 max-sm:gap-1">
+                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500 max-sm:w-2 max-sm:h-2">🌧</span>
+                <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">Rainfall</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
-                <span className="text-[10px] font-medium text-text-secondary">Low Visibility</span>
+              <div className="flex items-center gap-2 max-sm:gap-1">
+                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400 max-sm:w-2 max-sm:h-2">🌫</span>
+                <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">Low Vis</span>
               </div>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-border-default my-2.5" />
+          <div className="h-px bg-border-default my-2.5 max-sm:my-1.5" />
 
           {/* Train routes section */}
           <div>
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
-            <div className="flex flex-col gap-1.5">
+            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Trains</div>
+            <div className="flex flex-col gap-1.5 max-sm:gap-1">
               {[
                 { id: '12301', name: 'Howrah Raj', color: '#3b82f6' },
                 { id: '12302', name: 'NDLS Raj', color: '#06b6d4' },
@@ -780,10 +780,10 @@ export const CorridorMap: React.FC = () => {
                 { id: '12381', name: 'Poorva', color: '#a855f7' },
                 { id: '12382', name: 'Poorva', color: '#ec4899' },
               ].map(t => (
-                <div key={t.id} className="flex items-center gap-2">
-                  <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color, boxShadow: `0 0 6px ${t.color}44` }} />
-                  <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
-                  <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
+                <div key={t.id} className="flex items-center gap-2 max-sm:gap-1">
+                  <span className="w-4 h-[3px] rounded-full flex-shrink-0 max-sm:w-3" style={{ background: t.color, boxShadow: `0 0 6px ${t.color}44` }} />
+                  <span className="text-[10px] font-medium text-text-secondary flex-1 truncate max-sm:text-[8px]">{t.name}</span>
+                  <span className="text-[9px] text-text-muted font-mono max-sm:text-[7px]">{t.id}</span>
                 </div>
               ))}
             </div>
@@ -802,8 +802,8 @@ export const CorridorMap: React.FC = () => {
       </div>
 
       {/* ═══ Weather Info HUD ═══ */}
-      <div className="absolute bottom-3 left-3 z-10">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] flex flex-col gap-2.5 pointer-events-auto">
+      <div className="absolute bottom-3 left-3 z-10 max-sm:left-2 max-sm:right-2">
+        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] max-sm:w-full flex flex-col gap-2.5 pointer-events-auto">
           <div className="flex items-center gap-1.5 border-b border-border-subtle pb-2">
             <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
             <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">
@@ -815,7 +815,7 @@ export const CorridorMap: React.FC = () => {
               })()}
             </span>
           </div>
-          <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin">
+          <div className="flex flex-col gap-1.5 max-h-[140px] max-sm:max-h-[100px] overflow-y-auto pr-0.5 scrollbar-thin">
             {stations.map(s => {
               const w = weatherData ? weatherData[s.id] : null;
               const hasRain = w && w.rainfall > 0;
@@ -826,20 +826,20 @@ export const CorridorMap: React.FC = () => {
               else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
               else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
               return (
-                <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
+                  <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
                   className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
                   title="Click to focus station on map">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
-                    <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
+                      <span className="text-text-tertiary truncate max-w-[65px] max-sm:max-w-[40px]">{s.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-right max-sm:gap-1">
+                      <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
+                      <span className="text-text-secondary font-medium max-sm:hidden" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
+                      <span className="text-[9px] text-text-muted select-none max-sm:hidden">|</span>
+                      <span className="text-text-secondary w-14 max-sm:w-auto max-sm:text-[8px]" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-right">
-                    <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
-                    <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
-                    <span className="text-[9px] text-text-muted select-none">|</span>
-                    <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
-                  </div>
-                </div>
               );
             })}
           </div>

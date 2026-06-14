@@ -84,7 +84,7 @@ export const HealthDashboard: React.FC = () => {
     { label: 'Weather Monitor',    active: !!weatherAlert,           color: weatherAlert ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: !!weatherAlert },
     { label: 'Cascade Engine',     active: !!simulation,             color: simulation   ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: !!simulation   },
     { label: 'Signal Control',     active: true,                     color: 'var(--color-accent-green)', pulse: false },
-    { label: 'AI Copilot',         active: true,                     color: 'var(--color-accent-green)', pulse: false },
+    { label: 'AI Chat',            active: true,                     color: 'var(--color-accent-green)', pulse: false },
     { label: 'Prediction Engine',  active: predictions.length > 0,   color: predictions.length > 0 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)', pulse: predictions.length > 0 },
     { label: 'Resolution Active',  active: !!resolved,               color: resolved ? 'var(--color-accent-green)' : 'var(--color-border-active)', pulse: false },
   ];

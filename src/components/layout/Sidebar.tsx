@@ -80,7 +80,7 @@ export const Sidebar: React.FC = () => {
     { id: 'map'        as const, label: 'Map View',      icon: MapPin   },
     { id: 'delays'     as const, label: 'Train Delays',  icon: Clock    },
     { id: 'simulation' as const, label: 'Simulation',    icon: Zap      },
-    { id: 'copilot'    as const, label: 'AI Copilot',    icon: Bot      },
+    { id: 'copilot'    as const, label: 'AI Chat',       icon: Bot      },
     { id: 'whatif'     as const, label: 'What-If Lab',   icon: TestTube },
     { id: 'health'     as const, label: 'System Health', icon: Activity },
   ];
