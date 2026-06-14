@@ -110,7 +110,7 @@ export const CorridorMap: React.FC = () => {
   const theme = useDemoStore(state => state.theme);
   const stations = useDemoStore(state => state.stations) || [];
 
-  const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
+  const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement; arrow?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -372,6 +372,17 @@ export const CorridorMap: React.FC = () => {
     return () => clearTimeout(timer);
   }, [activePanel, mapLoaded]);
 
+  function bearing(from: [number, number], to: [number, number]): number {
+    const [lng1, lat1] = from;
+    const [lng2, lat2] = to;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const lat1Rad = (lat1 * Math.PI) / 180;
+    const lat2Rad = (lat2 * Math.PI) / 180;
+    const y = Math.sin(dLng) * Math.cos(lat2Rad);
+    const x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLng);
+    return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+  }
+
   // Train Marker Rendering
   useEffect(() => {
     const map = mapRef.current;
@@ -387,7 +398,6 @@ export const CorridorMap: React.FC = () => {
         el.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer;';
 
         const pill = document.createElement('div');
-        pill.className = 'train-float';
         pill.style.cssText = `
           display:flex; align-items:center; justify-content:center; gap:4px;
           height:26px; padding:0 8px 0 6px;
@@ -397,6 +407,7 @@ export const CorridorMap: React.FC = () => {
           box-shadow: 0 0 14px ${trainColor}${theme === 'light' ? '55' : '40'}, 0 2px 10px ${theme === 'light' ? 'rgba(80,60,40,0.15)' : 'rgba(0,0,0,0.5)'};
           font-family: 'Geist Mono', monospace;
           transition: box-shadow 0.3s ease, border-color 0.3s ease;
+          position: relative;
         `;
 
         const dot = document.createElement('div');
@@ -407,6 +418,19 @@ export const CorridorMap: React.FC = () => {
         idText.style.cssText = `color:${theme === 'light' ? '#0f172a' : '#fff'}; font-size:9px; font-weight:700; letter-spacing:0.03em; line-height:1;`;
         idText.innerText = train.id;
         pill.appendChild(idText);
+
+        const arrow = document.createElement('div');
+        arrow.style.cssText = `
+          width:0; height:0;
+          transition: transform 0.5s ease;
+          transform-origin: center center;
+          position: absolute;
+          right:-7px; top:50%; margin-top:-4px;
+          border-left:7px solid ${trainColor};
+          border-top:4px solid transparent;
+          border-bottom:4px solid transparent;
+        `;
+        pill.appendChild(arrow);
 
         el.appendChild(pill);
 
@@ -430,7 +454,7 @@ export const CorridorMap: React.FC = () => {
           .setPopup(popup)
           .addTo(map);
 
-        markerEntry = { marker, element: el, inner: pill, label };
+        markerEntry = { marker, element: el, inner: pill, label, arrow };
         markersRef.current[train.id] = markerEntry;
       } else {
         markerEntry.marker.setLngLat(train.coordinates);
@@ -460,6 +484,16 @@ export const CorridorMap: React.FC = () => {
           setTimeout(() => pill.classList.remove('bounce-marker'), 500);
         }
         prevDelaysRef.current[train.id] = train.predictedDelay;
+      }
+
+      const arrow = markerEntry.arrow;
+      if (arrow) {
+        const fromCoords = STATIONS[train.currentStation]?.coordinates;
+        const toCoords = STATIONS[train.nextStation]?.coordinates;
+        if (fromCoords && toCoords && train.currentStation !== train.nextStation) {
+          const angle = bearing(fromCoords, toCoords);
+          arrow.style.transform = `rotate(${angle}deg)`;
+        }
       }
 
       const label = markerEntry.label;
