@@ -102,11 +102,22 @@ function cacheWeather(stationCode: string, data: WeatherData) {
   cache.set(stationCode, { data, fetchedAt: new Date() });
 }
 
+function estimateVisibility(wmoCode: number, rainfall: number): number {
+  if (wmoCode >= 45 && wmoCode <= 48) return Math.round((1 + Math.random() * 2) * 10) / 10;        // fog: 1-3km
+  if (wmoCode >= 71 && wmoCode <= 77) return Math.round((2 + Math.random() * 3) * 10) / 10;        // snow: 2-5km
+  if (wmoCode >= 95 && wmoCode <= 99) return Math.round((3 + Math.random() * 2) * 10) / 10;        // thunderstorm: 3-5km
+  if (wmoCode >= 61 && wmoCode <= 67) return Math.round((4 + Math.random() * 2) * 10) / 10;        // rain: 4-6km
+  if (wmoCode >= 80 && wmoCode <= 82) return Math.round((5 + Math.random() * 3) * 10) / 10;        // showers: 5-8km
+  if (wmoCode >= 51 && wmoCode <= 57) return Math.round((6 + Math.random() * 2) * 10) / 10;        // drizzle: 6-8km
+  if (rainfall > 0) return Math.round((6 + Math.random() * 3) * 10) / 10;                          // unexpected rain: 6-9km
+  return Math.round((9 + Math.random() * 1) * 10) / 10;                                            // clear: 9-10km
+}
+
 async function fetchOpenMeteo(stationCode: string): Promise<WeatherData | null> {
   const coords = STATION_COORDS[stationCode];
   if (!coords) return null;
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation&timezone=auto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation,is_day&timezone=auto`;
     const response = await fetch(url);
     if (!response.ok) {
       const text = await response.text().catch(() => '');
@@ -121,13 +132,16 @@ async function fetchOpenMeteo(stationCode: string): Promise<WeatherData | null> 
     }
     const wmoCode = current.weather_code ?? 0;
     const wmo = WMO_CODES[wmoCode] || { description: 'Unknown', icon: '01d' };
+    const isDay = current.is_day ?? 1;
+    const suffix = isDay ? 'd' : 'n';
     const rainfall = current.precipitation ?? 0;
     let description = wmo.description;
-    let icon = wmo.icon;
+    let icon = wmo.icon.slice(0, -1) + suffix;
     if (rainfall > 0 && wmoCode >= 0 && wmoCode <= 3) {
       description = 'Light rain';
-      icon = '10d';
+      icon = `10${suffix}`;
     }
+    const visibility = estimateVisibility(wmoCode, rainfall);
     const weatherData: WeatherData = {
       station: stationCode,
       rainfall: Math.round(rainfall * 10) / 10,
@@ -135,7 +149,7 @@ async function fetchOpenMeteo(stationCode: string): Promise<WeatherData | null> 
       temperature: Math.round(current.temperature_2m ?? 25),
       humidity: current.relative_humidity_2m ?? 60,
       windSpeed: Math.round((current.wind_speed_10m ?? 0) * 3.6),
-      visibility: rainfall > 0 ? 8 : 10,
+      visibility,
       icon,
       fetchedAt: new Date().toISOString(),
       source: 'live',
@@ -192,16 +206,19 @@ async function fetchOpenWeatherMap(stationCode: string, apiKey: string): Promise
 function generateFallbackWeather(stationCode: string): WeatherData {
   const coords = STATION_COORDS[stationCode];
   if (!coords) {
+    const isNight = new Date().getHours() < 6 || new Date().getHours() >= 18;
     return {
       station: stationCode, rainfall: 0, description: 'Clear sky',
       temperature: 28, humidity: 55, windSpeed: 8, visibility: 10,
-      icon: '01d', fetchedAt: new Date().toISOString(), source: 'fallback',
+      icon: isNight ? '01n' : '01d', fetchedAt: new Date().toISOString(), source: 'fallback',
     };
   }
 
   const now = new Date();
   const month = now.getMonth();
   const hour = now.getHours();
+  const isNight = hour < 6 || hour >= 18;
+  const suffix = isNight ? 'n' : 'd';
 
   const isMonsoon = month >= 5 && month <= 9;
   const isSummer = month >= 3 && month <= 5;
@@ -234,36 +251,36 @@ function generateFallbackWeather(stationCode: string): WeatherData {
   let icon: string;
 
   if (isMonsoon && (isCoastal || isNorthEast)) {
-    rainfall = Math.round((5 + Math.random() * 20) * 10) / 10;
-    description = rainfall > 15 ? 'Heavy rain' : 'Moderate rain';
-    humidity = 80 + Math.round(Math.random() * 15);
-    visibility = Math.round((3 + Math.random() * 5) * 10) / 10;
-    icon = rainfall > 15 ? '10d' : '09d';
-  } else if (isMonsoon) {
-    rainfall = Math.round(Math.random() * 5 * 10) / 10;
-    description = rainfall > 1 ? 'Light rain' : 'Cloudy';
-    humidity = 65 + Math.round(Math.random() * 20);
-    visibility = Math.round((6 + Math.random() * 4) * 10) / 10;
-    icon = rainfall > 1 ? '10d' : '04d';
-  } else if (isSummer) {
-    rainfall = 0;
-    description = 'Clear sky';
-    humidity = 35 + Math.round(Math.random() * 20);
-    visibility = Math.round((8 + Math.random() * 2) * 10) / 10;
-    icon = '01d';
-  } else if (isWinter && isNorth) {
-    rainfall = 0;
-    description = Math.random() > 0.7 ? 'Haze' : 'Clear sky';
-    humidity = 55 + Math.round(Math.random() * 15);
-    visibility = description === 'Haze' ? Math.round((3 + Math.random() * 3) * 10) / 10 : Math.round((7 + Math.random() * 3) * 10) / 10;
-    icon = description === 'Haze' ? '50d' : '01d';
-  } else {
-    rainfall = 0;
-    description = 'Clear sky';
-    humidity = 45 + Math.round(Math.random() * 25);
-    visibility = Math.round((8 + Math.random() * 2) * 10) / 10;
-    icon = '02d';
-  }
+      rainfall = Math.round((5 + Math.random() * 20) * 10) / 10;
+      description = rainfall > 15 ? 'Heavy rain' : 'Moderate rain';
+      humidity = 80 + Math.round(Math.random() * 15);
+      visibility = Math.round((3 + Math.random() * 5) * 10) / 10;
+      icon = rainfall > 15 ? `10${suffix}` : `09${suffix}`;
+    } else if (isMonsoon) {
+      rainfall = Math.round(Math.random() * 5 * 10) / 10;
+      description = rainfall > 1 ? 'Light rain' : 'Cloudy';
+      humidity = 65 + Math.round(Math.random() * 20);
+      visibility = Math.round((6 + Math.random() * 4) * 10) / 10;
+      icon = rainfall > 1 ? `10${suffix}` : `04${suffix}`;
+    } else if (isSummer) {
+      rainfall = 0;
+      description = 'Clear sky';
+      humidity = 35 + Math.round(Math.random() * 20);
+      visibility = Math.round((8 + Math.random() * 2) * 10) / 10;
+      icon = `01${suffix}`;
+    } else if (isWinter && isNorth) {
+      rainfall = 0;
+      description = Math.random() > 0.7 ? 'Haze' : 'Clear sky';
+      humidity = 55 + Math.round(Math.random() * 15);
+      visibility = description === 'Haze' ? Math.round((3 + Math.random() * 3) * 10) / 10 : Math.round((7 + Math.random() * 3) * 10) / 10;
+      icon = description === 'Haze' ? `50${suffix}` : `01${suffix}`;
+    } else {
+      rainfall = 0;
+      description = 'Clear sky';
+      humidity = 45 + Math.round(Math.random() * 25);
+      visibility = Math.round((8 + Math.random() * 2) * 10) / 10;
+      icon = `02${suffix}`;
+    }
 
   return {
     station: stationCode,
@@ -317,9 +334,12 @@ export async function getCorridorWeather(customApiKey?: string): Promise<Record<
   }
 
   const liveResults = await asyncPool(needFetch, async (code) => {
-    let data = await fetchOpenMeteo(code);
-    if (!data && apiKey) {
+    let data: WeatherData | null = null;
+    if (apiKey) {
       data = await fetchOpenWeatherMap(code, apiKey);
+    }
+    if (!data) {
+      data = await fetchOpenMeteo(code);
     }
     if (!data) {
       data = generateFallbackWeather(code);

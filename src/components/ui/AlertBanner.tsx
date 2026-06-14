@@ -91,8 +91,8 @@ export const AlertBanner: React.FC = () => {
             <span className="text-text-tertiary text-[10px] sm:text-xs font-mono hidden sm:inline">
               {weatherAlert.temperature}°C | {weatherAlert.humidity}% humidity | Wind {weatherAlert.windSpeed} km/h
             </span>
-            <span className="ml-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border bg-accent-blue-soft text-accent-blue border-accent-blue/30">
-              Live
+            <span className={`ml-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border ${weatherAlert.source === 'live' ? 'bg-accent-green-soft text-accent-green border-accent-green/30' : 'bg-accent-amber-soft text-accent-amber border-accent-amber/30'}`}>
+              {weatherAlert.source === 'live' ? 'Live' : weatherAlert.source || 'Estimate'}
             </span>
           </p>
         </div>

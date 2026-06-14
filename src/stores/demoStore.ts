@@ -204,7 +204,6 @@ export const useDemoStore = create<LiveState>((set, get) => ({
 
   recalculateDynamicPredictions: async () => {
     const { trains, weatherData, stationRisks } = get();
-    if (!weatherData) return;
     const updatedTrains = [...trains];
     const newPredictions: any[] = [];
     const newStationRisks = { ...stationRisks };
@@ -220,7 +219,7 @@ export const useDemoStore = create<LiveState>((set, get) => ({
         routeLengthKm = length || 1500;
       }
       const targetStationId = train.nextStation || train.currentStation;
-      const stationWeather = weatherData[targetStationId];
+      const stationWeather = weatherData?.[targetStationId];
       const congestion = stationRisks[targetStationId]?.crowdRisk || 'low';
       let weatherCondition = 'Clear';
       let rainfall = 0;
@@ -236,14 +235,20 @@ export const useDemoStore = create<LiveState>((set, get) => ({
           else weatherCondition = 'Clear';
         }
       }
-      const pred = await HistoricalDelayPredictionEngine.predict({
-        trainNo: train.id, routeLengthKm, stationCongestion: congestion, weatherCondition, rainfallMmHr: rainfall,
-      });
-      const trainIdx = updatedTrains.findIndex(t => t.id === train.id);
-      if (trainIdx !== -1) updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
-      if (pred.predictedDelay > 0) {
-        newPredictions.push({ trainId: train.id, delayMinutes: pred.predictedDelay, affectedStation: targetStationId, confidence: pred.confidence, timestamp: Date.now(), explanation: pred.explanation });
-        if (newStationRisks[targetStationId]) newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
+      try {
+        const pred = await HistoricalDelayPredictionEngine.predict({
+          trainNo: train.id, routeLengthKm, stationCongestion: congestion, weatherCondition, rainfallMmHr: rainfall,
+        });
+        const trainIdx = updatedTrains.findIndex(t => t.id === train.id);
+        if (trainIdx !== -1) updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
+        if (pred.predictedDelay > 0) {
+          newPredictions.push({ trainId: train.id, delayMinutes: pred.predictedDelay, affectedStation: targetStationId, confidence: pred.confidence, timestamp: Date.now(), explanation: pred.explanation });
+          if (newStationRisks[targetStationId]) newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
+        }
+      } catch {
+        if (train.predictedDelay > 0) {
+          newPredictions.push({ trainId: train.id, delayMinutes: train.predictedDelay, affectedStation: targetStationId, confidence: 0.6, timestamp: Date.now(), explanation: `Current delay of ${train.predictedDelay}min on segment ${train.currentStation.toUpperCase()} → ${train.nextStation.toUpperCase()}.` });
+        }
       }
     }
     set({ trains: updatedTrains, predictions: newPredictions, stationRisks: newStationRisks });
@@ -356,7 +361,16 @@ export const useDemoStore = create<LiveState>((set, get) => ({
         conflictsGenerated: resultData.conflictsDetected,
         riskLevels,
       };
-      set({ whatIfResult: result });
+      set({
+        whatIfResult: result,
+        simulation: {
+          cascadeDelay: resultData.cascadeDelay,
+          conflictsDetected: resultData.conflictsDetected,
+          passengersAffected: resultData.passengersAffected,
+          stationsImpacted: impactedStationIds,
+          running: false,
+        },
+      });
       get().addToast({ type: 'info', title: 'What-If Analysis Complete', message: `${scenario.replace('_', ' ')} at ${station.name}: ${resultData.cascadeDelay}min cascade, ${affectedTrains.length} trains affected` });
     } catch (e) {
       console.error(e);
@@ -467,12 +481,13 @@ export const useDemoStore = create<LiveState>((set, get) => ({
       let worstTemp = 25;
       let worstHumidity = 80;
       let worstWind = 0;
+      let worstSource: string | undefined;
       Object.entries(weatherData).forEach(([code, w]: [string, any]) => {
-        if (w.rainfall > maxRainfall) { maxRainfall = w.rainfall; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; }
-        if (w.visibility < minVisibility && maxRainfall === 0) { minVisibility = w.visibility; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; }
+        if (w.rainfall > maxRainfall) { maxRainfall = w.rainfall; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; worstSource = w.source; }
+        if (w.visibility < minVisibility && maxRainfall === 0) { minVisibility = w.visibility; worstStation = code; worstDesc = w.description; worstTemp = w.temperature; worstHumidity = w.humidity; worstWind = w.windSpeed; worstSource = w.source; }
       });
       if (worstStation && (maxRainfall > 0 || minVisibility < 10)) {
-        set({ weatherAlert: { station: worstStation, rainfall: maxRainfall, description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'), temperature: worstTemp, humidity: worstHumidity, windSpeed: worstWind, visibility: minVisibility } });
+        set({ weatherAlert: { station: worstStation, rainfall: maxRainfall, description: worstDesc || (maxRainfall > 0 ? 'Rainfall' : 'Reduced visibility'), temperature: worstTemp, humidity: worstHumidity, windSpeed: worstWind, visibility: minVisibility, source: worstSource } });
       } else set({ weatherAlert: null });
       await get().recalculateDynamicPredictions();
     } catch (err) { console.error('Failed to fetch weather:', err); }
@@ -539,8 +554,31 @@ if (typeof window !== 'undefined') {
     await useDemoStore.getState().fetchLiveWeatherForCorridor();
 
     const state = useDemoStore.getState();
+
+    // Seed predictions from train data if none were generated
+    if (state.predictions.length === 0) {
+      const seededPredictions = state.trains
+        .filter(t => t.predictedDelay > 0)
+        .map(t => ({
+          trainId: t.id,
+          delayMinutes: t.predictedDelay,
+          affectedStation: t.currentStation,
+          confidence: 0.65,
+          timestamp: Date.now(),
+          explanation: `Current delay of ${t.predictedDelay}min on segment ${t.currentStation.toUpperCase()} → ${t.nextStation.toUpperCase()}. Weather data unavailable for AI prediction.`,
+        }));
+      if (seededPredictions.length > 0) {
+        useDemoStore.setState({ predictions: seededPredictions });
+      }
+    }
+
     const health = computeNetworkHealth(state.trains, state.stationRisks, state.simulation, state.weatherAlert);
     useDemoStore.setState({ loading: false, lastUpdated: new Date(), networkHealth: health });
+
+    // Auto-trigger a default cascade simulation so the Sim tab has data
+    setTimeout(() => {
+      useDemoStore.getState().runWhatIf();
+    }, 1500);
 
     // Start live position tick every 2 seconds
     if (liveTickInterval) clearInterval(liveTickInterval);

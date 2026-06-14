@@ -707,7 +707,13 @@ export const CorridorMap: React.FC = () => {
           <div className="flex items-center justify-between border-b border-border-subtle pb-2">
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">LIVE</span>
+              {(() => {
+                if (!weatherData) return null;
+                const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
+                return allLive
+                  ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+                  : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
+              })()}
             </div>
             {weatherData && Object.values(weatherData).length > 0 && (() => {
               const times = Object.values(weatherData).filter(Boolean).map((w: any) => new Date(w.fetchedAt).getTime());
@@ -765,7 +771,13 @@ export const CorridorMap: React.FC = () => {
             <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider">Live Weather</span>
-                <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-blue-soft text-accent-blue border border-accent-blue/20">LIVE</span>
+                {(() => {
+                  if (!weatherData) return null;
+                  const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
+                  return allLive
+                    ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+                    : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
+                })()}
               </div>
               <button onClick={() => setShowLiveWeather(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer"><svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
             </div>
