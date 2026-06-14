@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CORRIDOR, TRAIN_ROUTES } from '../../data/corridor';
-import { AlertTriangle } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 declare global {
   const maplibregl: any;
@@ -793,7 +793,7 @@ export const CorridorMap: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* Collapsed Station Risk button — mobile only */}
+      {/* Collapsed Legend button — mobile only */}
       <button
         onClick={() => setShowMapLegend(true)}
         className="sm:hidden absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer"
@@ -803,8 +803,8 @@ export const CorridorMap: React.FC = () => {
         }}
         aria-label="Open legend"
       >
-        <AlertTriangle className="w-4 h-4 text-accent-amber" />
-        <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Station Risk</span>
+        <Layers className="w-4 h-4 text-accent-blue" />
+        <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Legend</span>
       </button>
       {/* Mobile overlay — Station Risk legend */}
       {showMapLegend && (
