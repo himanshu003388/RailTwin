@@ -22,18 +22,6 @@
     ]
   },
   {
-    "trainNo": "12245",
-    "trainName": "Howrah–Bengaluru Cantt. Duronto Express",
-    "route": [
-      "HWH",
-      "BLS",
-      "BBS",
-      "VZ",
-      "MAS",
-      "SBC"
-    ]
-  },
-  {
     "trainNo": "12423",
     "trainName": "Dibrugarh–New Delhi Rajdhani Express",
     "route": [
