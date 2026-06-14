@@ -171,7 +171,7 @@ export const TopBar: React.FC = () => {
           {/* Help Button */}
           <button
             onClick={() => setShowHelp(true)}
-            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none shrink-0"
+            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title="Keyboard shortcuts & help"
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -202,7 +202,7 @@ export const TopBar: React.FC = () => {
           {/* Audio Toggle */}
           <button
             onClick={toggleAudio}
-            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle hover:border-border-default transition-all duration-150 outline-none shrink-0"
+            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title={audioEnabled ? 'Mute alerts' : 'Enable audio alerts'}
           >
             {audioEnabled ? (
@@ -215,11 +215,11 @@ export const TopBar: React.FC = () => {
           {/* System Status Badge */}
           {demoRunning ? (
             <div
-              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-amber text-[10px] sm:text-[11px] font-mono font-semibold shrink-0"
+              className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-accent-amber text-[10px] sm:text-[11px] font-mono font-semibold shrink-0 animate-badge-glow"
               style={{
-                background: 'rgba(245,158,11,0.08)',
-                border: '1px solid rgba(245,158,11,0.25)',
-                boxShadow: '0 0 10px rgba(245,158,11,0.15)',
+                background: 'rgba(245,158,11,0.10)',
+                border: '1px solid rgba(245,158,11,0.35)',
+                color: 'var(--color-accent-amber)',
               }}
             >
               <span className="relative flex w-2 h-2">

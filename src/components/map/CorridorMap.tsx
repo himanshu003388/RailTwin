@@ -417,7 +417,7 @@ export const CorridorMap: React.FC = () => {
     }); // end map.on('load')
     }; // end initMap
 
-    // Start with first style
+    // Bug 6 fix: declare destroyed BEFORE initMap so closures capture it correctly
     let destroyed = false;
     initMap(stylesToUse[0]);
 
@@ -428,7 +428,9 @@ export const CorridorMap: React.FC = () => {
       mapLoadedRef.current = false;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
-  }, [maplibReady, theme]);
+  // stations added to deps: map must re-init when station data arrives (Bug 6 fix)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maplibReady, theme, stations.length]);
 
 
   // Sync station risks and weather data

@@ -488,8 +488,17 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
   seekTo: (time: number) => {
     const clampedTime = Math.max(0, Math.min(time, 50));
-    set({ demoTime: clampedTime });
-    // Process the event at this time
+    // Always advance train positions on seek (Bug 5 fix)
+    const state = get();
+    const updatedTrains = state.trains.map(train => {
+      const newCoords = interpolateTrainPosition(
+        { ...train, routeProgress: train.routeProgress },
+        state.stations
+      );
+      return { ...train, coordinates: newCoords };
+    });
+    set({ demoTime: clampedTime, trains: updatedTrains });
+    // Also process the event at this time if one exists
     const event = DEMO_TIMELINE.find(e => e.time === clampedTime);
     if (event) {
       get().tickDemo(clampedTime);
@@ -746,6 +755,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
         if (response.ok) {
           const data = await response.json();
+          const aiText = data.reply ?? data.message ?? 'Intervention confirmed.';
           set(state => ({
             copilot: {
               ...state.copilot,
@@ -754,7 +764,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
                 {
                   id: `copilot-apply-${Date.now()}`,
                   sender: 'copilot',
-                  message: data.message,
+                  message: aiText,
                   timestamp: new Date()
                 }
               ]
@@ -1098,6 +1108,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
             if (response.ok) {
               const data = await response.json();
+              // chat.ts returns { reply }, standardize on that field (Bug 2 fix)
+              const aiText = data.reply ?? data.message ?? 'No response from AI.';
               set(state => ({
                 copilot: {
                   ...state.copilot,
@@ -1107,7 +1119,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
                     {
                       id: `cop-api-${Date.now()}`,
                       sender: 'copilot',
-                      message: data.message,
+                      message: aiText,
                       timestamp: new Date()
                     }
                   ]
@@ -1282,18 +1294,33 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       }
 
       const data = await response.json();
+      // Bug 3 fix: API may return string[] or Recommendation[]; normalize to Recommendation[]
+      const rawRecs: any[] = Array.isArray(data.recommendations) ? data.recommendations : [];
+      const recommendations: Recommendation[] = rawRecs.map((rec, idx) => {
+        // Handle both string items and already-structured Recommendation objects
+        if (typeof rec === 'string') {
+          return {
+            id: `rec-${idx + 1}`,
+            priority: idx + 1,
+            action: rec,
+            impact: idx === 0 ? 'High — prevents cascade delay' : idx === 1 ? 'Medium — reduces platform conflicts' : 'Low — improves passenger flow',
+            accepted: false,
+          } as Recommendation;
+        }
+        return { ...rec, accepted: rec.accepted ?? false } as Recommendation;
+      });
       
       set(s => ({
         copilot: {
           ...s.copilot,
           thinking: false,
-          recommendations: data.recommendations.map((rec: any) => ({ ...rec, accepted: false })),
+          recommendations,
           messages: [
             ...s.copilot.messages,
             {
               id: `cop-rec-${Date.now()}`,
               sender: 'copilot',
-              message: `AI analysis complete. Digital twin suggests ${data.recommendations.length} mitigation actions. Operational hold at the optimal conflict point is recommended.`,
+              message: `AI analysis complete. Digital twin suggests ${recommendations.length} mitigation action${recommendations.length !== 1 ? 's' : ''}. Operational hold at the optimal conflict point is recommended.`,
               timestamp: new Date()
             }
           ]
@@ -1379,7 +1406,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         set({ weatherAlert: null });
       }
 
-      // Automatically trigger recalculation of dynamic predictions with live weather
+      // Bug 8 fix: defer recalculation to next microtask so weatherAlert state is committed first
+      await Promise.resolve();
       get().recalculateDynamicPredictions();
     } catch (err) {
       console.error('Failed to fetch live weather for corridor:', err);

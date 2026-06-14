@@ -2,23 +2,43 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { Bot, Send, User } from 'lucide-react';
 
+function getBaseUrl() {
+  const base = import.meta.env.BASE_URL || '/';
+  return base.endsWith('/') ? base : `${base}/`;
+}
+
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
+  const geminiApiKey = useDemoStore(state => state.geminiApiKey);
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  async function sendMessage(messages: { role: string; text: string }[]) {
-    const res = await fetch("/api/copilot/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
-    });
-    const data = await res.json();
-    if (res.status === 429) return data.reply;
-    if (!res.ok) throw new Error(data.detail ?? "chat failed");
-    return data.reply;
+  async function sendMessage(msgs: { role: string; text: string }[]): Promise<string> {
+    try {
+      const res = await fetch(`${getBaseUrl()}api/copilot/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: msgs,
+          userApiKey: geminiApiKey || undefined,
+        }),
+      });
+      const data = await res.json();
+      // chat.ts returns { reply } field; standardize retrieval
+      const text = data.reply ?? data.message ?? null;
+      if (res.status === 429) {
+        return text ?? 'The AI service has hit its rate limit. Please wait a moment and try again.';
+      }
+      if (!res.ok) {
+        throw new Error(data.detail ?? data.error ?? 'chat failed');
+      }
+      if (!text) throw new Error('Empty AI response');
+      return text;
+    } catch (err: any) {
+      throw new Error(err?.message ?? 'Failed to reach the AI service. Check your API key in Settings.');
+    }
   }
 
   useEffect(() => {
@@ -50,16 +70,31 @@ export const CopilotChat: React.FC = () => {
       { role: 'user' as const, text: userMsg },
     ];
 
-    const reply = await sendMessage(history);
-
-    useDemoStore.setState(s => ({
-      copilot: {
-        ...s.copilot,
-        thinking: false,
-        messages: [...s.copilot.messages, { id: `copilot-msg-${Date.now()}`, sender: 'copilot' as const, message: reply, timestamp: new Date() }]
-      }
-    }));
+    try {
+      const reply = await sendMessage(history);
+      useDemoStore.setState(s => ({
+        copilot: {
+          ...s.copilot,
+          thinking: false,
+          messages: [...s.copilot.messages, { id: `copilot-msg-${Date.now()}`, sender: 'copilot' as const, message: reply, timestamp: new Date() }]
+        }
+      }));
+    } catch (err: any) {
+      useDemoStore.setState(s => ({
+        copilot: {
+          ...s.copilot,
+          thinking: false,
+          messages: [...s.copilot.messages, {
+            id: `copilot-err-${Date.now()}`,
+            sender: 'copilot' as const,
+            message: err?.message ?? 'An unexpected error occurred. Please try again.',
+            timestamp: new Date()
+          }]
+        }
+      }));
+    }
   };
+
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -157,11 +192,22 @@ export const CopilotChat: React.FC = () => {
         })}
 
         {copilot.thinking && (
-          <div className="flex items-center gap-2 text-sm text-gray-400 px-3 py-2">
-            <span className="animate-pulse">●</span>
-            <span className="animate-pulse delay-100">●</span>
-            <span className="animate-pulse delay-200">●</span>
-            <span className="ml-1 text-xs">AI thinking…</span>
+          <div className="flex items-center gap-3 self-start max-w-[85%]">
+            <div
+              className="flex items-center gap-2 px-4 py-3 rounded-lg rounded-tl-sm"
+              style={{
+                background: 'rgba(168,85,247,0.06)',
+                border: '1px solid rgba(168,85,247,0.25)',
+              }}
+            >
+              <Bot className="w-3.5 h-3.5 text-accent-purple shrink-0" />
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple ai-dot-1" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple ai-dot-2" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-purple ai-dot-3" />
+              </div>
+              <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Analyzing…</span>
+            </div>
           </div>
         )}
 

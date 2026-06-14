@@ -38,16 +38,17 @@ const MetricTile: React.FC<{
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
-}> = ({ icon, label, value }) => (
+  className?: string;
+}> = ({ icon, label, value, className }) => (
   <div
-    className="bg-bg-elevated border border-border-default rounded-lg p-3 flex flex-col gap-1.5"
+    className={`bg-bg-elevated border border-border-default rounded-lg p-3 flex flex-col gap-1.5 animate-card-entrance ${className ?? ''}`}
     style={{ boxShadow: 'var(--shadow-card)' }}
   >
     <div className="flex items-center gap-1.5">
       {icon}
       <span className="text-[9px] text-text-tertiary font-mono uppercase tracking-wider">{label}</span>
     </div>
-    <div className="text-lg font-mono font-bold text-text-primary leading-none" style={{ fontVariantNumeric: 'tabular-nums' }}>
+    <div className="text-lg font-mono font-bold text-text-primary leading-none animate-count" style={{ fontVariantNumeric: 'tabular-nums' }}>
       {value}
     </div>
   </div>
