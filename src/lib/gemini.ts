@@ -2,7 +2,7 @@
 
 const SERVER_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY ?? "";
 
-const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-1.5-flash";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-2.0-flash";
 
 const BASE = "https://generativelanguage.googleapis.com/v1/models";
 const REQUEST_TIMEOUT_MS = 15000;
@@ -130,7 +130,7 @@ export async function generateChat(
   try {
     text = await callModel(PRIMARY_MODEL, system, trimmed, userApiKey);
   } catch (err) {
-    const fallbackModel = "gemini-2.0-flash";
+    const fallbackModel = "gemini-2.5-flash";
     if (PRIMARY_MODEL !== fallbackModel) {
       console.warn(`[Gemini] Primary model ${PRIMARY_MODEL} failed, attempting fallback to ${fallbackModel}:`, err);
       try {

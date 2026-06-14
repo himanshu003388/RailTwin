@@ -6,7 +6,7 @@ const GEMINI_TIMEOUT_MS = 20_000;
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 800;
 
-const MODEL = process.env.GEMINI_MODEL ?? 'gemini-1.5-flash';
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash';
 
 async function callGemini(model: string, apiKey: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
@@ -94,8 +94,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   const sim = simulationState || {};
   const systemPrompt =
-    `You are RailTwin AI, an expert Indian Railways copilot monitoring 8 major routes across India.\n` +
-    `Active Trains=${sim.activeTrains ?? 8}, Stations at Risk=${sim.stationsAtRisk ?? 0}, ` +
+    `You are RailTwin AI, an expert Indian Railways copilot monitoring 7 major routes across India.\n` +
+    `Active Trains=${sim.activeTrains ?? 7}, Stations at Risk=${sim.stationsAtRisk ?? 0}, ` +
     `Total Delay=${sim.totalDelay ?? 0}min, Passengers Affected=${sim.passengersAffected ?? 0}, ` +
     `Weather=${sim.weather ?? 'Clear'}, Efficiency=${sim.networkEfficiency ?? 100}%, ` +
     `Current Events=${sim.currentEvents ?? 'None'}.\n` +

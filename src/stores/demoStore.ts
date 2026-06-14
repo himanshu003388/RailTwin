@@ -167,7 +167,7 @@ const initialStoreState = {
   simulation: null,
   copilot: {
     thinking: false,
-    messages: [{ id: 'init-msg', sender: 'system' as const, message: 'RailTwin Operations Center Initialized. 8 trains actively monitored across India.', timestamp: new Date() }],
+    messages: [{ id: 'init-msg', sender: 'system' as const, message: 'RailTwin Operations Center Initialized. 7 trains actively monitored across India.', timestamp: new Date() }],
     recommendations: [],
   },
   intervention: null,
