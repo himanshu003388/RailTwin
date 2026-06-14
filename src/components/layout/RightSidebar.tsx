@@ -6,7 +6,6 @@ import { StationRiskPanel } from '../panels/StationRiskPanel';
 const TRAIN_COLORS: Record<string, string> = {
   '12951': '#3b82f6',
   '12007': '#22c55e',
-  '12245': '#ef4444',
   '12423': '#a855f7',
   '12801': '#f97316',
   '12625': '#06b6d4',

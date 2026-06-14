@@ -45,7 +45,6 @@ const nameToIdMap: Record<string, string> = {
 const trainConfig: Record<string, any> = {
   '12951': { type: 'rajdhani', speed: 130, startHour: 16, startMin: 35, capacity: 1000, passengerCount: 920, zone: 'WR' },
   '12007': { type: 'shatabdi', speed: 110, startHour: 6, startMin: 0, capacity: 750, passengerCount: 680, zone: 'SR' },
-  '12245': { type: 'duronto', speed: 130, startHour: 22, startMin: 30, capacity: 800, passengerCount: 720, zone: 'ER' },
   '12423': { type: 'rajdhani', speed: 110, startHour: 13, startMin: 0, capacity: 850, passengerCount: 780, zone: 'NFR' },
   '12801': { type: 'express', speed: 100, startHour: 8, startMin: 0, capacity: 1400, passengerCount: 1300, zone: 'ECR' },
   '12625': { type: 'express', speed: 90, startHour: 16, startMin: 45, capacity: 1500, passengerCount: 1400, zone: 'SR' },
@@ -56,7 +55,6 @@ const trainConfig: Record<string, any> = {
 const activeStates: Record<string, any> = {
   '12951': { currentStation: 'brc', nextStation: 'rtm', routeProgress: 0.3, coordinates: [74.20, 22.85] },
   '12007': { currentStation: 'kpd', nextStation: 'jtj', routeProgress: 0.5, coordinates: [78.85, 12.75] },
-  '12245': { currentStation: 'bbs', nextStation: 'vz', routeProgress: 0.4, coordinates: [83.20, 18.40] },
   '12423': { currentStation: 'njp', nextStation: 'bju', routeProgress: 0.5, coordinates: [87.20, 26.10] },
   '12801': { currentStation: 'bbs', nextStation: 'kur', routeProgress: 0.3, coordinates: [85.85, 20.25] },
   '12625': { currentStation: 'ers', nextStation: 'pgt', routeProgress: 0.6, coordinates: [76.45, 10.45] },
