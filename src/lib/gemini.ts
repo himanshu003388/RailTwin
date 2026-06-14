@@ -4,7 +4,7 @@ const SERVER_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY 
 
 const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-2.0-flash";
 
-const BASE = "https://generativelanguage.googleapis.com/v1/models";
+const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const REQUEST_TIMEOUT_MS = 15000;
 const MAX_RETRIES = 2;
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -82,19 +82,24 @@ async function callModel(model: string, system: string, msgs: ChatMessage[], use
     }
 
     if (res.status === 404) {
-      throw new Error(`Model '${model}' not found — it may have been deprecated. Check GEMINI_MODEL env var.`);
+      throw new Error("The AI model was not found — it may have been deprecated. Check GEMINI_MODEL in Settings.");
     }
 
     if (res.status >= 500) {
-      lastErr = new Error(`Gemini ${res.status}`);
+      lastErr = new Error("AI service temporarily unavailable (server error). Please try again later.");
       if (attempt < MAX_RETRIES) {
         await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
         continue;
       }
     }
 
-    const detail = await res.text();
-    throw new Error(`Gemini error ${res.status}: ${detail}`);
+    // 400 — typically invalid request (e.g. system_instruction, unsupported model)
+    if (res.status === 400) {
+      throw new Error("Invalid AI request. The model may not support this feature. Try a different model or update GEMINI_MODEL in Settings.");
+    }
+
+    const detail = await res.text().catch(() => "");
+    throw new Error("AI service error. Please try again later.");
   }
 
   throw lastErr instanceof Error ? lastErr : new Error("Gemini call failed");

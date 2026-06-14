@@ -11,7 +11,7 @@ const MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash';
 async function callGemini(model: string, apiKey: string, body: object, attempt = 0): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
