@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CORRIDOR, TRAIN_ROUTES } from '../../data/corridor';
+import { StationRiskPanel } from '../panels/StationRiskPanel';
+import { X, AlertTriangle } from 'lucide-react';
 
 declare global {
   const maplibregl: any;
@@ -93,6 +95,7 @@ export const CorridorMap: React.FC = () => {
   const [mapError, setMapError] = useState(false);
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
+  const [showStationRisk, setShowStationRisk] = useState(false);
   const styleIndexRef = useRef(0);
   // Use a ref to avoid stale closure in setTimeout callbacks
   const mapLoadedRef = useRef(false);
@@ -845,6 +848,54 @@ export const CorridorMap: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ═══ Mobile Station Risk Button & Modal ═══ */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setShowStationRisk(true)}
+          className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border transition-all duration-150 active:scale-95 cursor-pointer"
+          style={{
+            background: 'var(--color-bg-elevated)',
+            borderColor: 'var(--color-border-default)',
+            color: 'var(--color-accent-amber)',
+          }}
+        >
+          <AlertTriangle className="w-4 h-4" />
+          <span className="text-[11px] font-semibold font-sans">Station Risk</span>
+        </button>
+      </div>
+
+      {/* Station Risk Modal Overlay */}
+      {showStationRisk && (
+        <div
+          className="fixed inset-0 z-[100] flex flex-col sm:hidden"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowStationRisk(false)}
+        >
+          <div
+            className="mt-auto bg-bg-card border-t border-border-default rounded-t-2xl shadow-2xl flex flex-col max-h-[80dvh] overflow-hidden animate-slide-up"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-default shrink-0">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-accent-amber" />
+                <span className="text-sm font-semibold text-text-primary">Station Risk</span>
+              </div>
+              <button
+                onClick={() => setShowStationRisk(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary transition-all duration-150 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {/* Panel Content */}
+            <div className="flex-1 min-h-0">
+              <StationRiskPanel />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
