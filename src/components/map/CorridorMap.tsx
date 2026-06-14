@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CORRIDOR, TRAIN_ROUTES } from '../../data/corridor';
-import { StationRiskPanel } from '../panels/StationRiskPanel';
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 declare global {
   const maplibregl: any;
@@ -95,7 +94,7 @@ export const CorridorMap: React.FC = () => {
   const [mapError, setMapError] = useState(false);
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
-  const [showStationRisk, setShowStationRisk] = useState(false);
+  const [showMapLegend, setShowMapLegend] = useState(false);
   const styleIndexRef = useRef(0);
   // Use a ref to avoid stale closure in setTimeout callbacks
   const mapLoadedRef = useRef(false);
@@ -729,80 +728,99 @@ export const CorridorMap: React.FC = () => {
       </div>
 
       {/* ═══ Map Legend ═══ */}
-      <div className="absolute bottom-3 right-3 z-10 pointer-events-none max-sm:bottom-[180px] max-sm:right-2">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[160px] max-sm:p-2">
-          {/* Station risk section */}
-          <div className="mb-3 max-sm:mb-2">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Station Risk</div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 max-sm:gap-x-1.5">
-              {[
-                { color: '#16a34a', label: 'Low' },
-                { color: '#d97706', label: 'Moderate' },
-                { color: '#ea580c', label: 'High' },
-                { color: '#dc2626', label: 'Critical' },
-              ].map(r => (
-                <div key={r.label} className="flex items-center gap-1.5 max-sm:gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 max-sm:w-2 max-sm:h-2" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
-                  <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">{r.label}</span>
-                </div>
-              ))}
+      {/* On desktop: always shown. On mobile: collapsed button expands on tap */}
+      {showMapLegend ? (
+        <div className="absolute bottom-3 right-3 z-10 max-sm:left-2 max-sm:right-auto">
+          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[180px] pointer-events-auto">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
+              <button
+                onClick={() => setShowMapLegend(false)}
+                className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer sm:hidden"
+                aria-label="Close legend"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
             </div>
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-border-default my-2.5 max-sm:my-1.5" />
-
-          {/* Weather Legend */}
-          <div className="mb-3 max-sm:mb-2">
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Weather Layers</div>
-            <div className="flex flex-col gap-1.5 max-sm:gap-1">
-              <div className="flex items-center gap-2 max-sm:gap-1">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500 max-sm:w-2 max-sm:h-2">🌧</span>
-                <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">Rainfall</span>
-              </div>
-              <div className="flex items-center gap-2 max-sm:gap-1">
-                <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400 max-sm:w-2 max-sm:h-2">🌫</span>
-                <span className="text-[10px] font-medium text-text-secondary max-sm:text-[8px]">Low Vis</span>
+            {/* Station risk section */}
+            <div className="mb-3">
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                {[
+                  { color: '#16a34a', label: 'Low' },
+                  { color: '#d97706', label: 'Moderate' },
+                  { color: '#ea580c', label: 'High' },
+                  { color: '#dc2626', label: 'Critical' },
+                ].map(r => (
+                  <div key={r.label} className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
+                    <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-border-default my-2.5 max-sm:my-1.5" />
-
-          {/* Train routes section */}
-          <div>
-            <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2 max-sm:text-[8px]">Trains</div>
-            <div className="flex flex-col gap-1.5 max-sm:gap-1">
-              {[
-                { id: '12301', name: 'Howrah Raj', color: '#3b82f6' },
-                { id: '12302', name: 'NDLS Raj', color: '#06b6d4' },
-                { id: '12305', name: 'Patna Raj', color: '#22c55e' },
-                { id: '12306', name: 'NDLS Raj', color: '#10b981' },
-                { id: '12259', name: 'Duronto', color: '#ef4444' },
-                { id: '12381', name: 'Poorva', color: '#a855f7' },
-                { id: '12382', name: 'Poorva', color: '#ec4899' },
-              ].map(t => (
-                <div key={t.id} className="flex items-center gap-2 max-sm:gap-1">
-                  <span className="w-4 h-[3px] rounded-full flex-shrink-0 max-sm:w-3" style={{ background: t.color, boxShadow: `0 0 6px ${t.color}44` }} />
-                  <span className="text-[10px] font-medium text-text-secondary flex-1 truncate max-sm:text-[8px]">{t.name}</span>
-                  <span className="text-[9px] text-text-muted font-mono max-sm:text-[7px]">{t.id}</span>
+            <div className="h-px bg-border-default my-2.5" />
+            <div className="mb-3">
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather</div>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
+                  <span className="text-[10px] font-medium text-text-secondary">Rainfall</span>
                 </div>
-              ))}
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
+                  <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Direction hint */}
-          <div className="mt-2.5 pt-2 border-t border-border-subtle">
-            <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0">
-                <path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>Direction of travel</span>
+            <div className="h-px bg-border-default my-2.5" />
+            <div>
+              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
+              <div className="flex flex-col gap-1.5">
+                {[
+                  { id: '12301', name: 'Howrah Raj', color: '#3b82f6' },
+                  { id: '12302', name: 'NDLS Raj', color: '#06b6d4' },
+                  { id: '12305', name: 'Patna Raj', color: '#22c55e' },
+                  { id: '12306', name: 'NDLS Raj', color: '#10b981' },
+                  { id: '12259', name: 'Duronto', color: '#ef4444' },
+                  { id: '12381', name: 'Poorva', color: '#a855f7' },
+                  { id: '12382', name: 'Poorva', color: '#ec4899' },
+                ].map(t => (
+                  <div key={t.id} className="flex items-center gap-2">
+                    <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color, boxShadow: `0 0 6px ${t.color}44` }} />
+                    <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
+                    <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-border-subtle">
+              <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0">
+                  <path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Direction of travel</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        /* Collapsed legend button — mobile only */
+        <button
+          onClick={() => setShowMapLegend(true)}
+          className="absolute bottom-3 right-3 z-10 sm:hidden flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
+          style={{
+            background: 'var(--color-bg-elevated)',
+            color: 'var(--color-text-secondary)',
+          }}
+          aria-label="Open legend"
+        >
+          <AlertTriangle className="w-4 h-4 text-accent-amber" />
+          <span className="text-[10px] font-semibold font-sans">Station Risk</span>
+        </button>
+      )}
 
       {/* ═══ Weather Info HUD ═══ */}
       <div className="absolute bottom-3 left-3 z-10 max-sm:left-2 max-sm:right-2">
@@ -849,53 +867,6 @@ export const CorridorMap: React.FC = () => {
         </div>
       </div>
 
-      {/* ═══ Mobile Station Risk Button & Modal ═══ */}
-      <div className="lg:hidden">
-        <button
-          onClick={() => setShowStationRisk(true)}
-          className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border transition-all duration-150 active:scale-95 cursor-pointer"
-          style={{
-            background: 'var(--color-bg-elevated)',
-            borderColor: 'var(--color-border-default)',
-            color: 'var(--color-accent-amber)',
-          }}
-        >
-          <AlertTriangle className="w-4 h-4" />
-          <span className="text-[11px] font-semibold font-sans">Station Risk</span>
-        </button>
-      </div>
-
-      {/* Station Risk Modal Overlay */}
-      {showStationRisk && (
-        <div
-          className="fixed inset-0 z-[100] flex flex-col sm:hidden"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
-          onClick={() => setShowStationRisk(false)}
-        >
-          <div
-            className="mt-auto bg-bg-card border-t border-border-default rounded-t-2xl shadow-2xl flex flex-col max-h-[80dvh] overflow-hidden animate-slide-up"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border-default shrink-0">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-accent-amber" />
-                <span className="text-sm font-semibold text-text-primary">Station Risk</span>
-              </div>
-              <button
-                onClick={() => setShowStationRisk(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary transition-all duration-150 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            {/* Panel Content */}
-            <div className="flex-1 min-h-0">
-              <StationRiskPanel />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
