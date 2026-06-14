@@ -68,7 +68,7 @@ export const TopBar: React.FC = () => {
   return (
     <>
       <header
-        className="h-12 border-b border-border-default px-2 sm:px-4 flex flex-wrap items-center justify-between gap-1 sm:gap-2 text-sm select-none shrink-0 overflow-hidden"
+        className="min-h-12 sm:h-12 border-b border-border-default px-2 sm:px-4 flex flex-wrap items-center justify-between gap-1 sm:gap-2 text-sm select-none shrink-0 overflow-visible sm:overflow-hidden py-1 sm:py-0"
         style={{
           background: 'linear-gradient(90deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 50%, rgba(37,99,235,0.05) 100%)',
           boxShadow: '0 1px 0 rgba(255,255,255,0.03), 0 1px 8px rgba(0,0,0,0.3), inset 0 -2px 0 var(--color-accent-blue-soft), inset 0 0 20px rgba(37,99,235,0.08)',
@@ -111,7 +111,7 @@ export const TopBar: React.FC = () => {
 
           {/* API Status */}
           <div
-            className={`hidden sm:flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 ${
+            className={`flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-mono uppercase tracking-wider border select-none shrink-0 ${
               liveApiEnabled && apiStatus === 'connected'
                 ? 'bg-accent-green-soft text-accent-green border-accent-green/20'
                 : liveApiEnabled && apiStatus === 'connecting'
