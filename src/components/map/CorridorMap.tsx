@@ -95,6 +95,7 @@ export const CorridorMap: React.FC = () => {
   const [loadingText, setLoadingText] = useState('Connecting to tile server...');
   const [maplibReady, setMaplibReady] = useState(false);
   const [showMapLegend, setShowMapLegend] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const styleIndexRef = useRef(0);
   // Use a ref to avoid stale closure in setTimeout callbacks
   const mapLoadedRef = useRef(false);
@@ -110,6 +111,13 @@ export const CorridorMap: React.FC = () => {
 
   const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
+
+  // Track window width for responsive legend
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Poll for maplibregl script load
   useEffect(() => {
@@ -728,8 +736,9 @@ export const CorridorMap: React.FC = () => {
       </div>
 
       {/* ═══ Map Legend ═══ */}
-      {/* On desktop: always shown. On mobile: collapsed button expands on tap */}
-      {showMapLegend ? (
+      {/* On desktop (>640px): always shown. On mobile: toggle between button and expanded legend */}
+      {/* Expanded legend */}
+      {(showMapLegend || windowWidth >= 640) && (
         <div className="absolute bottom-3 right-3 z-10 max-sm:left-2 max-sm:right-auto">
           <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] max-sm:max-w-[180px] pointer-events-auto">
             <div className="flex items-center justify-between mb-2">
@@ -744,7 +753,6 @@ export const CorridorMap: React.FC = () => {
                 </svg>
               </button>
             </div>
-            {/* Station risk section */}
             <div className="mb-3">
               <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
@@ -806,11 +814,13 @@ export const CorridorMap: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : (
-        /* Collapsed legend button — mobile only */
+      )}
+
+      {/* Collapsed legend button — mobile only, hidden when legend is open */}
+      {!showMapLegend && windowWidth < 640 && (
         <button
           onClick={() => setShowMapLegend(true)}
-          className="absolute bottom-3 right-3 z-10 sm:hidden flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
+          className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
           style={{
             background: 'var(--color-bg-elevated)',
             color: 'var(--color-text-secondary)',
