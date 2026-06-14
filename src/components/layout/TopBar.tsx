@@ -221,7 +221,7 @@ export const TopBar: React.FC = () => {
           {/* Settings Button */}
           <button
             onClick={() => setShowSettings(true)}
-            className="max-sm:hidden w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0"
             title="Settings"
           >
             <Settings className="w-3.5 h-3.5" />
