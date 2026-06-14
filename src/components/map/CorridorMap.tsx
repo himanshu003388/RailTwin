@@ -821,7 +821,7 @@ export const CorridorMap: React.FC = () => {
       {!showMapLegend && windowWidth < 640 && (
         <button
           onClick={() => setShowMapLegend(true)}
-          className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
+          className="absolute bottom-20 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer pointer-events-auto"
           style={{
             background: 'var(--color-bg-elevated)',
             color: 'var(--color-text-secondary)',
