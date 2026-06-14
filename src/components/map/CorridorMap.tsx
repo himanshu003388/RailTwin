@@ -45,7 +45,7 @@ const INDIA_ZOOM_PANEL = 4.3;
 const getStationsGeoJSON = (stationRisks: any, stationsList: any[], weatherData: any) => {
   return {
     type: 'FeatureCollection',
-    features: (stationsList.length ? stationsList : ALL_STATIONS).map(station => {
+    features: (stationsList.length ? stationsList : ALL_STATIONS).filter(s => s.id !== 'vz').map(station => {
       const risks = stationRisks[station.id] || { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 };
       const weather = weatherData ? weatherData[station.id] : null;
       let color = '#22c55e';

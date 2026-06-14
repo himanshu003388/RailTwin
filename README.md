@@ -101,14 +101,18 @@ src/
 
 ## Deployment
 
-The project is configured for **GitHub Pages**:
+The project is configured for deployment on **Vercel** (SSR rendering via `@astrojs/vercel`) and **GitHub Pages**:
 
-```sh
-npm run build
-npm run deploy    # Uses gh-pages to push to gh-pages branch
-```
+- **Vercel Production Live Link**: [https://rail-twin.vercel.app/](https://rail-twin.vercel.app/)
+- **GitHub Pages Sandbox**: [https://himanshu003388.github.io/RailTwin/](https://himanshu003388.github.io/RailTwin/)
 
-Live: https://himanshu003388.github.io/RailTwin/
+## Data Sources
+
+RailTwin AI is grounded in real-world Indian Railway data:
+1. **Indian Railways Dataset (Kaggle)**: Source for the database of 36 major junction stations, latitude/longitude coordinates, track geometries, and core train route configurations.
+2. **NTES (National Train Enquiry System) & IRCTC**: Used for baseline schedule verification and validation of delay-propagation behaviors.
+3. **OpenWeatherMap & Open-Meteo**: Powering the dynamic live weather alerts and meteorology-based delay scaling.
+4. **Ridge Regression delay model**: Trained on 448 historical delay profiles across Indian Railways corridors.
 
 ## License
 
