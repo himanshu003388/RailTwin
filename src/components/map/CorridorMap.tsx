@@ -11,7 +11,6 @@ declare global {
 const TRAIN_COLORS: Record<string, string> = {
   '12951': '#3b82f6', // Mumbai Rajdhani - blue
   '12007': '#22c55e', // Chennai Shatabdi - green
-  '12245': '#ef4444', // Howrah-Bengaluru Duronto - red
   '12423': '#a855f7', // Dibrugarh Rajdhani - purple
   '12801': '#f97316', // Purushottam Express - orange
   '12625': '#06b6d4', // Kerala Express - cyan
@@ -22,7 +21,6 @@ const TRAIN_COLORS: Record<string, string> = {
 const TRAIN_SHORT_NAMES: Record<string, string> = {
   '12951': 'Mumbai Raj',
   '12007': 'Chennai Shat',
-  '12245': 'HWH-BLR Dur',
   '12423': 'DBRG Raj',
   '12801': 'Purushottam',
   '12625': 'Kerala Exp',
@@ -33,7 +31,6 @@ const TRAIN_SHORT_NAMES: Record<string, string> = {
 const TRAIN_LEGEND = [
   { id: '12951', name: 'Mumbai Rajdhani', color: '#3b82f6' },
   { id: '12007', name: 'Chennai Shatabdi', color: '#22c55e' },
-  { id: '12245', name: 'HWH–BLR Duronto', color: '#ef4444' },
   { id: '12423', name: 'DBRG Rajdhani', color: '#a855f7' },
   { id: '12801', name: 'Purushottam Exp', color: '#f97316' },
   { id: '12625', name: 'Kerala Express', color: '#06b6d4' },

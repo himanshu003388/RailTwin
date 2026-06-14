@@ -70,7 +70,6 @@ export const ALL_STATIONS = Object.values(STATIONS);
 export const TRAIN_ROUTES: Record<string, string[]> = {
   '12951': ['mmct', 'brc', 'rtm', 'kota', 'ndls'],
   '12007': ['mas', 'kpd', 'jtj', 'sbc', 'mys'],
-  '12245': ['hwh', 'bls', 'bbs', 'vz', 'mas', 'sbc'],
   '12423': ['dbrg', 'ghy', 'njp', 'bju', 'mgs', 'ndls'],
   '12801': ['puri', 'bbs', 'kur', 'bhc', 'hwh', 'gaya', 'mgs', 'ndls'],
   '12625': ['tvc', 'ers', 'pgt', 'maq', 'mrj', 'pune', 'ndls'],
@@ -81,7 +80,6 @@ export const TRAIN_ROUTES: Record<string, string[]> = {
 const TRAIN_META: Record<string, { type: Train['type']; speed: number; capacity: number; passengerCount: number; zone: string; startHour: number; startMin: number }> = {
   '12951': { type: 'rajdhani', speed: 130, capacity: 1000, passengerCount: 920, zone: 'WR', startHour: 16, startMin: 35 },
   '12007': { type: 'shatabdi', speed: 110, capacity: 750, passengerCount: 680, zone: 'SR', startHour: 6, startMin: 0 },
-  '12245': { type: 'duronto', speed: 130, capacity: 800, passengerCount: 720, zone: 'ER', startHour: 22, startMin: 30 },
   '12423': { type: 'rajdhani', speed: 110, capacity: 850, passengerCount: 780, zone: 'NFR', startHour: 13, startMin: 0 },
   '12801': { type: 'express', speed: 100, capacity: 1400, passengerCount: 1300, zone: 'ECR', startHour: 8, startMin: 0 },
   '12625': { type: 'express', speed: 90, capacity: 1500, passengerCount: 1400, zone: 'SR', startHour: 16, startMin: 45 },
@@ -92,7 +90,6 @@ const TRAIN_META: Record<string, { type: Train['type']; speed: number; capacity:
 const TRAIN_NAMES: Record<string, string> = {
   '12951': 'Mumbai Rajdhani Express',
   '12007': 'Chennai–Mysuru Shatabdi',
-  '12245': 'Howrah–Bengaluru Duronto',
   '12423': 'Dibrugarh–New Delhi Rajdhani',
   '12801': 'Purushottam Express',
   '12625': 'Kerala Express',
