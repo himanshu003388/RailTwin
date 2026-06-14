@@ -23,7 +23,8 @@ export class HistoricalDelayPredictionEngine {
     const weather = input.weatherCondition || 'Clear';
 
     // 1. Get historical stats for explanation context
-    const stats = await railwayDataset.getDelayStats(trainNo);
+    let stats: any = null;
+    try { stats = await railwayDataset.getDelayStats(trainNo); } catch { stats = null; }
     let baseDelay = 15;
     let recordCount = 0;
     let baseSource = 'Global default baseline';
