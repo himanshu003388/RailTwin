@@ -186,4 +186,39 @@ describe('computeDrift — Multi-variable drift engine', () => {
     expect(explanation).toContain('Schedule drift:');
     expect(explanation).toContain('Position drift:');
   });
+
+  it('computes relative delay drift correctly during replay: baseline 45 min + override +48 min yields schedule normalized = 100', () => {
+    const baseDelay = 45;
+    const overrideDelay = baseDelay + 48; // t=50s override
+    const base = makeTrain({ trainId: '12137', predictedDelay: baseDelay });
+    const live = makeTrain({ trainId: '12137', predictedDelay: overrideDelay });
+    const report = computeDrift(makeBaseline([base]), makeLive([live]));
+    const scheduleComp = report.trains[0].components.find(c => c.key === 'schedule')!;
+    // Delta is 48min, Ceiling is 45min -> 48/45 * 100 = 106.66 capped at 100
+    expect(scheduleComp.raw).toBe(48);
+    expect(scheduleComp.normalized).toBe(100);
+    expect(scheduleComp.weighted).toBe(40); // 100 * 0.40
+  });
+
+  it('weather override applied to nextStation produces weather component > 0 and prediction component >= 60', () => {
+    const base = makeTrain({ currentStation: 'bpl', nextStation: 'bsl', weatherConditionAtNext: 'Clear' });
+    const baseWeather = { bsl: clearWeather(), bpl: clearWeather() };
+    const liveWeather = {
+      bpl: { ...clearWeather(), rainfall: 24, description: 'Moderate rain' },
+      bsl: { ...clearWeather(), rainfall: 62, description: 'Violent rain showers', visibility: 2.5 },
+    };
+    const live = makeTrain({
+      currentStation: 'bpl',
+      nextStation: 'bsl',
+      weatherConditionAtNext: weatherClassOf(liveWeather.bsl),
+    });
+    const report = computeDrift(makeBaseline([base], baseWeather), makeLive([live], liveWeather));
+    const t = report.trains[0];
+    const weatherComp = t.components.find(c => c.key === 'weather')!;
+    const predComp = t.components.find(c => c.key === 'prediction')!;
+    expect(weatherComp.raw).toBe(62);
+    expect(weatherComp.normalized).toBe(100);
+    expect(weatherComp.weighted).toBeGreaterThan(0);
+    expect(predComp.normalized).toBeGreaterThanOrEqual(60);
+  });
 });

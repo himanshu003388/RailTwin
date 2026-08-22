@@ -131,10 +131,61 @@ drift = 0.40·schedule + 0.25·position + 0.20·prediction + 0.15·weather      
 
 Classes: `<15 stable · <40 minor · <70 significant · ≥70 critical`. The corridor score is the **passenger-exposure-weighted** mean across trains. The weights deliberately mirror the Tier-2 prediction weights (40/25/20/15) so the whole system shares one weighting philosophy.
 
+### Round 2 · Design Constants & Thresholds
+
+| Constant / Threshold | Value | Rationale & Operational Meaning |
+|---|---|---|
+| `Schedule Weight` | **0.40** | Delay divergence is the primary operational metric in railway corridor management. |
+| `Position Weight` | **0.25** | Spatial delta between real-time transponder telemetry and dead-reckoned plan coordinates. |
+| `Prediction Weight` | **0.20** | Validity of underlying ML model feature assumptions (downstream weather & congestion). |
+| `Weather Weight` | **0.15** | Discrepancies between pinned meteorological baseline and live station sensor feeds. |
+| `Schedule Ceiling` | **45 min** | 45 min delay represents full operational disruption saturation (100% component score) for premium trains. |
+| `Position Ceiling` | **120 km** | Typical inter-junction spacing on Indian trunk lines (e.g. Vadodara to Ratlam). |
+| `Spatial Conflict Tolerance` | **40 km** | Permissible GPS/SSE telemetry jitter before raising an operator conflict. |
+| `Critical Spatial Divergence` | **> 100 km** | Severe spatial anomaly indicating track loop detour or transponder desync. |
+| `Jaro-Winkler Auto Match` | **≥ 0.90** | High-confidence matching threshold (OCR typos, punctuation) resolved automatically. |
+| `Jaro-Winkler Review Band` | **0.60 – 0.90** | Ambiguous variations ("Kanpur Centrall", "Bhopal Jn") routed to dispatcher triage inbox. |
+| `Jaro-Winkler Reject` | **< 0.60** | Nonsense or unrecognized inputs rejected outright (eliminates Round 1's silent NDLS fallback). |
+| `Baseline Expiry` | **12 hours** | Standard dispatcher shift duration before prompting a fresh baseline capture. |
+| `Drift Evaluation Loop` | **5 seconds** | Synchronized with real-time SSE telemetry ticks for zero-lag reactivity. |
+
+### Round 2 · Files Added & Touched
+
+| File Path | Purpose |
+|---|---|
+| `src/lib/drift-engine.ts` | Pure deterministic drift scoring engine (4-factor weighted sum, passenger exposure, human-readable explanations). |
+| `src/lib/reconciler.ts` | Pure reconciliation engine (Jaro-Winkler fuzzy matching, telemetry deduplication, spatial/weather conflict arbitration). |
+| `src/stores/driftStore.ts` | Zustand store managing baseline snapshots, 5s evaluation loop, deterministic 60s scenario replay, and closed-loop resolution. |
+| `src/components/panels/ReconciliationPanel.tsx` | Drift Monitor UI: corridor health gauges, per-train sparkline drift cards, 1-click reconcile triggers, triage inbox, and handover export. |
+| `src/components/map/CorridorMap.tsx` | MapLibre GL corridor map displaying live trains, ghost baseline markers, dashed drift link lines, and interactive Plan vs Live diff cards. |
+| `src/components/copilot/CopilotChat.tsx` | Gemini AI Copilot chat injected with live drift telemetry and 1-click drift inquiry chips. |
+| `src/components/panels/WhatIfPanel.tsx` | Scenario planning lab with auto-seeding from critical drift trains. |
+| `src/pages/api/baseline/index.ts` | Astro SSR endpoint to persist and retrieve baseline snapshots and historical snapshots. |
+| `src/pages/api/reconciliation/index.ts` | Astro SSR endpoint to log operator reconciliation actions and audit trails. |
+| `src/pages/api/weather/compare.ts` | Astro SSR endpoint returning side-by-side weather comparisons from independent weather sources. |
+| `src/pages/api/sse/train-updates.ts` | Live SSE position feed synchronized with timetable simulation to prevent spurious drift. |
+| `src/lib/db.ts` | SQLite persistence layer with graceful console logging fallbacks for serverless environments. |
+| `tests/drift-engine.test.ts` | Vitest unit test suite validating pure scoring, weights, relative delay maths, and explanation generation. |
+| `tests/reconciler.test.ts` | Vitest unit test suite validating Jaro-Winkler string similarity, deduplication, conflict arbitration, and NDLS fallback elimination. |
+
+### Round 2 · Unit Test Verification
+
 Both Round 2 engines are **pure modules with unit tests** (`tests/drift-engine.test.ts`, `tests/reconciler.test.ts` — score weighting, class thresholds, re-anchoring, dedupe, similarity thresholds, conflict detection):
 
 ```bash
-npm test
+npx vitest run
+```
+
+```text
+ RUN  v3.2.7 C:/Users/himan/Desktop/RailTwin-main
+
+ ✓ tests/drift-engine.test.ts (15 tests) 21ms
+ ✓ tests/reconciler.test.ts (27 tests) 49ms
+
+ Test Files  2 passed (2)
+      Tests  42 passed (42)
+   Start at  21:51:20
+   Duration  1.03s (transform 309ms, setup 0ms, collect 592ms, tests 70ms, environment 1ms, prepare 437ms)
 ```
 
 ---

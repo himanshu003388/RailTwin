@@ -11,7 +11,7 @@ import {
   POSITION_CONFLICT_KM,
   type FeedEvent,
 } from '../src/lib/reconciler';
-import { STATIONS } from '../src/data/corridor';
+import { STATIONS, computeLivePositions, haversineKm } from '../src/data/corridor';
 
 describe('jaroWinkler similarity metric', () => {
   it('scores exact identity as 1.0', () => {
@@ -77,6 +77,20 @@ describe('matchStation — Registry matching & triage', () => {
     expect(matchStation('   ').status).toBe('rejected');
     expect(matchStation('12345678').status).toBe('rejected');
   });
+
+  it("the fix for Round 1's silent NDLS fallback", () => {
+    // Round 1 used to silently map unknown station names to NDLS.
+    // Round 2 explicitly flags ambiguous or unknown names as review or rejected without false mapping.
+    const unknown = matchStation('zzzzqqqq');
+    expect(unknown.matchedId).toBeNull();
+    expect(unknown.status).toBe('rejected');
+    expect(unknown.matchedId).not.toBe('ndls');
+
+    const near = matchStation('Kanpur Centrall');
+    expect(near.status).not.toBe('rejected');
+    expect(near.candidates[0].id).toBe('cnb');
+    expect(near.candidates[0].id).not.toBe('ndls');
+  });
 });
 
 describe('matchTrain — Train number validation', () => {
@@ -137,6 +151,20 @@ describe('dedupeEvents — Stream deduplication', () => {
     expect(unique).toHaveLength(3);
     expect(conflicts).toHaveLength(0);
     expect(identicalDropped).toBe(0);
+  });
+
+  it('dedupeEvents with 3 identical + 1 differing payload yields identicalDropped === 2 and conflicts.length === 1', () => {
+    const ev1 = { ...base };
+    const ev2 = { ...base };
+    const ev3 = { ...base, source: 'SSE feed (packet 2)' };
+    const evDiffering = { ...base, currentStation: 'rtm', routeProgress: 0.1, speed: 110, source: 'SSE feed (packet 3)' };
+
+    const result = dedupeEvents([ev1, ev2, ev3, evDiffering]);
+    expect(result.unique).toHaveLength(1);
+    expect(result.identicalDropped).toBe(2);
+    expect(result.conflicts).toHaveLength(1);
+    expect(result.conflicts[0].first.currentStation).toBe('brc');
+    expect(result.conflicts[0].second.currentStation).toBe('rtm');
   });
 });
 
@@ -211,5 +239,22 @@ describe('partialMatchItem — Wrapper for review inbox', () => {
     expect(partialMatchItem('station', matchStation('Kanpur Central'), 'Feed B')).toBeNull();
     expect(partialMatchItem('station', matchStation('NDLS'), 'Feed B')).toBeNull();
     expect(partialMatchItem('train', matchTrain('12951'), 'Feed B')).toBeNull();
+  });
+
+  it('SSE payload positions are within 5 km of computeLivePositions() for every train', () => {
+    const positions = computeLivePositions();
+    expect(positions.length).toBeGreaterThan(0);
+    // Simulate SSE generation with route progress jitter +/- 0.01 (approx 2-4 km on typical segment)
+    const ssePositions = positions.map(p => ({
+      ...p,
+      routeProgress: Math.min(1, Math.max(0, p.routeProgress + (Math.random() - 0.5) * 0.01)),
+    }));
+
+    for (const p of positions) {
+      const sse = ssePositions.find(s => s.id === p.id);
+      expect(sse).toBeDefined();
+      const distance = haversineKm(p.coordinates, sse!.coordinates);
+      expect(distance).toBeLessThan(5);
+    }
   });
 });
