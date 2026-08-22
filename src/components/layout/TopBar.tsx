@@ -49,6 +49,27 @@ export const TopBar: React.FC = () => {
     return () => clearInterval(id);
   }, []);
 
+  // Shortcut to open help modal with '?' or 'h'
+  useEffect(() => {
+    const handleHelpToggle = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement;
+      if (activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.isContentEditable
+      )) {
+        return;
+      }
+      if (e.key === '?' || e.key === 'h' || e.key === 'H') {
+        if (!showSettings) {
+          setShowHelp(prev => !prev);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleHelpToggle);
+    return () => window.removeEventListener('keydown', handleHelpToggle);
+  }, [showSettings]);
+
   // Live API Polling
   useEffect(() => {
     const updateLiveTrains = useDemoStore.getState().updateLiveTrainsFromApi;

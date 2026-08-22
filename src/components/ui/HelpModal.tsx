@@ -4,7 +4,8 @@ import { X, Keyboard } from 'lucide-react';
 const SHORTCUTS = [
   { key: '1-7', desc: 'Switch panels' },
   { key: 'M', desc: 'Toggle audio alerts' },
-  { key: 'Esc', desc: 'Back to Map View' },
+  { key: '?', desc: 'Toggle Help & Shortcuts' },
+  { key: 'Esc', desc: 'Back to Map View / Close' },
 ];
 
 const PANELS = [
@@ -21,10 +22,15 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
   useEffect(() => {
     if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      // Ignore modifier keys pressed alone
+      if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      onClose();
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener('keydown', handleKey, true);
+    return () => window.removeEventListener('keydown', handleKey, true);
   }, [open, onClose]);
 
   if (!open) return null;
