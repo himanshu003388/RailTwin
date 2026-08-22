@@ -3,10 +3,40 @@ import { useDemoStore } from '../../stores/demoStore';
 import { useDriftStore } from '../../stores/driftStore';
 import { TRAIN_ROUTES, STATIONS, ALL_STATIONS, getTrainRoute } from '../../data/corridor';
 import { TRACK_GEOMETRIES } from '../../data/trackGeometries';
+import { makeReconItem } from '../../lib/reconciler';
 import { Layers, Eye, EyeOff } from 'lucide-react';
 
 declare global {
   const maplibregl: any;
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).railtwinAcceptLive = (trainId: string) => {
+    const state = useDriftStore.getState();
+    let item = state.reconItems.find(i => i.status === 'open' && i.entity === trainId);
+    if (!item) {
+      const train = useDemoStore.getState().trains.find(t => t.id === trainId);
+      const tDrift = state.driftReport?.trains.find(t => t.trainId === trainId);
+      item = makeReconItem({
+        type: 'conflict',
+        entity: trainId,
+        entityLabel: `${trainId} · ${train?.name || 'Train'}`,
+        field: 'schedule',
+        sourceA: { name: 'Recorded Plan', value: `Delay ${tDrift?.baseline.delay ?? 0}m` },
+        sourceB: { name: 'Live Reality', value: `Delay ${tDrift?.live.delay ?? 0}m` },
+        severity: tDrift?.driftClass === 'critical' ? 'critical' : 'high',
+        suggestedResolution: 'accept-live',
+        suggestion: `Ghost marker accepted by operator. Re-anchoring baseline to live position and delay.`,
+      });
+      useDriftStore.setState(s => ({
+        reconItems: [item!, ...s.reconItems],
+      }));
+    }
+    state.resolveItem(item.id, 'accept-live');
+    if ((window as any).activeDriftPopup) {
+      try { (window as any).activeDriftPopup.remove(); } catch {}
+    }
+  };
 }
 
 const TRAIN_COLORS: Record<string, string> = {
@@ -390,17 +420,23 @@ export const CorridorMap: React.FC = () => {
                   <div style="${rowCss}"><span style="color:${muted};">Weather</span><span style="font-weight:600;">${liveWeather ? liveWeather.description : '—'}</span></div>
                 </div>
               </div>
-              <div style="background:${clsColor}10; border:1px solid ${clsColor}33; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:4px;">
+              <div style="background:${clsColor}10; border:1px solid ${clsColor}33; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:4px; margin-bottom:8px;">
                 <div style="font-size:9px; font-weight:700; color:${clsColor}; text-transform:uppercase; letter-spacing:0.06em;">Δ Drift breakdown</div>
                 <div style="${rowCss}"><span style="color:${muted};">Δ Delay (schedule)</span><span style="font-weight:700; font-family:monospace;">${comp.schedule ? comp.schedule.raw : 0} min → ${comp.schedule ? comp.schedule.weighted : 0} pts</span></div>
                 <div style="${rowCss}"><span style="color:${muted};">Δ Distance (position)</span><span style="font-weight:700; font-family:monospace;">${comp.position ? Math.round(comp.position.raw) : 0} km → ${comp.position ? comp.position.weighted : 0} pts</span></div>
                 <div style="${rowCss}"><span style="color:${muted};">Prediction assumptions</span><span style="font-weight:700; font-family:monospace;">${comp.prediction ? comp.prediction.weighted : 0} pts</span></div>
                 <div style="${rowCss}"><span style="color:${muted};">Weather vs forecast</span><span style="font-weight:700; font-family:monospace;">${comp.weather ? comp.weather.weighted : 0} pts</span></div>
               </div>
-              <div style="font-size:8px; color:${muted}; margin-top:6px; font-family:monospace;">◌ ghost = position the recorded context implied for now</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                <span style="font-size:8px; color:${muted}; font-family:monospace;">◌ ghost = plan coordinates</span>
+                <button onclick="window.railtwinAcceptLive('${trainId}')" style="background:${clsColor}; color:#ffffff; border:none; border-radius:6px; padding:4px 10px; font-size:10px; font-weight:700; font-family:monospace; cursor:pointer; box-shadow:0 2px 8px ${clsColor}66; transition:all 0.15s; display:inline-flex; align-items:center; gap:4px;">
+                  ✓ Accept live
+                </button>
+              </div>
             </div>`;
-          new maplibregl.Popup({ closeButton: true, offset: 10, maxWidth: '300px' })
+          const popup = new maplibregl.Popup({ closeButton: true, offset: 10, maxWidth: '300px' })
             .setLngLat(e.lngLat).setHTML(html).addTo(map);
+          (window as any).activeDriftPopup = popup;
         };
         map.on('click', 'drift-ghost-circles', openDriftPopup);
         map.on('click', 'drift-link-lines', openDriftPopup);

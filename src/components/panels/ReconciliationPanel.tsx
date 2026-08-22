@@ -54,6 +54,43 @@ const fmtTime = (iso: string) =>
 const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, history }) => {
   const [open, setOpen] = useState(false);
   const color = CLASS_COLOR[t.driftClass];
+  const isDrifted = t.driftClass === 'significant' || t.driftClass === 'critical';
+
+  const handleReconcile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const state = useDriftStore.getState();
+    let item = state.reconItems.find(i => i.status === 'open' && i.entity === t.trainId);
+    if (!item) {
+      item = makeReconItem({
+        type: 'conflict',
+        entity: t.trainId,
+        entityLabel: `${t.trainId} · ${t.trainName}`,
+        field: 'schedule',
+        sourceA: { name: 'Recorded Plan', value: `Delay ${t.baseline.delay}m @ ${t.baseline.station.toUpperCase()}` },
+        sourceB: { name: 'Live Reality', value: `Delay ${t.live.delay}m @ ${t.live.station.toUpperCase()}` },
+        severity: t.driftClass === 'critical' ? 'critical' : 'high',
+        suggestedResolution: 'accept-live',
+        suggestion: `Schedule drift has reached ${Math.round(t.score)}/100 (${t.driftClass}). Suggest accepting live reality to re-anchor baseline projection.`,
+      });
+      useDriftStore.setState(s => ({
+        reconItems: [item!, ...s.reconItems],
+        timeline: [{
+          at: new Date().toISOString(),
+          kind: 'conflict' as const,
+          message: `Escalated to inbox: ${t.trainId} ${t.trainName} schedule drift (${Math.round(t.score)}/100)`,
+        }, ...s.timeline].slice(0, 60),
+      }));
+    }
+    setTimeout(() => {
+      const el = document.getElementById(`recon-item-${item!.id}`) || document.getElementById('recon-inbox-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        el.classList.add('drift-critical-pulse');
+        setTimeout(() => el.classList.remove('drift-critical-pulse'), 2500);
+      }
+    }, 50);
+  };
+
   return (
     <div className="border border-border-default rounded-lg overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
       <button
@@ -68,6 +105,20 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
         </div>
         <Sparkline points={history} color={color} />
         <div className="flex items-center gap-2 shrink-0">
+          {isDrifted && (
+            <button
+              onClick={handleReconcile}
+              className="text-[9px] font-mono font-bold px-2 py-0.5 rounded border transition-all active:scale-95 cursor-pointer hover:brightness-110"
+              style={{
+                borderColor: color,
+                background: `color-mix(in srgb, ${color} 15%, transparent)`,
+                color,
+              }}
+              title="Escalate and reconcile this drifted train in the inbox"
+            >
+              Reconcile
+            </button>
+          )}
           <span className="text-sm font-mono font-bold" style={{ color, fontVariantNumeric: 'tabular-nums' }}>
             {Math.round(t.score)}
           </span>
