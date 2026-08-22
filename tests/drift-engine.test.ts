@@ -3,8 +3,11 @@ import {
   classifyDrift,
   computeDrift,
   kmAlongRoute,
+  coordsAtKm,
   weatherClassOf,
   DRIFT_WEIGHTS,
+  DRIFT_CEILINGS,
+  DRIFT_THRESHOLDS,
 } from '../src/lib/drift-engine';
 import type { BaselineSnapshot, BaselineTrainSnapshot, LiveSnapshot, WeatherSnapshot } from '../src/data/types';
 
@@ -41,7 +44,7 @@ function makeLive(trains: BaselineTrainSnapshot[], weather: Record<string, Weath
 }
 
 describe('classifyDrift', () => {
-  it('maps scores to the documented classes', () => {
+  it('maps numerical scores to documented severity classes', () => {
     expect(classifyDrift(0)).toBe('stable');
     expect(classifyDrift(14.9)).toBe('stable');
     expect(classifyDrift(15)).toBe('minor');
@@ -50,22 +53,31 @@ describe('classifyDrift', () => {
     expect(classifyDrift(69.9)).toBe('significant');
     expect(classifyDrift(70)).toBe('critical');
     expect(classifyDrift(100)).toBe('critical');
+    expect(classifyDrift(150)).toBe('critical');
+  });
+
+  it('verifies threshold consistency', () => {
+    expect(DRIFT_THRESHOLDS).toHaveLength(4);
+    expect(DRIFT_THRESHOLDS[0].cls).toBe('stable');
+    expect(DRIFT_THRESHOLDS[3].cls).toBe('critical');
   });
 });
 
 describe('weatherClassOf', () => {
-  it('classifies like the prediction engine', () => {
+  it('categorizes weather snapshots identically to the prediction engine', () => {
     expect(weatherClassOf(clearWeather())).toBe('Clear');
     expect(weatherClassOf({ ...clearWeather(), rainfall: 60 })).toBe('Heavy Rain');
-    expect(weatherClassOf({ ...clearWeather(), rainfall: 5 })).toBe('Rain');
+    expect(weatherClassOf({ ...clearWeather(), rainfall: 12 })).toBe('Rain');
     expect(weatherClassOf({ ...clearWeather(), visibility: 0.5 })).toBe('Fog');
-    expect(weatherClassOf({ ...clearWeather(), description: 'Dense fog' })).toBe('Fog');
+    expect(weatherClassOf({ ...clearWeather(), description: 'Dense fog and mist' })).toBe('Fog');
+    expect(weatherClassOf({ ...clearWeather(), description: 'Thunderstorm with heavy rain' })).toBe('Heavy Rain');
+    expect(weatherClassOf({ ...clearWeather(), description: 'Scattered light showers' })).toBe('Rain');
     expect(weatherClassOf(undefined)).toBe('Unknown');
   });
 });
 
-describe('kmAlongRoute', () => {
-  it('is 0 at the origin and monotonic along the route', () => {
+describe('kmAlongRoute & coordsAtKm geometry helpers', () => {
+  it('is 0 at origin and increases monotonically', () => {
     const origin = kmAlongRoute('12951', 'mmct', 0);
     const mid = kmAlongRoute('12951', 'brc', 0.5);
     const later = kmAlongRoute('12951', 'kota', 0.2);
@@ -73,21 +85,36 @@ describe('kmAlongRoute', () => {
     expect(mid).toBeGreaterThan(origin);
     expect(later).toBeGreaterThan(mid);
   });
+
+  it('handles clamped route boundaries gracefully', () => {
+    const end = kmAlongRoute('12951', 'ndls', 1.0);
+    expect(end).toBeGreaterThan(1200);
+    expect(kmAlongRoute('12951', 'unknown_station', 0.5)).toBe(0);
+  });
+
+  it('interpolates geographical coordinates along km accurately', () => {
+    const coordsStart = coordsAtKm('12951', 0);
+    const coordsMid = coordsAtKm('12951', 400);
+    expect(coordsStart).toHaveLength(2);
+    expect(coordsMid).toHaveLength(2);
+    expect(coordsStart[0]).not.toEqual(coordsMid[0]);
+  });
 });
 
-describe('computeDrift', () => {
-  it('reports zero drift when nothing changed', () => {
+describe('computeDrift — Multi-variable drift engine', () => {
+  it('reports zero drift when live reality matches the baseline perfectly', () => {
     const train = makeTrain();
     const weather = { brc: clearWeather(), rtm: clearWeather() };
     const report = computeDrift(makeBaseline([train], weather), makeLive([{ ...train }], weather));
     expect(report.corridorScore).toBe(0);
     expect(report.corridorClass).toBe('stable');
     expect(report.trains[0].score).toBe(0);
+    expect(report.trains[0].components).toHaveLength(4);
   });
 
-  it('scores pure schedule drift with the 0.40 weight', () => {
+  it('scores schedule drift accurately with 0.40 weight and 45min ceiling', () => {
     const base = makeTrain({ predictedDelay: 0 });
-    // +45 min = the normalisation ceiling → schedule component = 100 pts
+    // +45 min = normalisation ceiling → schedule score = 100 pts normalized, 40 pts weighted
     const live = makeTrain({ predictedDelay: 45 });
     const weather = { brc: clearWeather(), rtm: clearWeather() };
     const report = computeDrift(makeBaseline([base], weather), makeLive([live], weather));
@@ -96,6 +123,16 @@ describe('computeDrift', () => {
     expect(schedule.weighted).toBe(100 * DRIFT_WEIGHTS.schedule);
     expect(report.trains[0].score).toBe(40);
     expect(report.trains[0].driftClass).toBe('significant');
+  });
+
+  it('caps schedule drift above ceiling to 100 normalized points', () => {
+    const base = makeTrain({ predictedDelay: 0 });
+    const live = makeTrain({ predictedDelay: 90 });
+    const weather = {};
+    const report = computeDrift(makeBaseline([base], weather), makeLive([live], weather));
+    const schedule = report.trains[0].components.find(c => c.key === 'schedule')!;
+    expect(schedule.normalized).toBe(100);
+    expect(schedule.weighted).toBe(40);
   });
 
   it('detects weather drift and invalidated prediction assumptions', () => {
@@ -110,35 +147,43 @@ describe('computeDrift', () => {
     const t = report.trains[0];
     const weatherComp = t.components.find(c => c.key === 'weather')!;
     const predComp = t.components.find(c => c.key === 'prediction')!;
-    expect(weatherComp.normalized).toBe(100); // class change (60) + Δmm capped (40)
-    expect(predComp.normalized).toBeGreaterThanOrEqual(60); // assumption invalidated
+    expect(weatherComp.normalized).toBe(100);
+    expect(predComp.normalized).toBeGreaterThanOrEqual(60);
     expect(t.score).toBeGreaterThan(0);
   });
 
-  it('re-anchors position projection from a per-train snapshotAt', () => {
+  it('re-anchors position projection accurately when operator accepts live reality', () => {
     const capturedAt = T0;
     const thirtyLater = '2026-08-22T10:30:00.000Z';
-    // Train accepted-live at t+30: snapshotAt = now, position = live position
     const base = makeTrain({ snapshotAt: thirtyLater });
     const live = makeTrain();
     const weather = { brc: clearWeather(), rtm: clearWeather() };
     const baseline = { ...makeBaseline([base], weather), capturedAt };
     const report = computeDrift(baseline, makeLive([live], weather, thirtyLater));
     const position = report.trains[0].components.find(c => c.key === 'position')!;
-    // No time has passed since the re-anchor → no phantom position drift
     expect(position.normalized).toBe(0);
   });
 
-  it('weights the corridor score by passenger exposure', () => {
-    const big = makeTrain({ trainId: '12137', trainName: 'Punjab Mail', currentStation: 'bpl', nextStation: 'agc', passengerCount: 1600, predictedDelay: 0 });
-    const bigDrifted = { ...big, predictedDelay: 45 };
-    const small = makeTrain({ trainId: '12007', trainName: 'Chennai Shatabdi', currentStation: 'kpd', nextStation: 'jtj', passengerCount: 100, predictedDelay: 0 });
+  it('calculates corridor score weighted by passenger exposure', () => {
+    const bigTrain = makeTrain({ trainId: '12137', trainName: 'Punjab Mail', currentStation: 'bpl', nextStation: 'agc', passengerCount: 1600, predictedDelay: 0 });
+    const bigDrifted = { ...bigTrain, predictedDelay: 45 };
+    const smallTrain = makeTrain({ trainId: '12007', trainName: 'Chennai Shatabdi', currentStation: 'kpd', nextStation: 'jtj', passengerCount: 100, predictedDelay: 0 });
     const weather = {};
     const report = computeDrift(
-      makeBaseline([big, small], weather),
-      makeLive([bigDrifted, { ...small }], weather),
+      makeBaseline([bigTrain, smallTrain], weather),
+      makeLive([bigDrifted, { ...smallTrain }], weather),
     );
-    // 1600-passenger train at 40, 100-passenger train at 0 → weighted mean ≈ 37.6, not 20
     expect(report.corridorScore).toBeGreaterThan(30);
+  });
+
+  it('generates rich human-readable explanation strings with feature contributions', () => {
+    const base = makeTrain({ predictedDelay: 0 });
+    const live = makeTrain({ predictedDelay: 30 });
+    const weather = {};
+    const report = computeDrift(makeBaseline([base], weather), makeLive([live], weather));
+    const explanation = report.trains[0].explanation;
+    expect(explanation).toContain('Mumbai Rajdhani Express drift');
+    expect(explanation).toContain('Schedule drift:');
+    expect(explanation).toContain('Position drift:');
   });
 });

@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useDriftStore } from '../../stores/driftStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import {
   GitCompare, Pin, Play, Square, AlertTriangle, CheckCircle2, Clock, Copy, CloudRain, MapPin, FileDown, Printer,
+  FlaskConical, Wand2, ChevronDown, ChevronUp, Sparkles,
 } from 'lucide-react';
 import { useDemoStore } from '../../stores/demoStore';
 import { downloadHandoverMarkdown, printHandoverReport, type HandoverData } from '../../lib/export-report';
+import {
+  matchStation,
+  matchTrain,
+  partialMatchItem,
+  detectWeatherConflict,
+  detectPositionConflict,
+} from '../../lib/reconciler';
 import type { DriftClass, ReconciliationItem, TrainDrift } from '../../data/types';
 
 const CLASS_COLOR: Record<DriftClass, string> = {
@@ -161,6 +169,251 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
               {label}{item.suggestedResolution === res ? ' ★' : ''}
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Interactive Live Tester for Judges & Operators */
+const ReconSandbox: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('Kanpur Centrall');
+  const [kind, setKind] = useState<'station' | 'train'>('station');
+
+  const result = useMemo(() => {
+    if (!query.trim()) return null;
+    return kind === 'station' ? matchStation(query) : matchTrain(query);
+  }, [query, kind]);
+
+  const queuePartialMatch = () => {
+    if (!result) return;
+    const item = partialMatchItem(kind, result, 'Interactive Live Tester');
+    if (item) {
+      useDriftStore.setState(s => ({
+        reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
+        timeline: [{ at: new Date().toISOString(), kind: 'partial-match', message: `Sandbox queued for review: "${query}" (${Math.round((item.similarity ?? 0) * 100)}% match)` }, ...s.timeline].slice(0, 60),
+      }));
+      useDemoStore.getState().addToast({
+        type: 'info',
+        title: 'Queued to Inbox',
+        message: `"${query}" requires operator review (${Math.round((result.similarity || 0) * 100)}% match).`,
+      });
+    } else {
+      useDemoStore.getState().addToast({
+        type: 'success',
+        title: 'Auto-Resolved',
+        message: `"${query}" matched with high confidence (${Math.round((result.similarity || 0) * 100)}%).`,
+      });
+    }
+  };
+
+  const injectWeatherConflict = () => {
+    const item = detectWeatherConflict(
+      'bsl',
+      { rainfall: 0, description: 'Clear sky', temperature: 31, visibility: 10, source: 'live', name: 'Open-Meteo' },
+      { rainfall: 64, description: 'Violent rainstorm', temperature: 22, visibility: 1.8, source: 'live', name: 'OpenWeatherMap' }
+    );
+    if (item) {
+      useDriftStore.setState(s => ({
+        reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
+        timeline: [{ at: new Date().toISOString(), kind: 'conflict', message: `Sandbox conflict: Weather at ${item.entityLabel} (Clear vs Heavy Rain)` }, ...s.timeline].slice(0, 60),
+      }));
+      useDriftStore.getState().computeDriftNow();
+      useDemoStore.getState().addToast({
+        type: 'warning',
+        title: 'Weather Conflict Injected',
+        message: 'Open-Meteo (Clear) vs OpenWeather (Heavy Rain 64mm) queued.',
+      });
+    }
+  };
+
+  const injectPositionConflict = () => {
+    const item = detectPositionConflict(
+      '12137',
+      'Punjab Mail',
+      { coordinates: [75.8, 21.3], currentStation: 'bsl', source: 'GPS Telemetry Feed (Packet A)', timestamp: new Date().toISOString() },
+      { coordinates: [77.4, 23.2], currentStation: 'bpl', source: 'Timetable Position Engine (Packet B)', timestamp: new Date().toISOString() }
+    );
+    if (item) {
+      useDriftStore.setState(s => ({
+        reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
+        timeline: [{ at: new Date().toISOString(), kind: 'conflict', message: `Sandbox conflict: Punjab Mail position mismatch (~180km)` }, ...s.timeline].slice(0, 60),
+      }));
+      useDriftStore.getState().computeDriftNow();
+      useDemoStore.getState().addToast({
+        type: 'warning',
+        title: 'Position Conflict Injected',
+        message: 'GPS Telemetry vs Timetable position divergence queued.',
+      });
+    }
+  };
+
+  const injectDuplicatePacket = () => {
+    const ts = new Date().toISOString();
+    useDriftStore.getState().ingestFeedEvents([
+      { trainId: '12951', timestamp: ts, currentStation: 'rtm', routeProgress: 0.45, speed: 120, source: 'SSE Feed (Stream A)' },
+      { trainId: '12951', timestamp: ts, currentStation: 'brc', routeProgress: 0.32, speed: 110, source: 'SSE Feed (Stream B)' },
+    ]);
+    useDemoStore.getState().addToast({
+      type: 'warning',
+      title: 'Duplicate Packets Injected',
+      message: 'Two conflicting payload events with identical timestamps queued.',
+    });
+  };
+
+  return (
+    <div className="border border-border-default rounded-lg mb-3 overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-bg-elevated/50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <FlaskConical className="w-3.5 h-3.5 text-accent-purple" />
+          <span className="text-[11px] font-mono font-semibold text-text-primary">
+            Interactive Reconciler Sandbox · Live Tester
+          </span>
+          <span className="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-accent-purple/10 text-accent-purple border border-accent-purple/20 uppercase">
+            Judge Tool
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-text-tertiary">
+          <span className="text-[9px] font-mono hidden sm:inline">{open ? 'Hide sandbox' : 'Test matcher & conflicts'}</span>
+          {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="p-3 border-t border-border-subtle flex flex-col gap-3">
+          {/* Fuzzy Match Tester */}
+          <div className="flex flex-col gap-2 p-2.5 rounded-md border border-border-subtle" style={{ background: 'var(--color-bg-elevated)' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-text-secondary uppercase tracking-wider flex items-center gap-1">
+                <Wand2 className="w-3 h-3 text-accent-purple" /> Jaro-Winkler Similarity Matcher
+              </span>
+              <div className="flex gap-1">
+                {(['station', 'train'] as const).map(k => (
+                  <button
+                    key={k}
+                    onClick={() => setKind(k)}
+                    className="text-[9px] font-mono px-2 py-0.5 rounded border transition-all cursor-pointer"
+                    style={{
+                      borderColor: kind === k ? 'var(--color-accent-purple)' : 'var(--color-border-default)',
+                      background: kind === k ? 'color-mix(in srgb, var(--color-accent-purple) 15%, transparent)' : 'transparent',
+                      color: kind === k ? 'var(--color-accent-purple)' : 'var(--color-text-tertiary)',
+                    }}
+                  >
+                    {k}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Type dirty name (e.g. Kanpur Centr, Bhopal Jn, 1295l)..."
+                className="flex-1 text-[11px] font-mono px-2.5 py-1.5 rounded border border-border-default outline-none bg-bg-page text-text-primary focus:border-accent-purple"
+              />
+              <button
+                onClick={queuePartialMatch}
+                className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded text-white bg-accent-purple hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                Queue to Inbox
+              </button>
+            </div>
+
+            {/* Quick Chips */}
+            <div className="flex items-center gap-1 flex-wrap text-[9px] font-mono text-text-muted">
+              <span>Quick tests:</span>
+              {['Kanpur Centr', 'Bhopal Jn', '1295l (train)', 'Mumbay Central', 'NDLS'].map(chip => (
+                <button
+                  key={chip}
+                  onClick={() => {
+                    if (chip.includes('train')) {
+                      setKind('train');
+                      setQuery('1295l');
+                    } else {
+                      setKind('station');
+                      setQuery(chip);
+                    }
+                  }}
+                  className="px-1.5 py-0.5 rounded border border-border-subtle hover:border-accent-purple hover:text-text-primary transition-colors cursor-pointer"
+                  style={{ background: 'var(--color-bg-page)' }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+
+            {/* Match output card */}
+            {result && (
+              <div className="flex items-center justify-between p-2 rounded border border-border-subtle bg-bg-card text-[10px] font-mono">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="px-1.5 py-0.5 rounded font-bold uppercase text-[9px]"
+                    style={{
+                      color: result.status === 'auto' || result.status === 'exact' ? 'var(--color-risk-low)'
+                        : result.status === 'review' ? 'var(--color-accent-purple)' : 'var(--color-risk-critical)',
+                      background: result.status === 'auto' || result.status === 'exact' ? 'var(--color-risk-low-bg)'
+                        : result.status === 'review' ? 'color-mix(in srgb, var(--color-accent-purple) 15%, transparent)' : 'var(--color-risk-critical-bg)',
+                    }}
+                  >
+                    {result.status.toUpperCase()}
+                  </span>
+                  <span className="text-text-secondary">
+                    Best: <strong className="text-text-primary">{result.candidates[0]?.label || 'None'}</strong>
+                  </span>
+                </div>
+                <span className="font-bold" style={{ color: 'var(--color-accent-purple)' }}>
+                  {Math.round(result.similarity * 100)}% similarity
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Scenario Injections */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-accent-blue" /> Instant Scenario Injections (1-Click)
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+              <button
+                onClick={injectWeatherConflict}
+                className="text-[10px] font-mono p-2 rounded border border-border-default hover:border-accent-red text-left transition-all cursor-pointer hover:bg-bg-elevated/50 active:scale-95"
+                style={{ background: 'var(--color-bg-card)' }}
+              >
+                <div className="font-bold text-accent-red flex items-center gap-1">
+                  <CloudRain className="w-3 h-3" /> Weather Conflict
+                </div>
+                <span className="text-[9px] text-text-muted block mt-0.5">Open-Meteo vs OpenWeather (BSL)</span>
+              </button>
+
+              <button
+                onClick={injectPositionConflict}
+                className="text-[10px] font-mono p-2 rounded border border-border-default hover:border-accent-orange text-left transition-all cursor-pointer hover:bg-bg-elevated/50 active:scale-95"
+                style={{ background: 'var(--color-bg-card)' }}
+              >
+                <div className="font-bold text-accent-orange flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> Position Conflict
+                </div>
+                <span className="text-[9px] text-text-muted block mt-0.5">GPS vs Schedule (180km offset)</span>
+              </button>
+
+              <button
+                onClick={injectDuplicatePacket}
+                className="text-[10px] font-mono p-2 rounded border border-border-default hover:border-accent-amber text-left transition-all cursor-pointer hover:bg-bg-elevated/50 active:scale-95"
+                style={{ background: 'var(--color-bg-card)' }}
+              >
+                <div className="font-bold text-accent-amber flex items-center gap-1">
+                  <Copy className="w-3 h-3" /> Duplicate Packets
+                </div>
+                <span className="text-[9px] text-text-muted block mt-0.5">Conflicting payload streams (12951)</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -335,6 +588,9 @@ export const ReconciliationPanel: React.FC = () => {
         )}
       </div>
 
+      {/* ── Interactive Reconciler Sandbox (Judges & Operators) ── */}
+      <ReconSandbox />
+
       {/* ── Reconciliation inbox ── */}
       <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
         <AlertTriangle className="w-3 h-3" /> Reconciliation inbox · {openItems.length} open
@@ -344,7 +600,7 @@ export const ReconciliationPanel: React.FC = () => {
           <div className="border border-border-default border-dashed rounded-lg py-6 text-center">
             <CheckCircle2 className="w-6 h-6 mx-auto mb-1.5" style={{ color: 'var(--color-accent-green)' }} />
             <span className="text-[11px] text-text-tertiary block">No conflicting, duplicate or partially matching records right now.</span>
-            <span className="text-[10px] text-text-muted block mt-0.5">Run the replay scenario to see the reconciler in action.</span>
+            <span className="text-[10px] text-text-muted block mt-0.5">Use the Sandbox above or run the Replay scenario to see the reconciler in action.</span>
           </div>
         )}
         {openItems.map(item => <ReconItemCard key={item.id} item={item} />)}
