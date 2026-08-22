@@ -15,7 +15,7 @@
 
 import { create } from 'zustand';
 import { useDemoStore } from './demoStore';
-import { computeLivePositions, STATIONS } from '../data/corridor';
+import { computeLivePositions, STATIONS, TRAIN_ROUTES, haversineKm } from '../data/corridor';
 import { computeDrift, weatherClassOf } from '../lib/drift-engine';
 import { playCriticalDriftAlert, playResolvedChime } from '../lib/alert-audio';
 import {
@@ -71,6 +71,33 @@ interface DriftState {
 let replayOverrides: ReplayOverrides = { delays: {}, weather: {} };
 let replayTimeouts: ReturnType<typeof setTimeout>[] = [];
 let lastClassByTrain: Record<string, string> = {};
+let preOverrideWeatherData: Record<string, any> = {};
+
+function applyWeatherOverride(id: string, patch: Partial<WeatherSnapshot>) {
+  replayOverrides.weather[id] = patch;
+  const demo = useDemoStore.getState();
+  if (demo.weatherData?.[id]) {
+    if (!preOverrideWeatherData[id]) {
+      preOverrideWeatherData[id] = { ...demo.weatherData[id] };
+    }
+    useDemoStore.setState({ weatherData: { ...demo.weatherData, [id]: { ...demo.weatherData[id], ...patch } } });
+  }
+}
+
+function restorePreOverrideWeather() {
+  if (Object.keys(preOverrideWeatherData).length > 0) {
+    const demo = useDemoStore.getState();
+    if (demo.weatherData) {
+      useDemoStore.setState({
+        weatherData: {
+          ...demo.weatherData,
+          ...preOverrideWeatherData,
+        },
+      });
+    }
+    preOverrideWeatherData = {};
+  }
+}
 
 function getBaseUrl() {
   const base = import.meta.env.BASE_URL || '/';
@@ -176,6 +203,9 @@ export const useDriftStore = create<DriftState>((set, get) => ({
   replayStep: null,
 
   captureBaseline: (name, source = 'manual') => {
+    if (source === 'manual') {
+      restorePreOverrideWeather();
+    }
     const live = buildLiveSnapshot();
     const baseline: BaselineSnapshot = {
       id: `bl-${Date.now()}`,
@@ -190,6 +220,8 @@ export const useDriftStore = create<DriftState>((set, get) => ({
       baseline,
       corridorHistory: [],
       trainHistory: {},
+      feedEventsSeen: 0,
+      duplicatesDropped: 0,
       timeline: pushTimeline(state, {
         at: baseline.capturedAt,
         kind: 'baseline',
@@ -197,11 +229,13 @@ export const useDriftStore = create<DriftState>((set, get) => ({
       }),
     }));
     persistBaseline(baseline);
-    useDemoStore.getState().addToast({
-      type: 'info',
-      title: 'Baseline Pinned',
-      message: `Recorded context frozen at ${new Date(baseline.capturedAt).toLocaleTimeString('en-IN', { hour12: false })}. Drift is now measured against it.`,
-    });
+    if (source !== 'replay') {
+      useDemoStore.getState().addToast({
+        type: 'info',
+        title: 'Baseline Pinned',
+        message: `Recorded context frozen at ${new Date(baseline.capturedAt).toLocaleTimeString('en-IN', { hour12: false })}. Drift is now measured against it.`,
+      });
+    }
     get().computeDriftNow();
   },
 
@@ -417,21 +451,29 @@ export const useDriftStore = create<DriftState>((set, get) => ({
       replayTimeouts.push(setTimeout(() => { if (get().replayActive) fn(); }, ms));
     };
 
-    // t=8s · unforecast heavy rain at Bhusaval hits Punjab Mail (12137)
+    const baseDelay = (id: string) =>
+      get().baseline?.trains.find(t => t.trainId === id)?.predictedDelay ?? 0;
+
+    // t=8s · unforecast heavy rain hits Punjab Mail (12137) target stations
     schedule(8000, () => {
-      replayOverrides.weather['bsl'] = { rainfall: 62, description: 'Violent rain showers', visibility: 2.5 };
-      replayOverrides.weather['bpl'] = { rainfall: 24, description: 'Moderate rain', visibility: 5 };
-      step('Weather drift — heavy rain at BSL not in the recorded forecast');
-      demo.addToast({ type: 'warning', title: 'Weather Drift', message: 'BSL now reports 62mm/hr rain. The recorded forecast said clear.' });
+      const t12137 = useDemoStore.getState().trains.find(t => t.id === '12137');
+      const hitNext = t12137?.nextStation ?? 'bsl';
+      const hitCur  = t12137?.currentStation ?? 'bpl';
+      const code = (id: string) => STATIONS[id]?.code ?? id.toUpperCase();
+      applyWeatherOverride(hitNext, { rainfall: 62, description: 'Violent rain showers', visibility: 2.5 });
+      applyWeatherOverride(hitCur,  { rainfall: 24, description: 'Moderate rain', visibility: 5 });
+      step(`Weather drift — heavy rain at ${code(hitNext)} not in the recorded forecast`);
+      demo.addToast({ type: 'warning', title: 'Weather Drift', message: `${code(hitNext)} now reports 62mm/hr rain. The recorded forecast said clear.` });
       get().computeDriftNow();
     });
 
-    // t=18s · the delay picture moves far from the recorded context
+    // t=18s · the delay picture moves relative to recorded baseline
     schedule(18000, () => {
-      replayOverrides.delays['12137'] = 42;
-      replayOverrides.delays['12951'] = 21;
-      step('Schedule drift — 12137 delay 42min vs recorded context');
+      replayOverrides.delays['12137'] = baseDelay('12137') + 28;
+      replayOverrides.delays['12951'] = baseDelay('12951') + 12;
       get().computeDriftNow();
+      const t18 = get().driftReport?.trains.find(x => x.trainId === '12137');
+      step(`Schedule drift — 12137 delay +28min (${t18?.driftClass ?? 'minor'} drift, ${Math.round(t18?.score ?? 0)}/100)`);
     });
 
     // t=28s · duplicate feed events arrive for 12951
@@ -460,11 +502,48 @@ export const useDriftStore = create<DriftState>((set, get) => ({
       demo.addToast({ type: 'warning', title: 'Needs Review', message: 'Incoming records only partially match the registry. Round 1 would have silently mapped them to NDLS.' });
     });
 
-    // t=50s · escalate: the rain cascades, drift goes critical
+    // t=44s · deliberate position conflict for 12625 (Kerala Exp) 2 stations behind engine
+    schedule(44000, () => {
+      const t12625 = useDemoStore.getState().trains.find(t => t.id === '12625');
+      const route = TRAIN_ROUTES['12625'] || [];
+      const curSt = t12625?.currentStation || 'bpl';
+      const curIdx = route.indexOf(curSt);
+      const targetIdx = curIdx >= 2 ? curIdx - 2 : Math.min(route.length - 1, curIdx + 2);
+      const ghostStId = route[targetIdx] || 'ngp';
+      const ghostSt = STATIONS[ghostStId];
+      const ghostCoords = ghostSt ? ghostSt.coordinates : ([79.0, 21.1] as [number, number]);
+      const liveCoords = t12625?.coordinates || ([77.4, 23.2] as [number, number]);
+
+      const item = detectPositionConflict(
+        '12625',
+        t12625?.name || 'Kerala Express',
+        { coordinates: ghostCoords, currentStation: ghostStId, source: 'NTES-style feed B', timestamp: nowIso() },
+        { coordinates: liveCoords, currentStation: curSt, source: 'Position engine (schedule-derived)', timestamp: nowIso() },
+      );
+      if (item) {
+        set(state => ({
+          reconItems: [item, ...state.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
+          timeline: pushTimeline(state, {
+            at: nowIso(),
+            kind: 'conflict',
+            message: `Position conflict: 12625 Kerala Exp — NTES feed B reports near ${ghostSt?.code || ghostStId.toUpperCase()} vs engine near ${STATIONS[curSt]?.code || curSt.toUpperCase()}`,
+          }),
+        }));
+        demo.addToast({
+          type: 'warning',
+          title: 'Position Conflict',
+          message: `12625 Kerala Exp: Feed B reports at ${ghostSt?.code || ghostStId.toUpperCase()} (~${Math.round(haversineKm(ghostCoords, liveCoords))}km divergence).`,
+        });
+        step(`Position conflict — 12625 Feed B (${ghostSt?.code || ghostStId.toUpperCase()}) vs timetable engine`);
+      }
+    });
+
+    // t=50s · escalate: delay moves +48min relative to baseline, reaching critical/significant
     schedule(50000, () => {
-      replayOverrides.delays['12137'] = 55;
-      step('Drift critical on 12137 — operator action required');
+      replayOverrides.delays['12137'] = baseDelay('12137') + 48;
       get().computeDriftNow();
+      const t50 = get().driftReport?.trains.find(x => x.trainId === '12137');
+      step(`Drift ${t50?.driftClass ?? 'significant'} on 12137 (${Math.round(t50?.score ?? 0)}/100) — operator action required`);
     });
 
     // t=62s · wrap up
@@ -475,8 +554,16 @@ export const useDriftStore = create<DriftState>((set, get) => ({
         replayActive: false,
         timeline: pushTimeline(state, { at: nowIso(), kind: 'replay', message: 'Replay scenario finished' }),
       }));
-      // Overrides stay in place so the drifted state remains visible for the demo;
-      // they clear on the next manual baseline pin or stopReplay().
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          const inboxEl = document.getElementById('recon-inbox-section');
+          if (inboxEl) {
+            inboxEl.scrollIntoView({ behavior: 'smooth' });
+            inboxEl.classList.add('drift-critical-pulse');
+            setTimeout(() => inboxEl.classList.remove('drift-critical-pulse'), 3000);
+          }
+        }, 100);
+      }
     });
   },
 
@@ -484,6 +571,7 @@ export const useDriftStore = create<DriftState>((set, get) => ({
     for (const t of replayTimeouts) clearTimeout(t);
     replayTimeouts = [];
     replayOverrides = { delays: {}, weather: {} };
+    restorePreOverrideWeather();
     set({ replayActive: false, replayStep: null });
     if (!silent) {
       useDemoStore.getState().addToast({ type: 'info', title: 'Replay Stopped', message: 'Overrides cleared. Live drift resumes.' });

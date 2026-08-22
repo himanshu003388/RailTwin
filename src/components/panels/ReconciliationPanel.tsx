@@ -104,6 +104,7 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
   const resolved = item.status === 'resolved';
   return (
     <div
+      id={`recon-item-${item.id}`}
       className="border rounded-lg p-3 flex flex-col gap-2 transition-opacity"
       style={{
         background: 'var(--color-bg-card)',
@@ -592,7 +593,7 @@ export const ReconciliationPanel: React.FC = () => {
       <ReconSandbox />
 
       {/* ── Reconciliation inbox ── */}
-      <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+      <span id="recon-inbox-section" className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
         <AlertTriangle className="w-3 h-3" /> Reconciliation inbox · {openItems.length} open
       </span>
       <div className="flex flex-col gap-2 mb-4">
