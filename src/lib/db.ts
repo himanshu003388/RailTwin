@@ -21,7 +21,7 @@ export function getDb(): Database.Database | null {
     initSchema(_db);
     return _db;
   } catch (err) {
-    console.error('SQLite unavailable, persistence disabled:', err);
+    console.warn('SQLite unavailable, persistence disabled:', (err as any)?.message || err);
     _failed = true;
     return null;
   }
@@ -93,6 +93,6 @@ export function logAudit(action: string, details?: Record<string, unknown>) {
       details ? JSON.stringify(details) : null,
     );
   } catch (err) {
-    console.error('audit log write failed:', err);
+    console.warn('audit log write failed:', (err as any)?.message || err);
   }
 }
