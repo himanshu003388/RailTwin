@@ -507,6 +507,9 @@ export const ReconciliationPanel: React.FC = () => {
   const stopReplay = useDriftStore(s => s.stopReplay);
 
   const networkHealth = useDemoStore(s => s.networkHealth);
+  const trains = useDemoStore(s => s.trains);
+  const weatherAlert = useDemoStore(s => s.weatherAlert);
+  const stationRisks = useDemoStore(s => s.stationRisks);
 
   const openItems = reconItems.filter(i => i.status === 'open');
   const resolvedItems = reconItems.filter(i => i.status === 'resolved').slice(0, 5);
@@ -515,7 +518,15 @@ export const ReconciliationPanel: React.FC = () => {
   const isCritical = report ? report.corridorScore >= 70 : false;
 
   const handoverData = (): HandoverData => ({
-    baseline, report, timeline, reconItems, corridorHistory, networkHealth,
+    baseline,
+    report,
+    timeline,
+    reconItems,
+    corridorHistory,
+    networkHealth,
+    trains,
+    weatherAlert,
+    stationRisks,
   });
 
   const [recentBaselines, setRecentBaselines] = useState<Array<{ baseline_id: string; name: string; source: string; captured_at: string }>>([]);
