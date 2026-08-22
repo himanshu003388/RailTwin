@@ -103,7 +103,7 @@ export const ToastContainer: React.FC = () => {
   const removeToast = useDemoStore(state => state.removeToast);
 
   return (
-    <div className="fixed bottom-4 right-2 sm:right-4 z-[200] flex flex-col gap-2 p-2 sm:p-4 max-w-full pointer-events-none items-end max-sm:items-center max-sm:left-2">
+    <div className="fixed bottom-[calc(60px+env(safe-area-inset-bottom,0px))] lg:bottom-4 right-2 sm:right-4 z-[200] flex flex-col gap-2 p-2 sm:p-4 max-w-full pointer-events-none items-end max-sm:items-center max-sm:left-2">
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={removeToast} />
       ))}

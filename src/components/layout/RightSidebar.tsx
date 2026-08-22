@@ -27,20 +27,24 @@ export const RightSidebar: React.FC = () => {
     <>
       {mobileRightOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden cursor-pointer"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden cursor-pointer animate-fade-in"
           onClick={() => setMobileRightOpen(false)}
         />
       )}
-      <aside className={`w-[320px] right-sidebar h-dvh bg-bg-card border-l border-border-default p-3 max-sm:p-2 flex flex-col gap-3 max-sm:gap-2 overflow-y-auto shrink-0 select-none scrollbar-thin transition-transform duration-300 ease-in-out max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:right-0 max-lg:z-[70] max-sm:w-full max-sm:max-w-[300px] sidebar-accent ${
+      <aside className={`w-[320px] right-sidebar h-dvh bg-bg-card border-l border-border-default p-3 max-sm:p-2.5 flex flex-col gap-3 max-sm:gap-2 overflow-y-auto shrink-0 select-none scrollbar-thin transition-transform duration-300 ease-in-out max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:right-0 max-lg:z-[90] max-sm:w-full max-sm:max-w-[320px] sidebar-accent ${
         mobileRightOpen ? 'max-lg:translate-x-0' : 'max-lg:translate-x-full'
       }`}>
-        <button
-          onClick={() => setMobileRightOpen(false)}
-          className="lg:hidden flex items-center justify-center w-7 h-7 rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-default transition-all duration-150 outline-none cursor-pointer shrink-0 self-end"
-          title="Close panel"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
+        <div className="lg:hidden flex items-center justify-between pb-1">
+          <span className="text-xs font-semibold text-text-primary">Station Risks & Live Trains</span>
+          <button
+            onClick={() => setMobileRightOpen(false)}
+            className="flex items-center justify-center w-7 h-7 rounded-md bg-bg-sunken border border-border-subtle text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
+            title="Close panel"
+            aria-label="Close panel"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {/* Live Train Status */}
         <div

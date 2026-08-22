@@ -68,7 +68,7 @@ export const DelayChart: React.FC = () => {
       ) : (
         <>
           {/* Train Selector Tabs */}
-          <div className="flex border-b border-border-default mb-4 overflow-x-auto scrollbar-none">
+          <div className="flex border-b border-border-default mb-3 sm:mb-4 overflow-x-auto scrollbar-none gap-1 pb-0.5">
             {trains.map(train => {
               const isActive = selectedTrainId === train.id;
               const hasDelay = train.predictedDelay > 0;
@@ -77,17 +77,15 @@ export const DelayChart: React.FC = () => {
                 <button
                   key={train.id}
                   onClick={() => setSelectedTrainId(train.id)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-mono border-b-2 outline-none whitespace-nowrap transition-all duration-150"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-mono border-b-2 outline-none whitespace-nowrap transition-all duration-150 cursor-pointer rounded-t-md"
                   style={{
                     background:   isActive ? 'var(--color-bg-elevated)' : 'transparent',
                     color:        isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                     borderColor:  isActive ? 'var(--color-accent-blue)' : 'transparent',
                   }}
-                  onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)'; (e.currentTarget as HTMLElement).style.background = 'var(--color-bg-card)'; } }}
-                  onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-secondary)'; (e.currentTarget as HTMLElement).style.background = 'transparent'; } }}
                 >
-                  <span>{train.id}</span>
-                  {hasDelay && <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: dotColor }} />}
+                  <span className="font-semibold">{train.id}</span>
+                  {hasDelay && <span className="w-1.5 h-1.5 rounded-full inline-block shrink-0" style={{ background: dotColor }} />}
                 </button>
               );
             })}
@@ -95,11 +93,11 @@ export const DelayChart: React.FC = () => {
 
           {/* Area Chart */}
           <div
-            className="flex-1 w-full h-[220px] rounded-xl p-3 mb-4 border border-border-default"
+            className="w-full h-[180px] sm:h-[220px] md:h-[240px] rounded-xl p-2.5 sm:p-3 mb-3 sm:mb-4 border border-border-default shrink-0"
             style={{ background: 'var(--color-bg-card)', boxShadow: 'var(--shadow-card)' }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="delayGradientBlue"  x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.25} />
@@ -145,7 +143,7 @@ export const DelayChart: React.FC = () => {
           </div>
 
           {/* Active Predictions List */}
-          <div className="flex flex-col flex-1 min-h-[140px] max-h-[220px]">
+          <div className="flex flex-col flex-1 min-h-[140px]">
             <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium mb-2 border-b border-border-default pb-1.5">
               Active Warnings ({predictions.length})
             </h3>

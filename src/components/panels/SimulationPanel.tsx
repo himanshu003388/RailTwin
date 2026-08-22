@@ -67,7 +67,7 @@ export const SimulationPanel: React.FC = () => {
 
       {/* ── Impact Metrics ── */}
       {isSimulationActive && (
-        <div className="grid grid-cols-4 max-md:grid-cols-2 gap-2 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           {[
             { label: 'Delay',      value: `+${simulation.cascadeDelay}m`,                                    color: simulation.cascadeDelay > 30 ? 'var(--color-accent-red)' : 'var(--color-accent-amber)' },
             { label: 'Issues',     value: `${simulation.conflictsDetected}`,                                  color: 'var(--color-accent-red)'   },
@@ -91,13 +91,13 @@ export const SimulationPanel: React.FC = () => {
       {/* ── Station Flow ── */}
       {isSimulationActive ? (
         <div
-          className="flex flex-col items-center rounded-xl p-4 mb-5 max-h-[300px] overflow-y-auto scrollbar-thin border border-border-default"
+          className="flex flex-col items-center rounded-xl p-3 sm:p-4 mb-4 max-h-[260px] sm:max-h-[320px] overflow-y-auto scrollbar-thin border border-border-default shrink-0"
           style={{ background: 'var(--color-bg-card)' }}
         >
           <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium mb-3 w-full border-b border-border-default pb-1.5 text-center">
             Impact Flow
           </h3>
-          <div className="flex flex-col items-center gap-1.5 w-full">
+          <div className="flex flex-col items-center gap-1.5 w-full max-w-[280px]">
             {flowStations.map((station, idx) => {
               const isNormal = station.status === 'ok';
               let cardStyle: React.CSSProperties = {};
@@ -114,9 +114,9 @@ export const SimulationPanel: React.FC = () => {
                 return (
                   <React.Fragment key={station.id}>
                     {idx > 0 && <ArrowDown className="w-3.5 h-3.5 text-border-active" />}
-                    <div className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm" style={{ background: redShade, borderColor: 'var(--color-accent-red)' }}>
+                    <div className="w-full h-[52px] sm:h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 shadow-sm px-2" style={{ background: redShade, borderColor: 'var(--color-accent-red)' }}>
                       <span className="text-[11px] font-bold font-mono uppercase tracking-widest" style={{ color: 'var(--color-text-tertiary)' }}>{station.code}</span>
-                      <span className="text-[9px] opacity-80 select-none truncate max-w-[110px]">{station.name}</span>
+                      <span className="text-[9px] opacity-80 select-none truncate max-w-[160px]">{station.name}</span>
                       {delayLabel && (
                         <span className="text-[9px] font-mono mt-0.5 font-bold text-accent-red" style={{ fontVariantNumeric: 'tabular-nums' }}>
                           {delayLabel}
@@ -131,11 +131,11 @@ export const SimulationPanel: React.FC = () => {
                 <React.Fragment key={station.id}>
                   {idx > 0 && <ArrowDown className="w-3.5 h-3.5 text-border-active" />}
                   <div
-                    className="w-[130px] h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300"
+                    className="w-full h-[52px] sm:h-[56px] rounded-lg border flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300 px-2"
                     style={cardStyle}
                   >
                     <span className={`text-[11px] font-bold font-mono uppercase tracking-widest ${textClass}`}>{station.code}</span>
-                    <span className="text-[9px] opacity-70 select-none truncate max-w-[110px]">{station.name}</span>
+                    <span className="text-[9px] opacity-70 select-none truncate max-w-[160px]">{station.name}</span>
                     {delayLabel && (
                       <span
                         className="text-[9px] font-mono mt-0.5 font-bold"
@@ -151,10 +151,10 @@ export const SimulationPanel: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-12 px-6 text-center select-none mb-5">
+        <div className="flex-1 flex flex-col items-center justify-center border border-border-default border-dashed rounded-xl py-10 px-4 text-center select-none mb-4">
           <Zap className="w-10 h-10 text-border-default mb-3" />
           <span className="text-sm text-text-secondary font-medium mb-1">No active disruption</span>
-          <span className="text-xs text-text-tertiary mb-4 max-w-[260px] leading-relaxed">
+          <span className="text-xs text-text-tertiary max-w-[260px] leading-relaxed">
             Network is operating normally. Disruptions detected by AI monitoring will appear here.
           </span>
         </div>
@@ -163,7 +163,7 @@ export const SimulationPanel: React.FC = () => {
       {/* ── Resolution Banner ── */}
       {isSimulationActive && isResolved && resolved && (
         <div
-          className="border rounded-lg p-3.5 mb-5 flex gap-2.5 items-start animate-slide-up"
+          className="border rounded-lg p-3 sm:p-3.5 mb-4 flex gap-2.5 items-start animate-slide-up"
           style={{ background: 'var(--color-risk-low-bg)', borderColor: 'var(--color-risk-low-border)' }}
         >
           <CheckCircle className="w-4 h-4 text-accent-green flex-shrink-0 mt-0.5" style={{ filter: 'drop-shadow(0 0 4px rgba(34,197,94,0.5))' }} />
@@ -180,7 +180,7 @@ export const SimulationPanel: React.FC = () => {
 
       {/* ── AI Recommendations ── */}
       {isSimulationActive && (
-        <div className="flex flex-col flex-1 pb-4">
+        <div className="flex flex-col flex-1 pb-2 min-h-[160px]">
           <div className="flex items-center gap-1.5 border-b border-border-default pb-1.5 mb-2.5">
             <Bot className="w-4 h-4 text-accent-purple" />
             <h3 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
@@ -225,11 +225,11 @@ export const SimulationPanel: React.FC = () => {
                     </div>
 
                     {isPriority1 && (
-                      <div className="mt-3 flex justify-end">
+                      <div className="mt-2.5 flex justify-end">
                         <button
                           disabled={alreadyAccepted}
                           onClick={() => acceptRecommendation(rec.id)}
-                          className="text-[10px] font-semibold px-3.5 py-1 rounded transition-all duration-200 outline-none active:scale-[0.98]"
+                          className="text-[10px] font-semibold px-3.5 py-1 rounded transition-all duration-200 outline-none active:scale-[0.98] cursor-pointer"
                           style={alreadyAccepted ? {
                             background: 'var(--color-bg-elevated)',
                             color: 'var(--color-text-tertiary)',

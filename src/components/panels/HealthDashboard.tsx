@@ -132,7 +132,7 @@ export const HealthDashboard: React.FC = () => {
       </div>
 
       {/* ── Key Metrics Grid ── */}
-      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4 shrink-0">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 sm:mb-4 shrink-0">
         <MetricTile
           icon={<Train className="w-3.5 h-3.5 text-accent-blue" />}
           label="Active Trains"
@@ -161,7 +161,7 @@ export const HealthDashboard: React.FC = () => {
 
       {/* ── Station Risk Summary ── */}
       <div
-        className="bg-bg-card border border-border-default rounded-lg p-3 mb-4 shrink-0"
+        className="bg-bg-card border border-border-default rounded-lg p-3 mb-3 sm:mb-4 shrink-0"
         style={{ boxShadow: 'var(--shadow-card)' }}
       >
         <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-[0.08em] block mb-2.5">
@@ -176,15 +176,15 @@ export const HealthDashboard: React.FC = () => {
                 key={station.id}
                 className="flex items-center justify-between py-1.5 border-b border-border-subtle last:border-0 transition-colors duration-150 hover:bg-bg-elevated rounded-sm px-1"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: rc, boxShadow: `0 0 5px ${rc}99` }}
                   />
                   <span className="text-[10px] font-mono text-text-secondary font-semibold">{station.code}</span>
-                  <span className="text-[9px] text-text-tertiary truncate max-w-[80px]">{station.name}</span>
+                  <span className="text-[9px] text-text-tertiary truncate max-w-[120px] sm:max-w-[200px]">{station.name}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   {risk.platformConflicts > 0 && (
                     <span
                       className="text-[8px] px-1.5 py-0.5 rounded font-mono font-semibold"
@@ -212,13 +212,13 @@ export const HealthDashboard: React.FC = () => {
 
       {/* ── Active Systems ── */}
       <div
-        className="bg-bg-card border border-border-default rounded-lg p-3 shrink-0"
+        className="bg-bg-card border border-border-default rounded-lg p-3 shrink-0 mb-3"
         style={{ boxShadow: 'var(--shadow-card)' }}
       >
         <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-[0.08em] block mb-2.5">
           Active Systems
         </span>
-        <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-y-2 gap-x-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-3">
           {systems.map(sys => (
             <div key={sys.label} className="flex items-center gap-2">
               <span

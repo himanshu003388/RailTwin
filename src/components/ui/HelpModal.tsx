@@ -40,14 +40,14 @@ export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ op
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default shrink-0">
           <div className="flex items-center gap-2">
             <Keyboard className="w-4 h-4 text-accent-blue" />
             <h2 className="text-sm font-semibold text-text-primary">Help & Shortcuts</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1"
+            className="text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1 cursor-pointer"
             aria-label="Close help"
           >
             <X className="w-4 h-4" />

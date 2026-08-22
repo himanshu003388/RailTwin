@@ -23,7 +23,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className="group bg-bg-card border border-border-default rounded-lg p-3.5 flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-px cursor-default"
+      className="group bg-bg-card border border-border-default rounded-lg p-2.5 sm:p-3.5 flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-px cursor-default"
       style={{
         boxShadow: 'var(--shadow-card)',
       }}

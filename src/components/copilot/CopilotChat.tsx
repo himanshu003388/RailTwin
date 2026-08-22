@@ -147,18 +147,18 @@ export const CopilotChat: React.FC = () => {
   const showEmptyState = !hasUserMessages && !hasCopilotMessages;
 
   return (
-    <div className="flex flex-col h-full bg-bg-page text-text-primary">
+    <div className="flex flex-col h-full min-h-0 bg-bg-page text-text-primary">
       {/* Chat History */}
-      <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 scrollbar-thin">
         {showEmptyState && (
-          <div className="flex flex-col items-center justify-center py-8 select-none">
-            <Bot className="w-10 h-10 text-border-default mb-3 animate-breath" />
-            <span className="text-sm text-text-secondary font-medium mb-1">Ask about the corridor</span>
-            <span className="text-xs text-text-tertiary max-w-[280px] text-center leading-relaxed mb-3">
+          <div className="flex flex-col items-center justify-center py-6 sm:py-8 select-none">
+            <Bot className="w-9 h-9 sm:w-10 sm:h-10 text-border-default mb-2.5 sm:mb-3 animate-breath" />
+            <span className="text-xs sm:text-sm text-text-secondary font-medium mb-1">Ask about the corridor</span>
+            <span className="text-[11px] sm:text-xs text-text-tertiary max-w-[280px] text-center leading-relaxed mb-3">
               Ask about trains, delays, weather, or anything happening on the corridor.
             </span>
             <div
-              className="flex items-center gap-1.5 text-[10px] rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 text-[10px] rounded-lg px-2.5 py-1"
               style={{
                 background: 'var(--color-risk-low-bg)',
                 border: '1px solid var(--color-risk-low-border)',
@@ -183,13 +183,13 @@ export const CopilotChat: React.FC = () => {
           );
 
           if (isUser) return (
-            <div key={msg.id} className="flex flex-col gap-1 items-end max-w-[80%] self-end">
+            <div key={msg.id} className="flex flex-col gap-1 items-end max-w-[92%] sm:max-w-[80%] self-end">
               <div className="flex items-center gap-1.5 mr-1 select-none">
                 <User className="w-3.5 h-3.5 text-text-secondary" />
                 <span className="text-xs font-semibold text-text-secondary">You</span>
               </div>
               <div
-                className="rounded-lg rounded-tr-sm p-3 text-sm text-text-primary select-text leading-relaxed"
+                className="rounded-xl rounded-tr-sm p-2.5 sm:p-3 text-xs sm:text-sm text-text-primary select-text leading-relaxed shadow-sm"
                 style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-hover)' }}
               >
                 {msg.message}
@@ -198,14 +198,14 @@ export const CopilotChat: React.FC = () => {
           );
 
           return (
-            <div key={msg.id} className="flex flex-col gap-1 items-start max-w-[85%] self-start">
+            <div key={msg.id} className="flex flex-col gap-1 items-start max-w-[95%] sm:max-w-[85%] self-start">
               <div className="flex items-center gap-1.5 ml-1 select-none">
                 <Bot className="w-3.5 h-3.5 text-accent-purple" />
                 <span className="text-xs font-semibold text-accent-purple">AI Chat</span>
                 <span className="text-[10px] text-text-muted font-mono">{timeLabel}</span>
               </div>
               <div
-                className="rounded-lg rounded-tl-sm p-3 text-sm text-text-primary select-text leading-relaxed w-full"
+                className="rounded-xl rounded-tl-sm p-2.5 sm:p-3 text-xs sm:text-sm text-text-primary select-text leading-relaxed w-full shadow-sm"
                 style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)' }}
               >
                 <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
@@ -217,9 +217,9 @@ export const CopilotChat: React.FC = () => {
         })}
 
         {copilot.thinking && (
-          <div className="flex items-center gap-3 self-start max-w-[85%]">
+          <div className="flex items-center gap-3 self-start max-w-[90%] sm:max-w-[85%]">
             <div
-              className="flex items-center gap-2 px-4 py-3 rounded-lg rounded-tl-sm"
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg rounded-tl-sm"
               style={{
                 background: 'rgba(168,85,247,0.06)',
                 border: '1px solid rgba(168,85,247,0.25)',
@@ -240,10 +240,9 @@ export const CopilotChat: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border-default p-4 bg-bg-card animate-slide-up">
-        {/* Round 2 · one-click drift inquiry chips — always available so judges
-            and operators can interrogate the drift state without typing */}
-        <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
+      <div className="border-t border-border-default p-2.5 sm:p-3.5 bg-bg-card animate-slide-up shrink-0">
+        {/* Quick inquiry chips */}
+        <div className="flex gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 overflow-x-auto pb-1 scrollbar-none select-none">
           {[
             { icon: '⚡', q: 'Why is corridor drift high right now?' },
             { icon: '🔍', q: 'Explain the drift breakdown for Punjab Mail (12137).' },
@@ -254,7 +253,7 @@ export const CopilotChat: React.FC = () => {
               key={q}
               onClick={() => { setInputText(''); handleSend(q); }}
               disabled={copilot.thinking}
-              className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-[11px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 background: 'var(--color-bg-elevated)',
                 border: '1px solid var(--color-border-default)',
@@ -272,12 +271,11 @@ export const CopilotChat: React.FC = () => {
           <input
             ref={inputRef}
             type="text"
-            autoFocus
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             disabled={copilot.thinking}
             placeholder={copilot.thinking ? "Analyzing…" : "Ask about the corridor…"}
-            className="flex-grow rounded-lg text-sm px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-grow rounded-lg text-xs sm:text-sm px-3 sm:px-3.5 py-2 outline-none transition-colors duration-200 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-bg-elevated)',
               border: '1px solid var(--color-border-default)',
@@ -291,12 +289,13 @@ export const CopilotChat: React.FC = () => {
             disabled={copilot.thinking || !inputText.trim()}
             className="absolute right-1.5 text-white p-1.5 rounded-md transition-all duration-200 outline-none active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110"
             style={{ background: 'var(--color-accent-purple)', boxShadow: '0 0 8px rgba(168,85,247,0.4)' }}
+            aria-label="Send message"
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
 
-        <div className="mt-2.5 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
+        <div className="mt-2 text-[9px] text-text-muted text-center font-mono select-none uppercase tracking-wider flex items-center justify-center gap-1.5">
           <span>AI Chat</span>
           <span className="w-1.5 h-1.5 rounded-full bg-risk-low animate-pulse" />
           <span className="text-[8px]">ACTIVE</span>

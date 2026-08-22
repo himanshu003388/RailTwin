@@ -118,11 +118,11 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
 
       <span className="text-[12px] font-semibold text-text-primary">{item.entityLabel}</span>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {[item.sourceA, item.sourceB].map((src, i) => (
           <div key={i} className="rounded-md px-2 py-1.5 border border-border-subtle" style={{ background: 'var(--color-bg-elevated)' }}>
             <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">{src.name}</span>
-            <span className="text-[10px] font-mono text-text-primary">{src.value}</span>
+            <span className="text-[10px] font-mono text-text-primary break-words">{src.value}</span>
             {src.timestamp && <span className="text-[8px] font-mono text-text-muted block">@ {fmtTime(src.timestamp)}</span>}
           </div>
         ))}
@@ -142,8 +142,8 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
 
       {resolved ? (
         <div className="flex items-center gap-1.5 text-[10px] font-mono" style={{ color: 'var(--color-accent-green)' }}>
-          <CheckCircle2 className="w-3 h-3" />
-          Resolved: {item.resolution?.replace('-', ' ')} {item.resolvedAt ? `@ ${fmtTime(item.resolvedAt)}` : ''}
+          <CheckCircle2 className="w-3 h-3 shrink-0" />
+          <span>Resolved: {item.resolution?.replace('-', ' ')} {item.resolvedAt ? `@ ${fmtTime(item.resolvedAt)}` : ''}</span>
         </div>
       ) : (
         <div className="flex gap-1.5 flex-wrap">
@@ -151,7 +151,7 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
             <button
               key={res}
               onClick={() => resolveItem(item.id, res)}
-              className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md border transition-all active:scale-[0.97]"
+              className="text-[10px] font-mono font-semibold px-2 sm:px-2.5 py-1 rounded-md border transition-all active:scale-[0.97] cursor-pointer"
               style={{
                 borderColor: item.suggestedResolution === res ? meta.color : 'var(--color-border-default)',
                 color: item.suggestedResolution === res ? meta.color : 'var(--color-text-secondary)',
@@ -195,10 +195,10 @@ export const ReconciliationPanel: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none overflow-y-auto pr-1">
+    <div className="flex flex-col h-full bg-bg-page text-text-primary select-none overflow-y-auto pr-0.5 scrollbar-thin">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-3">
+      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-3 shrink-0">
         <div className="flex items-center gap-2">
           <GitCompare className="w-4 h-4 text-accent-purple" />
           <h2 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
@@ -209,9 +209,9 @@ export const ReconciliationPanel: React.FC = () => {
       </div>
 
       {/* ── Baseline / recorded context ── */}
-      <div className="rounded-lg p-3 mb-3 border border-border-default flex items-center justify-between gap-3 flex-wrap"
+      <div className="rounded-lg p-3 mb-3 border border-border-default flex items-center justify-between gap-3 flex-wrap shrink-0"
         style={{ background: 'var(--color-bg-card)', boxShadow: 'var(--shadow-card)' }}>
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <Pin className="w-4 h-4 shrink-0 text-accent-blue" />
           <div className="flex flex-col min-w-0">
             <span className="text-[12px] font-semibold text-text-primary truncate">
@@ -224,36 +224,37 @@ export const ReconciliationPanel: React.FC = () => {
             </span>
           </div>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap items-center">
           <button
             onClick={() => { stopReplay(true); captureBaseline(); }}
-            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md transition-all active:scale-[0.97] text-white"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md transition-all active:scale-[0.97] text-white cursor-pointer hover:brightness-110"
             style={{ background: 'var(--color-accent-blue)' }}
           >
             <span className="inline-flex items-center gap-1"><Pin className="w-3 h-3" /> Pin baseline</span>
           </button>
           <button
             onClick={() => (replayActive ? stopReplay() : startReplay())}
-            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97]"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] cursor-pointer hover:border-border-hover"
             style={{ background: 'var(--color-bg-elevated)', color: replayActive ? 'var(--color-accent-red)' : 'var(--color-accent-purple)' }}
           >
             <span className="inline-flex items-center gap-1">
               {replayActive ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-              {replayActive ? 'Stop replay' : 'Replay drift scenario'}
+              <span className="hidden sm:inline">{replayActive ? 'Stop replay' : 'Replay scenario'}</span>
+              <span className="sm:hidden">{replayActive ? 'Stop' : 'Replay'}</span>
             </span>
           </button>
           <button
             onClick={() => downloadHandoverMarkdown(handoverData())}
             title="Download the shift handover & reconciliation audit as Markdown"
-            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary cursor-pointer hover:border-border-hover"
             style={{ background: 'var(--color-bg-elevated)' }}
           >
-            <span className="inline-flex items-center gap-1"><FileDown className="w-3 h-3" /> Handover .md</span>
+            <span className="inline-flex items-center gap-1"><FileDown className="w-3 h-3" /> <span className="hidden sm:inline">Handover</span> .md</span>
           </button>
           <button
             onClick={() => printHandoverReport(handoverData())}
             title="Open a print-ready handover report (Save as PDF)"
-            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary cursor-pointer hover:border-border-hover"
             style={{ background: 'var(--color-bg-elevated)' }}
           >
             <span className="inline-flex items-center gap-1"><Printer className="w-3 h-3" /> PDF</span>
@@ -262,7 +263,7 @@ export const ReconciliationPanel: React.FC = () => {
       </div>
 
       {replayStep && (
-        <div className="rounded-md px-3 py-2 mb-3 text-[10px] font-mono flex items-center gap-2"
+        <div className="rounded-md px-3 py-2 mb-3 text-[10px] font-mono flex items-center gap-2 shrink-0"
           style={{ background: 'color-mix(in srgb, var(--color-accent-purple) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent-purple) 30%, transparent)', color: 'var(--color-accent-purple)' }}>
           <Play className="w-3 h-3 shrink-0" />
           <span className="uppercase tracking-wider">Replay:</span> {replayStep}
@@ -270,7 +271,7 @@ export const ReconciliationPanel: React.FC = () => {
       )}
 
       {/* ── Stat row ── */}
-      <div className="grid grid-cols-4 max-sm:grid-cols-2 gap-2 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 shrink-0">
         {[
           { label: 'Corridor drift', value: report ? Math.round(report.corridorScore) : '—', unit: '/100', color: corridorColor },
           { label: 'Trains drifting', value: driftingCount, unit: `of ${report?.trains.length ?? 0}`, color: driftingCount > 0 ? 'var(--color-accent-amber)' : 'var(--color-accent-green)' },

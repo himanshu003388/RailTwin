@@ -68,18 +68,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
       onClick={onClose}
     >
       <div
-        className="bg-bg-card border border-border-default rounded-2xl w-full max-w-md mx-2 sm:mx-4 shadow-2xl overflow-hidden flex flex-col animate-panel-in"
+        className="bg-bg-card border border-border-default rounded-2xl w-full max-w-md mx-2.5 sm:mx-4 shadow-2xl max-h-[88dvh] overflow-hidden flex flex-col animate-panel-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-default shrink-0">
           <div className="flex items-center gap-2">
             <Settings className="w-4 h-4 text-accent-blue" />
             <h2 className="text-sm font-semibold text-text-primary">Settings</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1"
+            className="text-text-tertiary hover:text-text-primary transition-colors duration-150 p-1 cursor-pointer"
             aria-label="Close settings"
           >
             <X className="w-4 h-4" />
@@ -87,7 +87,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
         </div>
 
         {/* Content */}
-        <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col gap-4 sm:gap-5">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col gap-4 sm:gap-5 overflow-y-auto scrollbar-thin">
           {/* Toggle */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">

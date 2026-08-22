@@ -12,7 +12,7 @@ export const MainPanel: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden h-full bg-bg-page relative">
+    <div className="flex-1 flex flex-col overflow-hidden h-full min-h-0 w-full bg-bg-page relative">
       {/* Subtle blue accent bar at top of main content */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-blue/15 to-transparent pointer-events-none z-10" />
       {/* Map area (always rendered to keep MapLibre instance alive) */}
@@ -20,7 +20,7 @@ export const MainPanel: React.FC = () => {
         className={`w-full relative transition-all duration-300 ease-in-out ${
           activePanel === 'map'
             ? 'flex-1 min-h-0 gradient-border overflow-hidden'
-            : 'h-[120px] sm:h-[180px] border-b border-border-default shrink-0 max-md:hidden'
+            : 'h-[100px] sm:h-[130px] md:h-[160px] border-b border-border-default shrink-0 max-md:hidden'
         }`}
       >
         <CorridorMap />
@@ -28,7 +28,13 @@ export const MainPanel: React.FC = () => {
 
       {/* Details area for other panels */}
       {activePanel !== 'map' && (
-        <div className="flex-1 w-full overflow-hidden p-4 relative animate-panel-in bg-bg-page">
+        <div
+          className={`flex-1 w-full min-h-0 relative animate-panel-in bg-bg-page ${
+            activePanel === 'copilot'
+              ? 'overflow-hidden flex flex-col p-0'
+              : 'overflow-y-auto p-2.5 sm:p-4 md:p-5 scrollbar-thin'
+          }`}
+        >
           {activePanel === 'delays' && <DelayChart />}
           {activePanel === 'simulation' && <SimulationPanel />}
           {activePanel === 'copilot' && <CopilotChat />}

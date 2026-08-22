@@ -513,20 +513,40 @@ export const CorridorMap: React.FC = () => {
 
 
 
-  // Resize/zoom based on panel
+  // Resize/zoom based on panel & viewport changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
+
+    const handleResize = () => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    };
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (mapContainer.current && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        handleResize();
+      });
+      resizeObserver.observe(mapContainer.current);
+    }
+
+    window.addEventListener('resize', handleResize);
+
     const timer = setTimeout(() => {
       if (!mapRef.current) return;
       mapRef.current.resize();
-      if (activePanel !== 'map') {
-        mapRef.current.easeTo({ zoom: INDIA_ZOOM_PANEL, center: INDIA_CENTER, duration: 350 });
-      } else {
-        mapRef.current.easeTo({ zoom: INDIA_ZOOM, center: INDIA_CENTER, duration: 350 });
-      }
+      const isMobile = window.innerWidth <= 768;
+      const targetZoom = activePanel !== 'map' ? (isMobile ? 3.8 : INDIA_ZOOM_PANEL) : (isMobile ? 3.9 : INDIA_ZOOM);
+      mapRef.current.easeTo({ zoom: targetZoom, center: INDIA_CENTER, duration: 350 });
     }, 150);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+      if (resizeObserver) resizeObserver.disconnect();
+    };
   }, [activePanel, mapLoaded]);
 
   function bearing(from: [number, number], to: [number, number]): number {

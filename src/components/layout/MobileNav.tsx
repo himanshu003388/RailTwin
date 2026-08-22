@@ -17,20 +17,23 @@ export const MobileNav: React.FC = () => {
   const setActivePanel = useDemoStore(state => state.setActivePanel);
 
   return (
-    <nav className="mobile-nav" aria-label="Primary navigation">
-      {ITEMS.map(({ id, label, Icon }) => (
-        <button
-          key={id}
-          className="mobile-nav-item"
-          data-active={activePanel === id}
-          aria-current={activePanel === id ? 'page' : undefined}
-          aria-label={label}
-          onClick={() => setActivePanel(id as any)}
-        >
-          <Icon className="w-5 h-5 shrink-0" strokeWidth={activePanel === id ? 2.4 : 1.8} />
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{label}</span>
-        </button>
-      ))}
+    <nav className="mobile-nav lg:hidden" aria-label="Primary navigation">
+      {ITEMS.map(({ id, label, Icon }) => {
+        const isActive = activePanel === id;
+        return (
+          <button
+            key={id}
+            className="mobile-nav-item"
+            data-active={isActive}
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={label}
+            onClick={() => setActivePanel(id as any)}
+          >
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 transition-transform duration-150" strokeWidth={isActive ? 2.4 : 1.8} />
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[8px] sm:text-[9px]">{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 };

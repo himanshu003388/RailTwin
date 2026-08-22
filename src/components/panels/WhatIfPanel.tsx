@@ -51,7 +51,7 @@ export const WhatIfPanel: React.FC = () => {
       </div>
 
       {/* ── Config Selects ── */}
-      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 sm:mb-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Station</label>
           <div className="relative">
@@ -91,11 +91,11 @@ export const WhatIfPanel: React.FC = () => {
 
       {/* ── Scenario Description ── */}
       <div
-        className="rounded-lg p-3 mb-4 border border-border-default"
+        className="rounded-lg p-3 mb-3 sm:mb-4 border border-border-default shrink-0"
         style={{ background: 'var(--color-bg-card)', boxShadow: 'var(--shadow-card)' }}
       >
-        <div className="flex items-start gap-2">
-          <span className="text-lg">{activeScenario?.icon}</span>
+        <div className="flex items-start gap-2.5">
+          <span className="text-xl shrink-0 mt-0.5">{activeScenario?.icon}</span>
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-text-primary">{activeScenario?.label} at {selectedStation?.name}</span>
             <span className="text-[10px] text-text-tertiary leading-relaxed">{activeScenario?.description}</span>
@@ -106,21 +106,19 @@ export const WhatIfPanel: React.FC = () => {
       {/* ── Run Button ── */}
       <button
         onClick={runWhatIf}
-        className="w-full text-white text-xs font-mono font-semibold py-2.5 rounded-lg transition-all duration-200 outline-none active:scale-[0.98] mb-4"
+        className="w-full text-white text-xs font-mono font-semibold py-2.5 rounded-lg transition-all duration-200 outline-none active:scale-[0.98] mb-3 sm:mb-4 cursor-pointer hover:brightness-110 shrink-0"
         style={{
           background: 'var(--color-accent-amber)',
           boxShadow: 'var(--glow-amber)',
         }}
-        onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.1)')}
-        onMouseLeave={e => (e.currentTarget.style.filter = '')}
       >
         Run Scenario
       </button>
 
       {/* ── Results ── */}
       {whatIfResult ? (
-        <div className="flex flex-col gap-3 animate-slide-up">
-          <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-2">
+        <div className="flex flex-col gap-3 animate-slide-up pb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
               { icon: <Clock className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-red)' }} />,    label: 'Delay', value: `+${whatIfResult.cascadeDelay}m`,                          color: 'var(--color-accent-red)'    },
               { icon: <Zap   className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: 'var(--color-accent-amber)' }} />,  label: 'Issues', value: `${whatIfResult.conflictsGenerated}`,                    color: 'var(--color-accent-amber)'  },
