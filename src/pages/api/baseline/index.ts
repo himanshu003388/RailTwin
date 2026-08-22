@@ -3,12 +3,20 @@ import { getDb, logAudit } from '../../../lib/db';
 
 export const prerender = false;
 
-// GET /api/baseline → latest persisted baseline (plus recent list)
-export const GET: APIRoute = async () => {
+// GET /api/baseline → latest persisted baseline (plus recent list), or specific baseline by ?id=
+export const GET: APIRoute = async ({ url }) => {
   try {
     const db = getDb();
     if (!db) {
       return json({ latest: null, recent: [], persisted: false }, 200);
+    }
+    const id = url.searchParams.get('id');
+    if (id) {
+      const row = db.prepare('SELECT snapshot_json FROM baselines WHERE baseline_id = ?').get(id) as any;
+      return json({
+        baseline: row ? JSON.parse(row.snapshot_json) : null,
+        persisted: true,
+      }, 200);
     }
     const rows = db.prepare(
       'SELECT baseline_id, name, source, captured_at FROM baselines ORDER BY captured_at DESC LIMIT 10'

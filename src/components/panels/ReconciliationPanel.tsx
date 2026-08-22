@@ -3,7 +3,7 @@ import { useDriftStore } from '../../stores/driftStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import {
   GitCompare, Pin, Play, Square, AlertTriangle, CheckCircle2, Clock, Copy, CloudRain, MapPin, FileDown, Printer,
-  FlaskConical, Wand2, ChevronDown, ChevronUp, Sparkles,
+  FlaskConical, Wand2, ChevronDown, ChevronUp, Sparkles, Bot,
 } from 'lucide-react';
 import { useDemoStore } from '../../stores/demoStore';
 import { downloadHandoverMarkdown, printHandoverReport, type HandoverData } from '../../lib/export-report';
@@ -15,6 +15,11 @@ import {
   detectPositionConflict,
 } from '../../lib/reconciler';
 import type { DriftClass, ReconciliationItem, TrainDrift } from '../../data/types';
+
+function getBaseUrl() {
+  const base = import.meta.env.BASE_URL || '/';
+  return base.endsWith('/') ? base : `${base}/`;
+}
 
 const CLASS_COLOR: Record<DriftClass, string> = {
   stable: 'var(--color-risk-low)',
@@ -91,6 +96,12 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
     }, 50);
   };
 
+  const handleExplainDrift = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const prompt = `Why has train ${t.trainId} ${t.trainName} drifted to ${Math.round(t.score)}/100 and what should I do?`;
+    useDemoStore.setState({ activePanel: 'copilot', copilotPrefill: prompt } as any);
+  };
+
   return (
     <div className="border border-border-default rounded-lg overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
       <button
@@ -104,7 +115,15 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
           </span>
         </div>
         <Sparkline points={history} color={color} />
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleExplainDrift}
+            className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded border border-border-default hover:border-accent-purple text-text-tertiary hover:text-accent-purple transition-all cursor-pointer flex items-center gap-1"
+            title="Ask AI Copilot to explain this drift"
+          >
+            <Bot className="w-2.5 h-2.5 text-accent-purple" />
+            <span className="hidden sm:inline">Explain</span>
+          </button>
           {isDrifted && (
             <button
               onClick={handleReconcile}
@@ -499,6 +518,38 @@ export const ReconciliationPanel: React.FC = () => {
     baseline, report, timeline, reconItems, corridorHistory, networkHealth,
   });
 
+  const [recentBaselines, setRecentBaselines] = useState<Array<{ baseline_id: string; name: string; source: string; captured_at: string }>>([]);
+
+  React.useEffect(() => {
+    fetch(`${getBaseUrl()}api/baseline`)
+      .then(r => r.json())
+      .then(d => {
+        if (d?.recent && Array.isArray(d.recent)) {
+          setRecentBaselines(d.recent);
+        }
+      })
+      .catch(() => {});
+  }, [baseline?.id]);
+
+  const handleSelectEarlierBaseline = async (id: string) => {
+    if (!id || id === baseline?.id) return;
+    try {
+      const res = await fetch(`${getBaseUrl()}api/baseline?id=${encodeURIComponent(id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.baseline) {
+          useDriftStore.setState({ baseline: data.baseline });
+          useDriftStore.getState().computeDriftNow();
+          useDemoStore.getState().addToast({
+            type: 'info',
+            title: 'Baseline Loaded',
+            message: `Switched reference baseline to "${data.baseline.name}".`,
+          });
+        }
+      }
+    } catch {}
+  };
+
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary select-none overflow-y-auto pr-0.5 scrollbar-thin">
 
@@ -527,6 +578,23 @@ export const ReconciliationPanel: React.FC = () => {
                 ? `Recorded ${fmtTime(baseline.capturedAt)} · ${baseline.source} · drift measured for ${report ? report.elapsedMinutes.toFixed(0) : 0} min`
                 : 'Pin the current situation as the recorded context'}
             </span>
+            {recentBaselines.length > 1 && (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="text-[8px] font-mono text-text-muted uppercase tracking-wider">History:</span>
+                <select
+                  value={baseline?.id || ''}
+                  onChange={e => handleSelectEarlierBaseline(e.target.value)}
+                  className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-border-subtle bg-bg-elevated text-text-secondary outline-none cursor-pointer hover:border-accent-blue"
+                  title="Switch to an earlier recorded baseline snapshot"
+                >
+                  {recentBaselines.map(b => (
+                    <option key={b.baseline_id} value={b.baseline_id}>
+                      {b.name} ({new Date(b.captured_at).toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' })})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-1.5 flex-wrap items-center">

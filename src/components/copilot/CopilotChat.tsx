@@ -19,11 +19,11 @@ function buildDriftSystemState() {
       elapsedMinutes: driftReport.elapsedMinutes,
       corridorScore: driftReport.corridorScore,
       corridorClass: driftReport.corridorClass,
-      topTrains: driftReport.trains.slice(0, 4).map(t => ({
+      topTrains: driftReport.trains.map(t => ({
         trainId: t.trainId, trainName: t.trainName, score: t.score,
         driftClass: t.driftClass, explanation: t.explanation,
       })),
-      openItems: reconItems.filter(i => i.status === 'open').slice(0, 6).map(i => ({
+      openItems: reconItems.filter(i => i.status === 'open').slice(0, 10).map(i => ({
         type: i.type, entityLabel: i.entityLabel, field: i.field,
         sourceA: i.sourceA, sourceB: i.sourceB, suggestedResolution: i.suggestedResolution,
       })),
@@ -34,10 +34,20 @@ function buildDriftSystemState() {
 export const CopilotChat: React.FC = () => {
   const copilot = useDemoStore(state => state.copilot);
   const geminiApiKey = useDemoStore(state => state.geminiApiKey);
+  const copilotPrefill = useDemoStore(state => (state as any).copilotPrefill);
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (copilotPrefill) {
+      setInputText(copilotPrefill);
+      useDemoStore.setState({ copilotPrefill: '' } as any);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [copilotPrefill]);
 
   async function sendMessage(msgs: { role: string; text: string }[]): Promise<string> {
     try {
@@ -120,8 +130,6 @@ export const CopilotChat: React.FC = () => {
     }
   };
 
-
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const prevThinking = useRef(copilot.thinking);
   useEffect(() => {

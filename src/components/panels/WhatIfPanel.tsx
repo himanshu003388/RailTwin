@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
+import { useDriftStore } from '../../stores/driftStore';
 import { TestTube, Zap, Users, Clock, ChevronDown } from 'lucide-react';
 
 const SCENARIOS = [
@@ -33,6 +34,23 @@ export const WhatIfPanel: React.FC = () => {
   const trains         = useDemoStore(state => state.trains);
   const stations       = useDemoStore(state => state.stations) || [];
 
+  const [driftSeed, setDriftSeed] = useState<{ trainId: string; trainName: string; stationCode: string } | null>(null);
+
+  useEffect(() => {
+    const report = useDriftStore.getState().driftReport;
+    if (report) {
+      const crit = report.trains.find(t => t.driftClass === 'critical');
+      if (crit && stations.some(s => s.id === crit.live.station)) {
+        setWhatIfStation(crit.live.station);
+        setDriftSeed({
+          trainId: crit.trainId,
+          trainName: crit.trainName,
+          stationCode: stations.find(s => s.id === crit.live.station)?.code || crit.live.station.toUpperCase(),
+        });
+      }
+    }
+  }, [stations.length]);
+
   const selectedStation = stations.find(s => s.id === whatIfStation);
   const activeScenario  = SCENARIOS.find(s => s.id === whatIfScenario);
 
@@ -40,7 +58,7 @@ export const WhatIfPanel: React.FC = () => {
     <div className="flex flex-col h-full bg-bg-page text-text-primary select-none">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-4">
+      <div className="flex items-center justify-between border-b border-border-default pb-2.5 mb-3">
         <div className="flex items-center gap-2">
           <TestTube className="w-4 h-4 text-accent-amber" />
           <h2 className="text-[11px] uppercase tracking-[0.12em] text-text-tertiary font-mono font-medium">
@@ -49,6 +67,16 @@ export const WhatIfPanel: React.FC = () => {
         </div>
         <span className="text-[10px] font-mono text-text-muted">What-If Tool</span>
       </div>
+
+      {driftSeed && (
+        <div className="mb-3 px-3 py-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 flex items-center justify-between text-[11px] font-mono text-accent-amber shrink-0 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Zap className="w-3.5 h-3.5 shrink-0" />
+            <span>Pre-selected from Drift Monitor: <strong>{driftSeed.trainId} {driftSeed.trainName}</strong> at {driftSeed.stationCode}</span>
+          </div>
+          <span className="text-[8px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-accent-amber/20">Critical Drift</span>
+        </div>
+      )}
 
       {/* ── Config Selects ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 sm:mb-4">
