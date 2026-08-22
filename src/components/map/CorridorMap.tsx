@@ -812,283 +812,287 @@ export const CorridorMap: React.FC = () => {
         </div>
       )}
 
-      <div className="absolute top-3 left-3 z-10 pointer-events-none">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl px-4 py-2.5 shadow-lg">
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex w-2 h-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
-              <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 6px rgba(34,197,94,0.8)' }} />
-            </span>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-text-primary tracking-wide">Indian Railways Network</span>
-                <span className="px-1 py-0.5 rounded text-[7px] font-mono font-bold uppercase tracking-wider bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+      {activePanel === 'map' && (
+        <>
+          <div className="absolute top-3 left-3 z-10 pointer-events-none">
+            <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl px-4 py-2.5 shadow-lg">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex w-2 h-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-green" style={{ boxShadow: '0 0 6px rgba(34,197,94,0.8)' }} />
+                </span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-text-primary tracking-wide">Indian Railways Network</span>
+                    <span className="px-1 py-0.5 rounded text-[7px] font-mono font-bold uppercase tracking-wider bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+                  </div>
+                  <div className="text-[9px] text-text-secondary font-mono">{trains.length} trains · {stations.length || Object.keys(STATIONS).length} stations</div>
+                </div>
               </div>
-              <div className="text-[9px] text-text-secondary font-mono">{trains.length} trains · {stations.length || Object.keys(STATIONS).length} stations</div>
             </div>
+
+            {/* Round 2 · Ghost plan overlay toggle */}
+            <button
+              onClick={() => setShowGhostOverlay(v => !v)}
+              className="pointer-events-auto mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md transition-all duration-150 cursor-pointer hover:border-border-hover"
+              title="Toggle the baseline plan ghost markers and drift links"
+            >
+              {showGhostOverlay
+                ? <Eye className="w-3.5 h-3.5 text-accent-purple" />
+                : <EyeOff className="w-3.5 h-3.5 text-text-tertiary" />}
+              <span className={`text-[9px] font-mono font-semibold uppercase tracking-wider ${showGhostOverlay ? 'text-text-primary' : 'text-text-tertiary'}`}>
+                Ghost plan {showGhostOverlay ? 'ON' : 'OFF'}
+              </span>
+              {showGhostOverlay && driftReport && (
+                <span className="text-[9px] font-mono text-accent-purple">
+                  · {driftReport.trains.filter(t => t.driftClass !== 'stable').length}
+                </span>
+              )}
+            </button>
           </div>
-        </div>
 
-        {/* Round 2 · Ghost plan overlay toggle */}
-        <button
-          onClick={() => setShowGhostOverlay(v => !v)}
-          className="pointer-events-auto mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md transition-all duration-150 cursor-pointer hover:border-border-hover"
-          title="Toggle the baseline plan ghost markers and drift links"
-        >
-          {showGhostOverlay
-            ? <Eye className="w-3.5 h-3.5 text-accent-purple" />
-            : <EyeOff className="w-3.5 h-3.5 text-text-tertiary" />}
-          <span className={`text-[9px] font-mono font-semibold uppercase tracking-wider ${showGhostOverlay ? 'text-text-primary' : 'text-text-tertiary'}`}>
-            Ghost plan {showGhostOverlay ? 'ON' : 'OFF'}
-          </span>
-          {showGhostOverlay && driftReport && (
-            <span className="text-[9px] font-mono text-accent-purple">
-              · {driftReport.trains.filter(t => t.driftClass !== 'stable').length}
-            </span>
-          )}
-        </button>
-      </div>
+          {/* Desktop Legend — collapsible */}
+          <div className="absolute bottom-3 right-3 z-10 max-sm:hidden">
+            {!desktopLegendOpen ? (
+              <button
+                onClick={() => setDesktopLegendOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md text-text-secondary hover:text-text-primary transition-all duration-150 cursor-pointer"
+              >
+                <Layers className="w-4 h-4 text-accent-blue" />
+                <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Legend</span>
+              </button>
+            ) : (
+              <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] pointer-events-auto">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
+                  <button
+                    onClick={() => setDesktopLegendOpen(false)}
+                    className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  </button>
+                </div>
+                <div className="mb-3">
+                  <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    {[
+                      { color: '#16a34a', label: 'Low' },
+                      { color: '#d97706', label: 'Moderate' },
+                      { color: '#ea580c', label: 'High' },
+                      { color: '#dc2626', label: 'Critical' },
+                    ].map(r => (
+                      <div key={r.label} className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
+                        <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-px bg-border-default my-2.5" />
+                <div className="mb-3">
+                  <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather</div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
+                      <span className="text-[10px] font-medium text-text-secondary">Rainfall</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
+                      <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="h-px bg-border-default my-2.5" />
+                <div>
+                  <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
+                  <div className="flex flex-col gap-1.5">
+                    {TRAIN_LEGEND.map(t => (
+                      <div key={t.id} className="flex items-center gap-2">
+                        <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
+                        <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
+                        <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-2.5 pt-2 border-t border-border-subtle">
+                  <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span>Direction of travel</span>
+                  </div>
+                </div>
+                <div className="mt-2 pt-2 border-t border-border-subtle">
+                  <div className="text-[8px] text-text-muted leading-tight">
+                    Data: Indian Railways · IRCTC schedules · Kaggle datasets
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
-      {/* Desktop Legend — collapsible */}
-      <div className="absolute bottom-3 right-3 z-10 max-sm:hidden">
-        {!desktopLegendOpen ? (
-          <button
-            onClick={() => setDesktopLegendOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md text-text-secondary hover:text-text-primary transition-all duration-150 cursor-pointer"
-          >
+          <button onClick={() => setShowMapLegend(true)} className="sm:hidden absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer" style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }} aria-label="Open legend">
             <Layers className="w-4 h-4 text-accent-blue" />
             <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Legend</span>
           </button>
-        ) : (
-          <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3.5 shadow-xl max-w-[200px] pointer-events-auto">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em]">Legend</span>
-              <button
-                onClick={() => setDesktopLegendOpen(false)}
-                className="text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
-              >
-                <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              </button>
-            </div>
-            <div className="mb-3">
-              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                {[
-                  { color: '#16a34a', label: 'Low' },
-                  { color: '#d97706', label: 'Moderate' },
-                  { color: '#ea580c', label: 'High' },
-                  { color: '#dc2626', label: 'Critical' },
-                ].map(r => (
-                  <div key={r.label} className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color, boxShadow: `0 0 8px ${r.color}55` }} />
-                    <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="h-px bg-border-default my-2.5" />
-            <div className="mb-3">
-              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Weather</div>
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-500">🌧</span>
-                  <span className="text-[10px] font-medium text-text-secondary">Rainfall</span>
+
+          {showMapLegend && (
+            <>
+              <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowMapLegend(false)} />
+              <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-bold text-text-primary uppercase tracking-[0.12em]">Legend</span>
+                  <button onClick={() => setShowMapLegend(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer"><svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] bg-slate-500/10 border border-slate-500/30 text-slate-400">🌫</span>
-                  <span className="text-[10px] font-medium text-text-secondary">Low Vis</span>
+                <div className="mb-3">
+                  <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    {[
+                      { color: '#16a34a', label: 'Low' },
+                      { color: '#d97706', label: 'Moderate' },
+                      { color: '#ea580c', label: 'High' },
+                      { color: '#dc2626', label: 'Critical' },
+                    ].map(r => (
+                      <div key={r.label} className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color }} />
+                        <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-px bg-border-default my-2.5" />
+                <div className="mb-3">
+                  <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
+                  <div className="flex flex-col gap-1.5">
+                    {TRAIN_LEGEND.map(t => (
+                      <div key={t.id} className="flex items-center gap-2">
+                        <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
+                        <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
+                        <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-border-subtle">
+                  <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary mb-1">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span>Direction of travel</span>
+                  </div>
+                  <div className="text-[8px] text-text-muted mt-1">Data: IRCTC · Kaggle</div>
                 </div>
               </div>
-            </div>
-            <div className="h-px bg-border-default my-2.5" />
-            <div>
-              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
-              <div className="flex flex-col gap-1.5">
-                {TRAIN_LEGEND.map(t => (
-                  <div key={t.id} className="flex items-center gap-2">
-                    <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
-                    <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
-                    <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-2.5 pt-2 border-t border-border-subtle">
-              <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span>Direction of travel</span>
-              </div>
-            </div>
-            <div className="mt-2 pt-2 border-t border-border-subtle">
-              <div className="text-[8px] text-text-muted leading-tight">
-                Data: Indian Railways · IRCTC schedules · Kaggle datasets
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+            </>
+          )}
 
-      <button onClick={() => setShowMapLegend(true)} className="sm:hidden absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer" style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }} aria-label="Open legend">
-        <Layers className="w-4 h-4 text-accent-blue" />
-        <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Legend</span>
-      </button>
-
-      {showMapLegend && (
-        <>
-          <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowMapLegend(false)} />
-          <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-text-primary uppercase tracking-[0.12em]">Legend</span>
-              <button onClick={() => setShowMapLegend(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer"><svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
-            </div>
-            <div className="mb-3">
-              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Station Risk</div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                {[
-                  { color: '#16a34a', label: 'Low' },
-                  { color: '#d97706', label: 'Moderate' },
-                  { color: '#ea580c', label: 'High' },
-                  { color: '#dc2626', label: 'Critical' },
-                ].map(r => (
-                  <div key={r.label} className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color }} />
-                    <span className="text-[10px] font-medium text-text-secondary">{r.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="h-px bg-border-default my-2.5" />
-            <div className="mb-3">
-              <div className="text-[9px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">Trains</div>
-              <div className="flex flex-col gap-1.5">
-                {TRAIN_LEGEND.map(t => (
-                  <div key={t.id} className="flex items-center gap-2">
-                    <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: t.color }} />
-                    <span className="text-[10px] font-medium text-text-secondary flex-1 truncate">{t.name}</span>
-                    <span className="text-[9px] text-text-muted font-mono">{t.id}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="pt-2 border-t border-border-subtle">
-              <div className="flex items-center gap-1.5 text-[9px] text-text-tertiary mb-1">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="flex-shrink-0"><path d="M1 3H9M7 1L9 3L7 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span>Direction of travel</span>
-              </div>
-              <div className="text-[8px] text-text-muted mt-1">Data: IRCTC · Kaggle</div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Desktop Live Weather HUD */}
-      <div className="absolute bottom-3 left-3 z-10 max-sm:hidden">
-        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] flex flex-col gap-2.5 pointer-events-auto">
-          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
-              {(() => {
-                if (!weatherData) return null;
-                const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
-                return allLive
-                  ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
-                  : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
-              })()}
-            </div>
-            {weatherData && Object.values(weatherData).length > 0 && (() => {
-              const times = Object.values(weatherData).filter(Boolean).map((w: any) => new Date(w.fetchedAt).getTime());
-              const maxTime = times.length ? Math.max(...times) : 0;
-              const stamp = maxTime ? new Date(maxTime).toLocaleTimeString() : '';
-              return stamp ? `<span class="text-[8px] text-text-muted font-mono">${stamp}</span>` : '';
-            })() && (
-              <span className="text-[8px] text-text-muted font-mono">
-                {(() => {
+          {/* Desktop Live Weather HUD */}
+          <div className="absolute bottom-3 left-3 z-10 max-sm:hidden">
+            <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-xl p-3 shadow-xl w-[280px] flex flex-col gap-2.5 pointer-events-auto">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider font-sans">Live Weather</span>
+                  {(() => {
+                    if (!weatherData) return null;
+                    const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
+                    return allLive
+                      ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+                      : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
+                  })()}
+                </div>
+                {weatherData && Object.values(weatherData).length > 0 && (() => {
                   const times = Object.values(weatherData).filter(Boolean).map((w: any) => new Date(w.fetchedAt).getTime());
                   const maxTime = times.length ? Math.max(...times) : 0;
-                  return maxTime ? new Date(maxTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                })()}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin">
-            {(stations.length ? stations : ALL_STATIONS).map(s => {
-              const w = weatherData ? weatherData[s.id] : null;
-              const hasRain = w && w.rainfall > 0;
-              const hasFog = w && w.visibility < 5;
-              let weatherEmoji = '☀️';
-              let weatherColor = 'text-text-muted';
-              if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
-              else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
-              else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
-              return (
-                <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
-                  className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
-                  title="Click to focus station on map">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
-                    <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-right">
-                    <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
-                    <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
-                    <span className="text-[9px] text-text-muted select-none">|</span>
-                    <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <button onClick={() => setShowLiveWeather(true)} className="sm:hidden absolute bottom-3 left-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer" style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }} aria-label="Open weather">
-        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" className="text-accent-blue"><path d="M3 6h6M6 3v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-        <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Live Weather</span>
-      </button>
-      {showLiveWeather && (
-        <>
-          <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowLiveWeather(false)} />
-          <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up flex flex-col overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider">Live Weather</span>
-                {(() => {
-                  if (!weatherData) return null;
-                  const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
-                  return allLive
-                    ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
-                    : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
-                })()}
+                  const stamp = maxTime ? new Date(maxTime).toLocaleTimeString() : '';
+                  return stamp ? `<span class="text-[8px] text-text-muted font-mono">${stamp}</span>` : '';
+                })() && (
+                  <span className="text-[8px] text-text-muted font-mono">
+                    {(() => {
+                      const times = Object.values(weatherData).filter(Boolean).map((w: any) => new Date(w.fetchedAt).getTime());
+                      const maxTime = times.length ? Math.max(...times) : 0;
+                      return maxTime ? new Date(maxTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                    })()}
+                  </span>
+                )}
               </div>
-              <button onClick={() => setShowLiveWeather(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer"><svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
-            </div>
-            <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 scrollbar-thin">
-              {(stations.length ? stations : ALL_STATIONS).map(s => {
-                const w = weatherData ? weatherData[s.id] : null;
-                const hasRain = w && w.rainfall > 0;
-                const hasFog = w && w.visibility < 5;
-                let weatherEmoji = '☀️';
-                let weatherColor = 'text-text-muted';
-                if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
-                else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
-                else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
-                return (
-                  <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
-                    className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono" title="Click to focus station on map">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
-                      <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
+              <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin">
+                {(stations.length ? stations : ALL_STATIONS).map(s => {
+                  const w = weatherData ? weatherData[s.id] : null;
+                  const hasRain = w && w.rainfall > 0;
+                  const hasFog = w && w.visibility < 5;
+                  let weatherEmoji = '☀️';
+                  let weatherColor = 'text-text-muted';
+                  if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
+                  else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
+                  else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
+                  return (
+                    <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
+                      className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono"
+                      title="Click to focus station on map">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
+                        <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-right">
+                        <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
+                        <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
+                        <span className="text-[9px] text-text-muted select-none">|</span>
+                        <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-right">
-                      <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
-                      <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
-                      <span className="text-[9px] text-text-muted select-none">|</span>
-                      <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
+          <button onClick={() => setShowLiveWeather(true)} className="sm:hidden absolute bottom-3 left-3 z-30 flex items-center gap-1.5 px-2.5 py-2 rounded-xl shadow-lg border border-border-default transition-all duration-150 active:scale-95 cursor-pointer" style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }} aria-label="Open weather">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" className="text-accent-blue"><path d="M3 6h6M6 3v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <span className="text-[10px] font-semibold font-sans whitespace-nowrap">Live Weather</span>
+          </button>
+          {showLiveWeather && (
+            <>
+              <div className="fixed inset-0 z-40 sm:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowLiveWeather(false)} />
+              <div className="fixed bottom-16 left-0 right-0 z-[70] sm:hidden max-h-[70dvh] bg-bg-elevated/95 backdrop-blur-md border-t border-border-default rounded-t-2xl shadow-2xl p-4 animate-slide-up flex flex-col overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-text-primary uppercase tracking-wider">Live Weather</span>
+                    {(() => {
+                      if (!weatherData) return null;
+                      const allLive = Object.values(weatherData).every((w: any) => w?.source === 'live');
+                      return allLive
+                        ? <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-green-soft text-accent-green border border-accent-green/20">LIVE</span>
+                        : <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-accent-amber-soft text-accent-amber border border-accent-amber/20">FALLBACK</span>;
+                    })()}
+                  </div>
+                  <button onClick={() => setShowLiveWeather(false)} className="text-text-tertiary hover:text-text-primary cursor-pointer"><svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
+                </div>
+                <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 scrollbar-thin">
+                  {(stations.length ? stations : ALL_STATIONS).map(s => {
+                    const w = weatherData ? weatherData[s.id] : null;
+                    const hasRain = w && w.rainfall > 0;
+                    const hasFog = w && w.visibility < 5;
+                    let weatherEmoji = '☀️';
+                    let weatherColor = 'text-text-muted';
+                    if (hasRain) { weatherEmoji = '🌧️'; weatherColor = 'text-accent-blue'; }
+                    else if (hasFog) { weatherEmoji = '🌫️'; weatherColor = 'text-text-secondary'; }
+                    else if (w && w.description.toLowerCase().includes('cloud')) { weatherEmoji = '☁️'; weatherColor = 'text-text-tertiary'; }
+                    return (
+                      <div key={s.id} onClick={() => { if (mapRef.current) mapRef.current.flyTo({ center: s.coordinates, zoom: 7.5, duration: 1000 }); }}
+                        className="group flex items-center justify-between px-2 py-1.5 rounded bg-bg-sunken hover:bg-bg-hover border border-border-subtle hover:border-border-default transition-all duration-150 cursor-pointer text-[10px] font-mono" title="Click to focus station on map">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="font-bold text-text-primary group-hover:text-accent-blue transition-colors">{s.code}</span>
+                          <span className="text-text-tertiary truncate max-w-[65px]">{s.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-right">
+                          <span className={weatherColor} title={w ? w.description : 'Unknown'}>{weatherEmoji}</span>
+                          <span className="text-text-secondary font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{w ? `${w.temperature}°` : '--'}</span>
+                          <span className="text-[9px] text-text-muted select-none">|</span>
+                          <span className="text-text-secondary w-14" style={{ fontVariantNumeric: 'tabular-nums' }}>{hasRain ? `${w.rainfall}mm` : w ? `${w.visibility}km` : '--'}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

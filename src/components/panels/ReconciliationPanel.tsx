@@ -8,6 +8,7 @@ import {
 import { useDemoStore } from '../../stores/demoStore';
 import { downloadHandoverMarkdown, printHandoverReport, type HandoverData } from '../../lib/export-report';
 import {
+  makeReconItem,
   matchStation,
   matchTrain,
   partialMatchItem,
@@ -263,7 +264,7 @@ const ReconSandbox: React.FC = () => {
     if (item) {
       useDriftStore.setState(s => ({
         reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
-        timeline: [{ at: new Date().toISOString(), kind: 'partial-match', message: `Sandbox queued for review: "${query}" (${Math.round((item.similarity ?? 0) * 100)}% match)` }, ...s.timeline].slice(0, 60),
+        timeline: [{ at: new Date().toISOString(), kind: 'partial-match' as const, message: `Sandbox queued for review: "${query}" (${Math.round((item.similarity ?? 0) * 100)}% match)` }, ...s.timeline].slice(0, 60),
       }));
       useDemoStore.getState().addToast({
         type: 'info',
@@ -288,7 +289,7 @@ const ReconSandbox: React.FC = () => {
     if (item) {
       useDriftStore.setState(s => ({
         reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
-        timeline: [{ at: new Date().toISOString(), kind: 'conflict', message: `Sandbox conflict: Weather at ${item.entityLabel} (Clear vs Heavy Rain)` }, ...s.timeline].slice(0, 60),
+        timeline: [{ at: new Date().toISOString(), kind: 'conflict' as const, message: `Sandbox conflict: Weather at ${item.entityLabel} (Clear vs Heavy Rain)` }, ...s.timeline].slice(0, 60),
       }));
       useDriftStore.getState().computeDriftNow();
       useDemoStore.getState().addToast({
@@ -309,7 +310,7 @@ const ReconSandbox: React.FC = () => {
     if (item) {
       useDriftStore.setState(s => ({
         reconItems: [item, ...s.reconItems.filter(i => i.id !== item.id)].slice(0, 40),
-        timeline: [{ at: new Date().toISOString(), kind: 'conflict', message: `Sandbox conflict: Punjab Mail position mismatch (~180km)` }, ...s.timeline].slice(0, 60),
+        timeline: [{ at: new Date().toISOString(), kind: 'conflict' as const, message: `Sandbox conflict: Punjab Mail position mismatch (~180km)` }, ...s.timeline].slice(0, 60),
       }));
       useDriftStore.getState().computeDriftNow();
       useDemoStore.getState().addToast({

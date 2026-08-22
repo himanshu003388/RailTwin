@@ -14,8 +14,8 @@ import type {
   DriftReport,
   DriftTimelineEvent,
   ReconciliationItem,
-  Train,
 } from '../data/types';
+import type { Train } from '../data/corridor';
 import type { NetworkHealth } from '../stores/demoStore';
 
 export interface HandoverData {
@@ -72,10 +72,10 @@ export function buildHandoverMarkdown(d: HandoverData): string {
     lines.push(`- **Source:** ${d.baseline.source}`);
     lines.push(`- **Scope:** ${d.baseline.trains.length} Trains Pinned · ${Object.keys(d.baseline.weather).length} Station Weather Forecasts Frozen`);
     lines.push('');
-    lines.push('| Train ID | Name | Route | Baseline Station | Baseline Delay |');
+    lines.push('| Train ID | Name | Segment | Baseline Station | Predicted Delay |');
     lines.push('|---|---|---|---|---|');
     for (const bt of d.baseline.trains) {
-      lines.push(`| ${bt.trainId} | ${bt.trainName} | ${bt.origin} → ${bt.destination} | ${(bt.currentStation || '').toUpperCase()} | ${bt.delay} min |`);
+      lines.push(`| ${bt.trainId} | ${bt.trainName} | ${bt.currentStation.toUpperCase()} → ${bt.nextStation.toUpperCase()} | ${(bt.currentStation || '').toUpperCase()} | ${bt.predictedDelay} min |`);
     }
   } else {
     lines.push(`- **Baseline Snapshot:** \`Nominal Shift Timetable Baseline\` (Auto-anchored)`);
@@ -84,10 +84,10 @@ export function buildHandoverMarkdown(d: HandoverData): string {
     lines.push(`- **Scope:** 7 Active Trains · 36 Junction Stations (Nominal schedule tracking)`);
     if (d.trains && d.trains.length > 0) {
       lines.push('');
-      lines.push('| Train ID | Name | Route | Station | Live Delay |');
+      lines.push('| Train ID | Name | Segment | Current Station | Predicted Delay |');
       lines.push('|---|---|---|---|---|');
       for (const t of d.trains) {
-        lines.push(`| ${t.id} | ${t.name} | ${t.from} → ${t.to} | ${(t.currentStation || '').toUpperCase()} | ${t.delayMinutes} min |`);
+        lines.push(`| ${t.id} | ${t.name} | ${t.currentStation.toUpperCase()} → ${t.nextStation.toUpperCase()} | ${(t.currentStation || '').toUpperCase()} | ${t.predictedDelay} min |`);
       }
     }
   }
