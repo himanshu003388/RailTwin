@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getTrains } from '../../../lib/train-engine';
+import { computeLivePositions } from '../../../data/corridor';
 
 export const prerender = false;
 
@@ -8,22 +9,27 @@ export const GET: APIRoute = async ({ request }) => {
   const stream = new ReadableStream({
     start(controller) {
       let active = true;
+      let interval: any = null;
 
       const cleanup = () => {
         active = false;
-        clearInterval(interval);
+        if (interval) clearInterval(interval);
         try { controller.close(); } catch { /* already closed */ }
       };
 
       const send = () => {
         if (!active) return;
         try {
-          const trains = getTrains();
-          const liveTrains = trains.map(t => ({
-            ...t,
-            speed: t.speed + Math.round((Math.random() - 0.5) * 10),
-            routeProgress: Math.min(1, Math.max(0, t.routeProgress + (Math.random() - 0.5) * 0.02))
-          }));
+          const positions = computeLivePositions();
+          const liveTrains = getTrains().map(t => {
+            const p = positions.find(x => x.id === t.id);
+            return {
+              ...t,
+              ...(p ?? {}),
+              speed: t.speed + Math.round((Math.random() - 0.5) * 10),
+              routeProgress: Math.min(1, Math.max(0, (p?.routeProgress ?? t.routeProgress) + (Math.random() - 0.5) * 0.02)),
+            };
+          });
           const data = `data: ${JSON.stringify({ trains: liveTrains, timestamp: new Date().toISOString() })}\n\n`;
           controller.enqueue(encoder.encode(data));
         } catch (err) {
@@ -38,7 +44,7 @@ export const GET: APIRoute = async ({ request }) => {
       send();
 
       // Send updates every 5 seconds
-      const interval = setInterval(send, 5000);
+      interval = setInterval(send, 5000);
 
       // Clean up after 5 minutes (prevent memory leaks)
       setTimeout(cleanup, 300000);
