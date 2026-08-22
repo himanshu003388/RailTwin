@@ -2,7 +2,7 @@
 
 const SERVER_KEY = process.env.GEMINI_API_KEY ?? import.meta.env.GEMINI_API_KEY ?? "";
 
-const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? import.meta.env.GEMINI_MODEL ?? "gemini-flash-latest";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const REQUEST_TIMEOUT_MS = 15000;

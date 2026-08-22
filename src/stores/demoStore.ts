@@ -396,7 +396,7 @@ export const useDemoStore = create<LiveState>((set, get) => ({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: [...stateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ sender: m.sender, message: m.message })), { sender: 'user', message: `I accepted the recommendation: "${acceptedRec?.action}". Confirm the dispatch.` }],
+            messages: [...stateForApi.copilot.messages.filter(m => m.sender === 'user' || m.sender === 'copilot').map(m => ({ role: m.sender === 'user' ? 'user' : 'model', text: m.message })), { role: 'user', text: `I accepted the recommendation: "${acceptedRec?.action}". Confirm the dispatch.` }],
             systemState: systemStateForApi,
             userApiKey: stateForApi.geminiApiKey,
           }),
