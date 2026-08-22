@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { X, Keyboard } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: '1-6', desc: 'Switch panels' },
+  { key: '1-7', desc: 'Switch panels' },
   { key: 'M', desc: 'Toggle audio alerts' },
   { key: 'Esc', desc: 'Back to Map View' },
 ];
@@ -14,6 +14,7 @@ const PANELS = [
   { num: '4', name: 'AI Chat', desc: 'Ask questions and get AI answers about corridor conditions' },
   { num: '5', name: 'What-If', desc: 'Test scenarios like rain, signal failure, or track damage' },
   { num: '6', name: 'System Health', desc: 'Overall health, on-time stats, and platform usage' },
+  { num: '7', name: 'Drift Monitor', desc: 'Reconciliation: how far the live situation has drifted from the recorded baseline — conflicts, duplicates, partial matches' },
 ];
 
 export const HelpModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
+import { useDriftStore } from '../../stores/driftStore';
 import { TRAIN_ROUTES, STATIONS, ALL_STATIONS, getTrainRoute } from '../../data/corridor';
 import { TRACK_GEOMETRIES } from '../../data/trackGeometries';
 import { Layers } from 'lucide-react';
@@ -107,6 +108,7 @@ export const CorridorMap: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
   const theme = useDemoStore(state => state.theme);
   const stations = useDemoStore(state => state.stations) || [];
+  const driftReport = useDriftStore(state => state.driftReport);
 
   const markersRef = useRef<Record<string, { marker: any; element: HTMLDivElement; inner?: HTMLDivElement; label?: HTMLDivElement; arrow?: HTMLDivElement }>>({});
   const prevDelaysRef = useRef<Record<string, number>>({});
@@ -293,6 +295,60 @@ export const CorridorMap: React.FC = () => {
           },
         });
 
+        // ── Round 2 · Drift ghost markers ──
+        // A ghost shows where the recorded context (baseline) implied the
+        // train would be right now; a dashed link connects it to the live
+        // position. One glance = how far reality has drifted from the plan.
+        map.addSource('drift-links', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        });
+        map.addSource('drift-ghosts', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        });
+        map.addLayer({
+          id: 'drift-link-lines',
+          type: 'line',
+          source: 'drift-links',
+          paint: {
+            'line-color': ['get', 'color'],
+            'line-width': 2,
+            'line-opacity': 0.75,
+            'line-dasharray': [2, 3],
+          },
+        });
+        map.addLayer({
+          id: 'drift-ghost-circles',
+          type: 'circle',
+          source: 'drift-ghosts',
+          paint: {
+            'circle-radius': 7,
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.25,
+            'circle-stroke-color': ['get', 'color'],
+            'circle-stroke-width': 1.5,
+            'circle-stroke-opacity': 0.9,
+          },
+        });
+        map.addLayer({
+          id: 'drift-ghost-labels',
+          type: 'symbol',
+          source: 'drift-ghosts',
+          layout: {
+            'text-field': ['get', 'label'],
+            'text-size': 8,
+            'text-offset': [0, -1.4],
+            'text-anchor': 'bottom',
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          },
+          paint: {
+            'text-color': ['get', 'color'],
+            'text-halo-color': theme === 'light' ? '#f7f4ee' : '#0a0a0a',
+            'text-halo-width': 1.5,
+          },
+        });
+
         // Station click popup
         map.on('click', 'station-circles', (e: any) => {
           const coordinates = e.features[0].geometry.coordinates.slice();
@@ -351,6 +407,40 @@ export const CorridorMap: React.FC = () => {
     const source = map.getSource('stations');
     if (source) { source.setData(getStationsGeoJSON(stationRisks, stations, weatherData)); }
   }, [stationRisks, mapLoaded, stations, weatherData]);
+
+  // Round 2 · Sync drift ghost markers with the latest drift report
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+    const ghostSource = map.getSource('drift-ghosts');
+    const linkSource = map.getSource('drift-links');
+    if (!ghostSource || !linkSource) return;
+
+    const classColor: Record<string, string> = {
+      minor: '#f59e0b', significant: '#f97316', critical: '#ef4444',
+    };
+    const drifting = (driftReport?.trains || []).filter(t => t.driftClass !== 'stable');
+
+    ghostSource.setData({
+      type: 'FeatureCollection',
+      features: drifting.map(t => ({
+        type: 'Feature' as const,
+        properties: {
+          color: classColor[t.driftClass] || '#f59e0b',
+          label: `${t.trainId} PLAN`,
+        },
+        geometry: { type: 'Point' as const, coordinates: t.expected.coordinates },
+      })),
+    });
+    linkSource.setData({
+      type: 'FeatureCollection',
+      features: drifting.map(t => ({
+        type: 'Feature' as const,
+        properties: { color: classColor[t.driftClass] || '#f59e0b' },
+        geometry: { type: 'LineString' as const, coordinates: [t.expected.coordinates, t.live.coordinates] },
+      })),
+    });
+  }, [driftReport, mapLoaded]);
 
 
 

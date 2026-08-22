@@ -6,6 +6,7 @@ import { SimulationPanel } from '../panels/SimulationPanel';
 import { CopilotChat } from '../copilot/CopilotChat';
 import { WhatIfPanel } from '../panels/WhatIfPanel';
 import { HealthDashboard } from '../panels/HealthDashboard';
+import { ReconciliationPanel } from '../panels/ReconciliationPanel';
 
 export const MainPanel: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
@@ -33,6 +34,7 @@ export const MainPanel: React.FC = () => {
           {activePanel === 'copilot' && <CopilotChat />}
           {activePanel === 'whatif' && <WhatIfPanel />}
           {activePanel === 'health' && <HealthDashboard />}
+          {activePanel === 'reconciliation' && <ReconciliationPanel />}
         </div>
       )}
     </div>

@@ -62,7 +62,7 @@ export interface LiveState {
   copilot: { thinking: boolean; messages: CopilotMessage[]; recommendations: Recommendation[] };
   intervention: null | { accepted: string; operator: string };
   resolved: null | { newCascadeDelay: number; conflictsResolved: number; riskReduction: string; minutesSaved: number };
-  activePanel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health';
+  activePanel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health' | 'reconciliation';
   toasts: Toast[];
   whatIfStation: string;
   whatIfScenario: 'signal_failure' | 'track_damage';
@@ -82,7 +82,7 @@ export interface LiveState {
   recalculateDynamicPredictions: () => Promise<void>;
   setMobileLeftOpen: (open: boolean) => void;
   setMobileRightOpen: (open: boolean) => void;
-  setActivePanel: (panel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health') => void;
+  setActivePanel: (panel: 'map' | 'delays' | 'simulation' | 'copilot' | 'whatif' | 'health' | 'reconciliation') => void;
   acceptRecommendation: (id: string) => void;
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;

@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List } from 'lucide-react';
+import { Users, Compass, Clock, Volume2, VolumeX, HelpCircle, Sun, Moon, Settings, Menu, List, GitCompare } from 'lucide-react';
 import { HelpModal } from '../ui/HelpModal';
 import { SettingsModal } from '../ui/SettingsModal';
+import { useDriftStore } from '../../stores/driftStore';
+
+const DRIFT_BADGE_STYLES: Record<string, { color: string; bg: string; border: string }> = {
+  stable:      { color: 'var(--color-risk-low)',      bg: 'rgba(34,197,94,0.07)',  border: 'rgba(34,197,94,0.2)'  },
+  minor:       { color: 'var(--color-risk-moderate)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)' },
+  significant: { color: 'var(--color-risk-high)',     bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)' },
+  critical:    { color: 'var(--color-risk-critical)', bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)'  },
+};
 
 export const TopBar: React.FC = () => {
   const audioEnabled = useDemoStore(state => state.audioEnabled);
@@ -20,6 +28,9 @@ export const TopBar: React.FC = () => {
   const [timeStr, setTimeStr] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const setActivePanel = useDemoStore(state => state.setActivePanel);
+  const driftReport = useDriftStore(state => state.driftReport);
+  const openReconCount = useDriftStore(state => state.reconItems.filter(i => i.status === 'open').length);
 
   // Live IST Clock
   useEffect(() => {
@@ -179,6 +190,31 @@ export const TopBar: React.FC = () => {
 
         {/* ── Right Controls ── */}
         <div className="flex items-center gap-1 sm:gap-2">
+          {/* Drift Indicator badge — Round 2 */}
+          {driftReport && (() => {
+            const s = DRIFT_BADGE_STYLES[driftReport.corridorClass] || DRIFT_BADGE_STYLES.stable;
+            return (
+              <button
+                onClick={() => setActivePanel('reconciliation')}
+                className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-mono font-semibold shrink-0 outline-none cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.97]"
+                style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
+                title={`Corridor drift ${Math.round(driftReport.corridorScore)}/100 (${driftReport.corridorClass}) — ${openReconCount} open reconciliation item(s). Click to open the Drift Monitor.`}
+              >
+                <GitCompare className="w-3 h-3" />
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(driftReport.corridorScore)}</span>
+                <span className="max-sm:hidden uppercase tracking-wider">drift</span>
+                {openReconCount > 0 && (
+                  <span
+                    className="inline-flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full text-[8px] font-bold"
+                    style={{ background: s.color, color: 'var(--color-bg-page)' }}
+                  >
+                    {openReconCount}
+                  </span>
+                )}
+              </button>
+            );
+          })()}
+
           {/* Last updated */}
           {lastUpdatedStr && (
             <div className="hidden lg:flex items-center gap-1 text-[9px] font-mono text-text-muted mr-1">

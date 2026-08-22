@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Train, MapPin, Clock, Zap, Bot, TestTube, Activity } from 'lucide-react';
+import { Train, MapPin, Clock, Zap, Bot, TestTube, Activity, GitCompare } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
@@ -15,6 +15,7 @@ export const Sidebar: React.FC = () => {
     { id: 'copilot'    as const, label: 'AI Chat',       icon: Bot      },
     { id: 'whatif'     as const, label: 'What-If Lab',   icon: TestTube },
     { id: 'health'     as const, label: 'System Health', icon: Activity },
+    { id: 'reconciliation' as const, label: 'Drift Monitor', icon: GitCompare },
   ];
 
   return (
@@ -98,7 +99,7 @@ export const Sidebar: React.FC = () => {
             </span>
             <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 mt-1.5">
               <span className="text-[9px] text-text-muted font-mono">
-                <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">1–6</kbd>
+                <kbd className="px-1 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-tertiary">1–7</kbd>
                 {' '}panels
               </span>
               <span className="text-[9px] text-text-muted font-mono">

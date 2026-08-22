@@ -390,3 +390,33 @@ export async function getWeatherAlert(customApiKey?: string): Promise<{
     visibility: w.visibility, source: w.source, lastUpdated: w.fetchedAt,
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// Round 2 · Reconciliation: fetch the SAME station from two
+// independent providers side by side, so genuine source
+// conflicts can be detected instead of silently masked by the
+// fallback chain above.
+// ─────────────────────────────────────────────────────────────
+export interface DualSourceWeather {
+  station: string;
+  sourceA: { name: string; data: WeatherData } | null;
+  sourceB: { name: string; data: WeatherData } | null;
+}
+
+export async function getDualSourceWeather(stationCode: string, customApiKey?: string): Promise<DualSourceWeather> {
+  const apiKey = customApiKey || OPENWEATHER_API_KEY;
+  const [owm, meteo] = await Promise.all([
+    apiKey ? fetchOpenWeatherMap(stationCode, apiKey) : Promise.resolve(null),
+    fetchOpenMeteo(stationCode),
+  ]);
+  // Without an OWM key, the seasonal model stands in as the second,
+  // independent estimate — honestly labelled as such.
+  const secondary = owm
+    ? { name: 'OpenWeatherMap', data: owm }
+    : { name: 'Seasonal model', data: generateFallbackWeather(stationCode) };
+  return {
+    station: stationCode,
+    sourceA: meteo ? { name: 'Open-Meteo', data: meteo } : null,
+    sourceB: secondary,
+  };
+}

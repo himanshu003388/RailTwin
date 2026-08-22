@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDemoStore } from '../../stores/demoStore';
-import { Map, TrendingUp, Activity, Bot, FlaskConical, HeartPulse } from 'lucide-react';
+import { Map, TrendingUp, Activity, Bot, FlaskConical, HeartPulse, GitCompare } from 'lucide-react';
 
 const ITEMS = [
   { id: 'map', label: 'Map', Icon: Map },
@@ -9,6 +9,7 @@ const ITEMS = [
   { id: 'copilot', label: 'AI Chat', Icon: Bot },
   { id: 'whatif', label: 'What-If', Icon: FlaskConical },
   { id: 'health', label: 'Health', Icon: HeartPulse },
+  { id: 'reconciliation', label: 'Drift', Icon: GitCompare },
 ] as const;
 
 export const MobileNav: React.FC = () => {

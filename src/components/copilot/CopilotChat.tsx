@@ -1,10 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
+import { useDriftStore } from '../../stores/driftStore';
 import { Bot, Send, User } from 'lucide-react';
 
 function getBaseUrl() {
   const base = import.meta.env.BASE_URL || '/';
   return base.endsWith('/') ? base : `${base}/`;
+}
+
+/** Compact drift/reconciliation context injected into every copilot request. */
+function buildDriftSystemState() {
+  const { driftReport, reconItems } = useDriftStore.getState();
+  if (!driftReport) return undefined;
+  return {
+    drift: {
+      baselineName: driftReport.baselineName,
+      capturedAt: driftReport.capturedAt,
+      elapsedMinutes: driftReport.elapsedMinutes,
+      corridorScore: driftReport.corridorScore,
+      corridorClass: driftReport.corridorClass,
+      topTrains: driftReport.trains.slice(0, 4).map(t => ({
+        trainId: t.trainId, trainName: t.trainName, score: t.score,
+        driftClass: t.driftClass, explanation: t.explanation,
+      })),
+      openItems: reconItems.filter(i => i.status === 'open').slice(0, 6).map(i => ({
+        type: i.type, entityLabel: i.entityLabel, field: i.field,
+        sourceA: i.sourceA, sourceB: i.sourceB, suggestedResolution: i.suggestedResolution,
+      })),
+    },
+  };
 }
 
 export const CopilotChat: React.FC = () => {
@@ -23,6 +47,7 @@ export const CopilotChat: React.FC = () => {
         body: JSON.stringify({
           messages: msgs,
           userApiKey: geminiApiKey || undefined,
+          systemState: buildDriftSystemState(),
         }),
       });
       const data = await res.json();

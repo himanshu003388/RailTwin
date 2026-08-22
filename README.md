@@ -98,6 +98,36 @@ An interactive India-wide corridor map with:
 - Signal status indicator (operational / degraded / disrupted)
 - Active alert count with drill-down
 
+### 7 · Reconciliation: Drift Indicator (Round 2)
+
+- **Baseline snapshots** — pin the current situation (trains, delays, forecasts, predictions) as the *recorded context* an operator shift acts on; auto-captured at shift start, persisted to SQLite + localStorage
+- **Drift engine** — deterministic, explainable 0–100 drift score per train and corridor-wide, recomputed every 5 s (see formula below); ghost markers on the map show where the plan said each train would be right now
+- **Reconciler** — first-class handling of the three data-quality failure modes:
+  - *Conflicting*: Open-Meteo vs OpenWeatherMap disagreeing at a station; SSE feed vs schedule-derived position engine disagreeing about a train
+  - *Duplicate*: same train + timestamp arriving twice with different payloads → detected, deduped, logged
+  - *Partially matching*: Jaro-Winkler similarity scoring for station names / train numbers ("Kanpur Centrall" → 87% ≈ Kanpur Central → needs-review queue). Round 1 silently mapped unknown names to NDLS — Round 2 catches what Round 1 swallowed
+- **Operator workflow** — every open item offers **Accept live / Keep baseline / Merge**; every decision is written to the SQLite audit log
+- **Drift timeline** — chronological story of when and why the situation drifted
+- **Replay scenario** — a deterministic 60-second demo story (weather drift → schedule drift → duplicate events → partial matches) that needs no network
+- **Copilot integration** — the live drift report and open conflicts are injected into Gemini's context; the AI explains drift, it never computes it
+
+---
+
+## Round 2 · Drift Score (explainable, no LLM)
+
+```
+drift = 0.40·schedule + 0.25·position + 0.20·prediction + 0.15·weather      (0–100)
+```
+
+| Component | Weight | Measures | Normalised by |
+|---|---|---|---|
+| Schedule | 0.40 | Δ delay vs recorded context (min) | 45 min → 100 pts |
+| Position | 0.25 | km between live position and where the baseline implied the train would be now | 120 km → 100 pts |
+| Prediction | 0.20 | do the assumptions under the recorded ML prediction still hold? (weather class change at next station + confidence shift) | 60 + 40 pts |
+| Weather | 0.15 | recorded forecast vs observed weather at current/next station | class change 60 + Δmm up to 40 |
+
+Classes: `<15 stable · <40 minor · <70 significant · ≥70 critical`. The corridor score is the **passenger-exposure-weighted** mean across trains. The weights deliberately mirror the Tier-2 prediction weights (40/25/20/15) so the whole system shares one weighting philosophy.
+
 ---
 
 ## Architecture
@@ -346,6 +376,7 @@ RAPIDAPI_KEY=your_rapidapi_key_here
 | `4` | AI Copilot |
 | `5` | What-If Lab |
 | `6` | System Health |
+| `7` | Drift Monitor (Reconciliation) |
 | `Space` | Start / Stop demo scenario |
 | `M` | Toggle audio alerts |
 
@@ -368,6 +399,9 @@ The Astro SSR backend exposes 18 endpoints:
 | `/api/trains/simulation/cascade` | POST | Run cascade disruption simulation |
 | `/api/predictions/history` | GET | Historical delay prediction log (SQLite) |
 | `/api/scenarios` | GET/POST | CRUD for saved What-If scenarios |
+| `/api/baseline` | GET/POST | Capture / retrieve the recorded-context baseline (Round 2) |
+| `/api/reconciliation` | GET/POST | Operator conflict resolutions + audit history (Round 2) |
+| `/api/weather/compare` | GET | Same station from two independent weather sources, side by side (Round 2) |
 
 ---
 

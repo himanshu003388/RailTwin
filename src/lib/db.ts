@@ -61,6 +61,26 @@ function initSchema(db: Database.Database) {
       data_json TEXT NOT NULL,
       fetched_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS baselines (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      baseline_id TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'manual',
+      snapshot_json TEXT NOT NULL,
+      captured_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS reconciliations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_id TEXT NOT NULL,
+      item_type TEXT NOT NULL,
+      entity TEXT NOT NULL,
+      field TEXT NOT NULL,
+      resolution TEXT NOT NULL,
+      item_json TEXT NOT NULL,
+      resolved_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 }
 

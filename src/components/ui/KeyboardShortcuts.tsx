@@ -41,6 +41,10 @@ export const KeyboardShortcuts: React.FC = () => {
           e.preventDefault();
           setActivePanel('health');
           break;
+        case '7':
+          e.preventDefault();
+          setActivePanel('reconciliation');
+          break;
         case 'm':
         case 'M':
           e.preventDefault();
