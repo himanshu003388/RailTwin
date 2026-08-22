@@ -143,8 +143,15 @@ function driftForTrain(
   live: BaselineTrainSnapshot,
   baseline: BaselineSnapshot,
   liveSnap: LiveSnapshot,
-  elapsedMinutes: number,
+  elapsedMinutesGlobal: number,
 ): TrainDrift {
+  // A train re-anchored mid-shift (operator accepted live reality) projects
+  // its expected position from the re-anchor moment, not the shift start.
+  const anchor = base.snapshotAt ? new Date(base.snapshotAt).getTime() : NaN;
+  const computed = new Date(liveSnap.at).getTime();
+  const elapsedMinutes = Number.isFinite(anchor)
+    ? Math.max(0, (computed - anchor) / 60000)
+    : elapsedMinutesGlobal;
   // ── 1 · Schedule drift (40%): how far the delay picture moved ──
   const deltaMin = Math.abs(live.predictedDelay - base.predictedDelay);
   const schedule = componentScore(

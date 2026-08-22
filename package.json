@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "astro build"
+    "deploy": "astro build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -35,7 +36,8 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^25.9.3"
+    "@types/node": "^25.9.3",
+    "vitest": "^3.2.4"
   },
   "description": "A **Predictive Digital Twin dashboard** for Indian Railway operations, modeling the Delhi-Howrah Corridor (1,531 km). Built as a hackathon prototype demonstrating monsoon weather disruption simulation, train delay prediction, cascade analysis, and AI-powered copilot recommendations.",
   "main": "index.js",

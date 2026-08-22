@@ -17,6 +17,7 @@ import { create } from 'zustand';
 import { useDemoStore } from './demoStore';
 import { computeLivePositions, STATIONS } from '../data/corridor';
 import { computeDrift, weatherClassOf } from '../lib/drift-engine';
+import { playCriticalDriftAlert, playResolvedChime } from '../lib/alert-audio';
 import {
   dedupeEvents,
   detectPositionConflict,
@@ -120,6 +121,7 @@ function buildLiveSnapshot(): LiveSnapshot {
       predictedDelay: delayOverride !== undefined ? delayOverride : t.predictedDelay,
       confidence: confidenceByTrain[t.id] ?? 0.65,
       weatherConditionAtNext: weatherClassOf(weather[t.nextStation]),
+      snapshotAt: nowIso(),
     };
   });
 
@@ -213,6 +215,7 @@ export const useDriftStore = create<DriftState>((set, get) => ({
     // Timeline entries when a train's drift class worsens
     const order = ['stable', 'minor', 'significant', 'critical'];
     const newEvents: DriftTimelineEvent[] = [];
+    let enteredCritical = false;
     for (const t of report.trains) {
       const prev = lastClassByTrain[t.trainId];
       if (prev && order.indexOf(t.driftClass) > order.indexOf(prev)) {
@@ -222,8 +225,12 @@ export const useDriftStore = create<DriftState>((set, get) => ({
           kind: 'drift',
           message: `${t.trainId} ${t.trainName}: drift ${prev} → ${t.driftClass} (${t.score}/100) — ${worst.detail}`,
         });
+        if (t.driftClass === 'critical') enteredCritical = true;
       }
       lastClassByTrain[t.trainId] = t.driftClass;
+    }
+    if (enteredCritical && useDemoStore.getState().audioEnabled) {
+      playCriticalDriftAlert();
     }
 
     set(state => {
@@ -242,6 +249,9 @@ export const useDriftStore = create<DriftState>((set, get) => ({
     const item = get().reconItems.find(i => i.id === id);
     if (!item || item.status === 'resolved') return;
     const resolved: ReconciliationItem = { ...item, status: 'resolved', resolution, resolvedAt: nowIso() };
+    const scoreBefore = get().driftReport?.corridorScore ?? null;
+    const classBefore = get().driftReport?.corridorClass ?? null;
+
     set(state => ({
       reconItems: state.reconItems.map(i => (i.id === id ? resolved : i)),
       timeline: pushTimeline(state, {
@@ -250,16 +260,90 @@ export const useDriftStore = create<DriftState>((set, get) => ({
         message: `Operator resolved ${item.type} on ${item.entityLabel} (${item.field}): ${resolution.replace('-', ' ')}`,
       }),
     }));
+
+    // ── Closed loop: the decision changes live state, not just a flag ──
+    const demo = useDemoStore.getState();
+    const { baseline } = get();
+    const entity = item.entity;
+    if (baseline) {
+      if (resolution === 'accept-live' || resolution === 'merge') {
+        // Accepting reality: the observed values become the recorded context
+        // for this entity, re-anchored at this moment — drift against the
+        // updated context collapses.
+        const live = buildLiveSnapshot();
+        const liveTrain = live.trains.find(t => t.trainId === entity);
+        const updatedTrains = liveTrain
+          ? baseline.trains.map(t => (t.trainId === entity ? liveTrain : t))
+          : baseline.trains;
+        const updatedWeather = { ...baseline.weather };
+        if (live.weather[entity]) {
+          if (resolution === 'merge' && baseline.weather[entity]) {
+            // Merge = operate on the more severe of the two conditions
+            const a = baseline.weather[entity];
+            const b = live.weather[entity];
+            updatedWeather[entity] = b.rainfall >= a.rainfall ? b : a;
+          } else {
+            updatedWeather[entity] = live.weather[entity];
+          }
+          // Propagate the accepted weather to the whole dashboard
+          if (demo.weatherData?.[entity]) {
+            useDemoStore.setState({
+              weatherData: {
+                ...demo.weatherData,
+                [entity]: { ...demo.weatherData[entity], ...updatedWeather[entity] },
+              },
+            });
+          }
+        }
+        const newBaseline: BaselineSnapshot = { ...baseline, trains: updatedTrains, weather: updatedWeather };
+        set({ baseline: newBaseline });
+        persistBaseline(newBaseline);
+      } else {
+        // Keep baseline: the incoming record is judged wrong — discard the
+        // drifting overrides for this entity and restore the recorded values.
+        delete replayOverrides.delays[entity];
+        delete replayOverrides.weather[entity];
+        if (baseline.weather[entity] && demo.weatherData?.[entity]) {
+          useDemoStore.setState({
+            weatherData: {
+              ...demo.weatherData,
+              [entity]: { ...demo.weatherData[entity], ...baseline.weather[entity] },
+            },
+          });
+        }
+      }
+    }
+
+    // Recompute immediately so the decision has a visible consequence
+    get().computeDriftNow();
+    const after = get().driftReport;
+    if (scoreBefore !== null && after && (scoreBefore - after.corridorScore >= 10 || (classBefore !== after.corridorClass && after.corridorClass === 'stable'))) {
+      useDemoStore.getState().addToast({
+        type: 'success',
+        title: 'Drift Mitigated',
+        message: `Corridor drift ${Math.round(scoreBefore)} → ${Math.round(after.corridorScore)} (${after.corridorClass.toUpperCase()}) after reconciliation.`,
+      });
+      if (useDemoStore.getState().audioEnabled) playResolvedChime();
+      set(state => ({
+        timeline: pushTimeline(state, {
+          at: nowIso(),
+          kind: 'resolution',
+          message: `Drift mitigated: corridor ${Math.round(scoreBefore)} → ${Math.round(after.corridorScore)} (${after.corridorClass})`,
+        }),
+      }));
+    } else {
+      useDemoStore.getState().addToast({
+        type: 'success',
+        title: 'Reconciled',
+        message: `${item.entityLabel}: ${resolution.replace('-', ' ')} applied and written to the audit log.`,
+      });
+    }
+
     fetch(`${getBaseUrl()}api/reconciliation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ item: resolved, resolution }),
     }).catch(() => { /* audit persistence is best-effort */ });
-    useDemoStore.getState().addToast({
-      type: 'success',
-      title: 'Reconciled',
-      message: `${item.entityLabel}: ${resolution.replace('-', ' ')} applied and written to the audit log.`,
-    });
   },
 
   ingestFeedEvents: (events) => {

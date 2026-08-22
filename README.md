@@ -105,11 +105,14 @@ An interactive India-wide corridor map with:
 - **Reconciler** — first-class handling of the three data-quality failure modes:
   - *Conflicting*: Open-Meteo vs OpenWeatherMap disagreeing at a station; SSE feed vs schedule-derived position engine disagreeing about a train
   - *Duplicate*: same train + timestamp arriving twice with different payloads → detected, deduped, logged
-  - *Partially matching*: Jaro-Winkler similarity scoring for station names / train numbers ("Kanpur Centrall" → 87% ≈ Kanpur Central → needs-review queue). Round 1 silently mapped unknown names to NDLS — Round 2 catches what Round 1 swallowed
-- **Operator workflow** — every open item offers **Accept live / Keep baseline / Merge**; every decision is written to the SQLite audit log
+  - *Partially matching*: Jaro-Winkler similarity scoring for station names / train numbers ("Kanpur Centrall" → 87% ≈ Kanpur Central → needs-review queue). Round 1 silently mapped unknown names to NDLS — Round 2 catches what Round 1 swallowed, **including in the real server ingestion path**: `nameToId()` in the train engine now runs every unknown name through the matcher and writes a `station_name_needs_review` audit entry before any fallback is applied
+- **Operator workflow (closed-loop)** — every open item offers **Accept live / Keep baseline / Merge**, and the decision *changes live state*, not just a flag: accepting reality re-anchors the recorded context for that entity (and propagates accepted weather network-wide), keeping the baseline discards the drifting record. Drift recomputes instantly — resolving the right conflict visibly collapses the corridor score (e.g. 74 → 18) with a "Drift Mitigated" confirmation. Every decision is written to the SQLite audit log
+- **Ghost plan inspector** — click any ghost marker or drift link on the map for a **Plan vs Live diff card** (recorded vs observed station, delay, progress, weather + Δkm, Δmin and the weighted component scores); a "Ghost plan ON/OFF" HUD toggle shows/hides the overlay
 - **Drift timeline** — chronological story of when and why the situation drifted
+- **Shift handover export** — one click produces the full audit as Markdown or a print-ready PDF: baseline, drift summary and peak, per-train table, every operator decision with timestamps and both sources, open items for the next shift, final network health. Offline-safe, zero dependencies
+- **Critical alerting** — pulsing glow on the drift gauge at corridor score ≥ 70 and a Web Audio two-tone alarm when a train transitions into critical drift (gated on the audio toggle, `M`)
 - **Replay scenario** — a deterministic 60-second demo story (weather drift → schedule drift → duplicate events → partial matches) that needs no network
-- **Copilot integration** — the live drift report and open conflicts are injected into Gemini's context; the AI explains drift, it never computes it
+- **Copilot integration** — the live drift report and open conflicts are injected into Gemini's context, with one-click drift inquiry chips above the chat input; the AI explains drift, it never computes it
 
 ---
 
@@ -127,6 +130,12 @@ drift = 0.40·schedule + 0.25·position + 0.20·prediction + 0.15·weather      
 | Weather | 0.15 | recorded forecast vs observed weather at current/next station | class change 60 + Δmm up to 40 |
 
 Classes: `<15 stable · <40 minor · <70 significant · ≥70 critical`. The corridor score is the **passenger-exposure-weighted** mean across trains. The weights deliberately mirror the Tier-2 prediction weights (40/25/20/15) so the whole system shares one weighting philosophy.
+
+Both Round 2 engines are **pure modules with unit tests** (`tests/drift-engine.test.ts`, `tests/reconciler.test.ts` — score weighting, class thresholds, re-anchoring, dedupe, similarity thresholds, conflict detection):
+
+```bash
+npm test
+```
 
 ---
 

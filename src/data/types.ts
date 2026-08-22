@@ -47,6 +47,12 @@ export interface BaselineTrainSnapshot {
   confidence: number;
   /** Weather class the prediction was made under (assumption tracking). */
   weatherConditionAtNext: string;
+  /**
+   * When this per-train snapshot was (re-)anchored. Normally equals the
+   * baseline capture time; updated when an operator accepts live reality
+   * for this train, so position projection restarts from that moment.
+   */
+  snapshotAt?: string;
 }
 
 /** The originally recorded context an operator shift is acting on. */

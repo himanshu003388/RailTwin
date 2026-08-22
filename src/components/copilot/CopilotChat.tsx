@@ -241,27 +241,32 @@ export const CopilotChat: React.FC = () => {
 
       {/* Input Area */}
       <div className="border-t border-border-default p-4 bg-bg-card animate-slide-up">
-        {showEmptyState && (
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
-            {['Which station is most at risk?', 'What is the impact so far?', 'Recommended actions?'].map(q => (
-              <button
-                key={q}
-                onClick={() => { setInputText(''); handleSend(q); }}
-                disabled={copilot.thinking}
-                className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{
-                  background: 'var(--color-bg-elevated)',
-                  border: '1px solid var(--color-border-default)',
-                  color: 'var(--color-text-tertiary)',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-tertiary)'; }}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Round 2 · one-click drift inquiry chips — always available so judges
+            and operators can interrogate the drift state without typing */}
+        <div className="flex gap-2 mb-3 overflow-x-auto pb-1.5 scrollbar-none select-none">
+          {[
+            { icon: '⚡', q: 'Why is corridor drift high right now?' },
+            { icon: '🔍', q: 'Explain the drift breakdown for Punjab Mail (12137).' },
+            { icon: '🛡️', q: 'Recommend a mitigation strategy for the open reconciliation conflicts.' },
+            { icon: '📊', q: 'Summarize the shift: recorded baseline vs live reality, for handover.' },
+          ].map(({ icon, q }) => (
+            <button
+              key={q}
+              onClick={() => { setInputText(''); handleSend(q); }}
+              disabled={copilot.thinking}
+              className="text-xs rounded-full px-3 py-1.5 transition-all duration-150 whitespace-nowrap outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: 'var(--color-bg-elevated)',
+                border: '1px solid var(--color-border-default)',
+                color: 'var(--color-text-tertiary)',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent-purple)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)'; (e.currentTarget as HTMLElement).style.color = 'var(--color-text-tertiary)'; }}
+            >
+              {icon} {q}
+            </button>
+          ))}
+        </div>
 
         <form onSubmit={handleFormSubmit} className="flex gap-2 items-center relative">
           <input

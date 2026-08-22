@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useDriftStore } from '../../stores/driftStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import {
-  GitCompare, Pin, Play, Square, AlertTriangle, CheckCircle2, Clock, Copy, CloudRain, MapPin,
+  GitCompare, Pin, Play, Square, AlertTriangle, CheckCircle2, Clock, Copy, CloudRain, MapPin, FileDown, Printer,
 } from 'lucide-react';
+import { useDemoStore } from '../../stores/demoStore';
+import { downloadHandoverMarkdown, printHandoverReport, type HandoverData } from '../../lib/export-report';
 import type { DriftClass, ReconciliationItem, TrainDrift } from '../../data/types';
 
 const CLASS_COLOR: Record<DriftClass, string> = {
@@ -180,10 +182,17 @@ export const ReconciliationPanel: React.FC = () => {
   const startReplay = useDriftStore(s => s.startReplay);
   const stopReplay = useDriftStore(s => s.stopReplay);
 
+  const networkHealth = useDemoStore(s => s.networkHealth);
+
   const openItems = reconItems.filter(i => i.status === 'open');
   const resolvedItems = reconItems.filter(i => i.status === 'resolved').slice(0, 5);
   const corridorColor = report ? CLASS_COLOR[report.corridorClass] : 'var(--color-risk-low)';
   const driftingCount = report ? report.trains.filter(t => t.driftClass !== 'stable').length : 0;
+  const isCritical = report ? report.corridorScore >= 70 : false;
+
+  const handoverData = (): HandoverData => ({
+    baseline, report, timeline, reconItems, corridorHistory, networkHealth,
+  });
 
   return (
     <div className="flex flex-col h-full bg-bg-page text-text-primary select-none overflow-y-auto pr-1">
@@ -233,6 +242,22 @@ export const ReconciliationPanel: React.FC = () => {
               {replayActive ? 'Stop replay' : 'Replay drift scenario'}
             </span>
           </button>
+          <button
+            onClick={() => downloadHandoverMarkdown(handoverData())}
+            title="Download the shift handover & reconciliation audit as Markdown"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary"
+            style={{ background: 'var(--color-bg-elevated)' }}
+          >
+            <span className="inline-flex items-center gap-1"><FileDown className="w-3 h-3" /> Handover .md</span>
+          </button>
+          <button
+            onClick={() => printHandoverReport(handoverData())}
+            title="Open a print-ready handover report (Save as PDF)"
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] text-text-secondary hover:text-text-primary"
+            style={{ background: 'var(--color-bg-elevated)' }}
+          >
+            <span className="inline-flex items-center gap-1"><Printer className="w-3 h-3" /> PDF</span>
+          </button>
         </div>
       </div>
 
@@ -252,7 +277,11 @@ export const ReconciliationPanel: React.FC = () => {
           { label: 'Open items', value: openItems.length, unit: 'inbox', color: openItems.length > 0 ? 'var(--color-accent-red)' : 'var(--color-accent-green)' },
           { label: 'Feed events', value: feedEventsSeen, unit: `${duplicatesDropped} deduped`, color: 'var(--color-accent-blue)' },
         ].map(m => (
-          <div key={m.label} className="border border-border-default p-2.5 rounded-lg" style={{ background: 'var(--color-bg-card)', boxShadow: 'var(--shadow-card)' }}>
+          <div
+            key={m.label}
+            className={`border p-2.5 rounded-lg ${m.label === 'Corridor drift' && isCritical ? 'drift-critical-pulse' : 'border-border-default'}`}
+            style={{ background: 'var(--color-bg-card)', boxShadow: 'var(--shadow-card)', borderColor: m.label === 'Corridor drift' && isCritical ? 'var(--color-risk-critical)' : undefined }}
+          >
             <span className="text-[9px] text-text-tertiary font-mono uppercase block tracking-wider">{m.label}</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-lg font-mono font-bold" style={{ color: m.color, fontVariantNumeric: 'tabular-nums' }}>{m.value}</span>
@@ -264,7 +293,10 @@ export const ReconciliationPanel: React.FC = () => {
 
       {/* ── Corridor gauge ── */}
       {report && (
-        <div className="rounded-lg p-3 mb-3 border border-border-default" style={{ background: 'var(--color-bg-card)' }}>
+        <div
+          className={`rounded-lg p-3 mb-3 border ${isCritical ? 'drift-critical-pulse' : 'border-border-default'}`}
+          style={{ background: 'var(--color-bg-card)', borderColor: isCritical ? 'var(--color-risk-critical)' : undefined }}
+        >
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-text-tertiary font-mono uppercase tracking-wider">Situation vs recorded context</span>
             <div className="flex items-center gap-2">

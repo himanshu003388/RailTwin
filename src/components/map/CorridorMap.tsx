@@ -3,7 +3,7 @@ import { useDemoStore } from '../../stores/demoStore';
 import { useDriftStore } from '../../stores/driftStore';
 import { TRAIN_ROUTES, STATIONS, ALL_STATIONS, getTrainRoute } from '../../data/corridor';
 import { TRACK_GEOMETRIES } from '../../data/trackGeometries';
-import { Layers } from 'lucide-react';
+import { Layers, Eye, EyeOff } from 'lucide-react';
 
 declare global {
   const maplibregl: any;
@@ -99,6 +99,7 @@ export const CorridorMap: React.FC = () => {
   const [showMapLegend, setShowMapLegend] = useState(false);
   const [showLiveWeather, setShowLiveWeather] = useState(false);
   const [desktopLegendOpen, setDesktopLegendOpen] = useState(false);
+  const [showGhostOverlay, setShowGhostOverlay] = useState(true);
   const styleIndexRef = useRef(0);
   const mapLoadedRef = useRef(false);
 
@@ -349,6 +350,63 @@ export const CorridorMap: React.FC = () => {
           },
         });
 
+        // ── Round 2 · Ghost marker inspector: Plan vs Live diff card ──
+        const openDriftPopup = (e: any) => {
+          const trainId = e.features?.[0]?.properties?.trainId;
+          if (!trainId) return;
+          const { driftReport, baseline } = useDriftStore.getState();
+          const t = driftReport?.trains.find(tr => tr.trainId === trainId);
+          if (!t) return;
+          const comp = Object.fromEntries(t.components.map(c => [c.key, c]));
+          const clsColor = t.driftClass === 'critical' ? '#ef4444' : t.driftClass === 'significant' ? '#f97316' : '#f59e0b';
+          const planWeather = baseline?.weather[t.baseline.nextStation];
+          const liveWeather = useDemoStore.getState().weatherData?.[t.live.nextStation];
+          const muted = theme === 'light' ? '#6b6559' : '#888';
+          const colCss = `flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;`;
+          const rowCss = `display:flex; justify-content:space-between; gap:8px; font-size:10px;`;
+          const html = `
+            <div style="background:${theme === 'light' ? '#ffffff' : '#0a0a0a'}; color:${theme === 'light' ? '#0f172a' : '#fff'}; font-family:system-ui,sans-serif; font-size:12px; border:1px solid ${clsColor}55; padding:14px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,${theme === 'light' ? '0.15' : '0.7'}); min-width:250px; max-width:290px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid ${theme === 'light' ? '#e2e0da' : '#1a1a1a'};">
+                <div>
+                  <div style="font-weight:700; font-size:13px;">${trainId} · ${t.trainName}</div>
+                  <div style="font-size:9px; color:${muted}; font-family:monospace; text-transform:uppercase;">Plan vs Live</div>
+                </div>
+                <span style="color:${clsColor}; font-weight:700; font-size:12px; background:${clsColor}18; border:1px solid ${clsColor}44; padding:2px 8px; border-radius:6px; font-family:monospace;">${Math.round(t.score)}/100</span>
+              </div>
+              <div style="display:flex; gap:10px; margin-bottom:8px;">
+                <div style="${colCss}">
+                  <div style="font-size:9px; font-weight:700; color:${muted}; text-transform:uppercase; letter-spacing:0.06em;">◌ Plan (recorded)</div>
+                  <div style="${rowCss}"><span style="color:${muted};">Station</span><span style="font-weight:600;">${t.baseline.station.toUpperCase()}</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Delay</span><span style="font-weight:600;">${t.baseline.delay} min</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Progress</span><span style="font-weight:600;">${Math.round(t.baseline.progress * 100)}%</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Weather</span><span style="font-weight:600;">${planWeather ? planWeather.description : '—'}</span></div>
+                </div>
+                <div style="width:1px; background:${theme === 'light' ? '#e2e0da' : '#1a1a1a'};"></div>
+                <div style="${colCss}">
+                  <div style="font-size:9px; font-weight:700; color:${clsColor}; text-transform:uppercase; letter-spacing:0.06em;">● Live (observed)</div>
+                  <div style="${rowCss}"><span style="color:${muted};">Station</span><span style="font-weight:600;">${t.live.station.toUpperCase()}</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Delay</span><span style="font-weight:600; color:${t.live.delay > t.baseline.delay ? '#ef4444' : 'inherit'};">${t.live.delay > 0 ? '+' : ''}${t.live.delay} min</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Progress</span><span style="font-weight:600;">${Math.round(t.live.progress * 100)}%</span></div>
+                  <div style="${rowCss}"><span style="color:${muted};">Weather</span><span style="font-weight:600;">${liveWeather ? liveWeather.description : '—'}</span></div>
+                </div>
+              </div>
+              <div style="background:${clsColor}10; border:1px solid ${clsColor}33; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:4px;">
+                <div style="font-size:9px; font-weight:700; color:${clsColor}; text-transform:uppercase; letter-spacing:0.06em;">Δ Drift breakdown</div>
+                <div style="${rowCss}"><span style="color:${muted};">Δ Delay (schedule)</span><span style="font-weight:700; font-family:monospace;">${comp.schedule ? comp.schedule.raw : 0} min → ${comp.schedule ? comp.schedule.weighted : 0} pts</span></div>
+                <div style="${rowCss}"><span style="color:${muted};">Δ Distance (position)</span><span style="font-weight:700; font-family:monospace;">${comp.position ? Math.round(comp.position.raw) : 0} km → ${comp.position ? comp.position.weighted : 0} pts</span></div>
+                <div style="${rowCss}"><span style="color:${muted};">Prediction assumptions</span><span style="font-weight:700; font-family:monospace;">${comp.prediction ? comp.prediction.weighted : 0} pts</span></div>
+                <div style="${rowCss}"><span style="color:${muted};">Weather vs forecast</span><span style="font-weight:700; font-family:monospace;">${comp.weather ? comp.weather.weighted : 0} pts</span></div>
+              </div>
+              <div style="font-size:8px; color:${muted}; margin-top:6px; font-family:monospace;">◌ ghost = position the recorded context implied for now</div>
+            </div>`;
+          new maplibregl.Popup({ closeButton: true, offset: 10, maxWidth: '300px' })
+            .setLngLat(e.lngLat).setHTML(html).addTo(map);
+        };
+        map.on('click', 'drift-ghost-circles', openDriftPopup);
+        map.on('click', 'drift-link-lines', openDriftPopup);
+        map.on('mouseenter', 'drift-ghost-circles', () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', 'drift-ghost-circles', () => { map.getCanvas().style.cursor = ''; });
+
         // Station click popup
         map.on('click', 'station-circles', (e: any) => {
           const coordinates = e.features[0].geometry.coordinates.slice();
@@ -426,6 +484,7 @@ export const CorridorMap: React.FC = () => {
       features: drifting.map(t => ({
         type: 'Feature' as const,
         properties: {
+          trainId: t.trainId,
           color: classColor[t.driftClass] || '#f59e0b',
           label: `${t.trainId} PLAN`,
         },
@@ -436,11 +495,21 @@ export const CorridorMap: React.FC = () => {
       type: 'FeatureCollection',
       features: drifting.map(t => ({
         type: 'Feature' as const,
-        properties: { color: classColor[t.driftClass] || '#f59e0b' },
+        properties: { trainId: t.trainId, color: classColor[t.driftClass] || '#f59e0b' },
         geometry: { type: 'LineString' as const, coordinates: [t.expected.coordinates, t.live.coordinates] },
       })),
     });
   }, [driftReport, mapLoaded]);
+
+  // Round 2 · Ghost overlay visibility toggle
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+    const visibility = showGhostOverlay ? 'visible' : 'none';
+    for (const layerId of ['drift-ghost-circles', 'drift-link-lines', 'drift-ghost-labels']) {
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', visibility);
+    }
+  }, [showGhostOverlay, mapLoaded, driftReport]);
 
 
 
@@ -703,6 +772,25 @@ export const CorridorMap: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Round 2 · Ghost plan overlay toggle */}
+        <button
+          onClick={() => setShowGhostOverlay(v => !v)}
+          className="pointer-events-auto mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border border-border-default bg-bg-elevated/95 backdrop-blur-md transition-all duration-150 cursor-pointer hover:border-border-hover"
+          title="Toggle the baseline plan ghost markers and drift links"
+        >
+          {showGhostOverlay
+            ? <Eye className="w-3.5 h-3.5 text-accent-purple" />
+            : <EyeOff className="w-3.5 h-3.5 text-text-tertiary" />}
+          <span className={`text-[9px] font-mono font-semibold uppercase tracking-wider ${showGhostOverlay ? 'text-text-primary' : 'text-text-tertiary'}`}>
+            Ghost plan {showGhostOverlay ? 'ON' : 'OFF'}
+          </span>
+          {showGhostOverlay && driftReport && (
+            <span className="text-[9px] font-mono text-accent-purple">
+              · {driftReport.trains.filter(t => t.driftClass !== 'stable').length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Desktop Legend — collapsible */}

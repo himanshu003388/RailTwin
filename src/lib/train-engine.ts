@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { matchStation } from './reconciler';
+import { logAudit } from './db';
 
 const dataDir = path.resolve(process.cwd(), 'data');
 
@@ -62,9 +64,39 @@ const activeStates: Record<string, any> = {
   '12301': { currentStation: 'gaya', nextStation: 'mgs', routeProgress: 0.4, coordinates: [84.05, 25.04] },
 };
 
+// Round 2 · Reconciliation: Round 1 silently mapped ANY unknown station
+// name to 'ndls' here. Now unknown names go through the Jaro-Winkler
+// matcher: confident matches are accepted, ambiguous ones are flagged in
+// the audit log as needs-review before the explicit fallback is applied.
+const nameMatchCache: Record<string, string> = {};
+const flaggedUnknownNames = new Set<string>();
+
 function nameToId(name: string): string {
   if (!name) return 'ndls';
-  return nameToIdMap[name.toLowerCase()] || 'ndls';
+  const key = name.toLowerCase();
+  const direct = nameToIdMap[key];
+  if (direct) return direct;
+  const cached = nameMatchCache[key];
+  if (cached) return cached;
+
+  const match = matchStation(name);
+  if ((match.status === 'exact' || match.status === 'auto') && match.matchedId) {
+    nameMatchCache[key] = match.matchedId;
+    return match.matchedId;
+  }
+  // Partially matching / unknown record: flag once for operator review
+  // instead of swallowing it silently, then fall back explicitly.
+  if (!flaggedUnknownNames.has(key)) {
+    flaggedUnknownNames.add(key);
+    logAudit('station_name_needs_review', {
+      input: name,
+      similarity: match.similarity,
+      candidates: match.candidates,
+      appliedFallback: 'ndls',
+    });
+  }
+  nameMatchCache[key] = 'ndls';
+  return 'ndls';
 }
 
 export function getEnrichedStations() {
