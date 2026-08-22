@@ -38,14 +38,14 @@ export const CopilotChat: React.FC = () => {
   const messages = copilot.messages;
   
   const [inputText, setInputText] = useState('');
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (copilotPrefill) {
       setInputText(copilotPrefill);
       useDemoStore.setState({ copilotPrefill: '' } as any);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
     }
   }, [copilotPrefill]);
 
@@ -77,7 +77,12 @@ export const CopilotChat: React.FC = () => {
   }
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, copilot.thinking]);
 
 
@@ -134,7 +139,7 @@ export const CopilotChat: React.FC = () => {
   const prevThinking = useRef(copilot.thinking);
   useEffect(() => {
     if (prevThinking.current && !copilot.thinking) {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     }
     prevThinking.current = copilot.thinking;
   }, [copilot.thinking]);
@@ -142,7 +147,7 @@ export const CopilotChat: React.FC = () => {
   const handleSubmit = () => {
     if (!inputText.trim() || copilot.thinking) return;
     handleSend();
-    setTimeout(() => inputRef.current?.focus(), 0);
+    setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 0);
   };
 
   const handleFormSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -157,7 +162,10 @@ export const CopilotChat: React.FC = () => {
   return (
     <div className="flex flex-col h-full min-h-0 bg-bg-page text-text-primary">
       {/* Chat History */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 scrollbar-thin">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 scrollbar-thin"
+      >
         {showEmptyState && (
           <div className="flex flex-col items-center justify-center py-6 sm:py-8 select-none">
             <Bot className="w-9 h-9 sm:w-10 sm:h-10 text-border-default mb-2.5 sm:mb-3 animate-breath" />
@@ -243,8 +251,6 @@ export const CopilotChat: React.FC = () => {
             </div>
           </div>
         )}
-
-        <div ref={chatEndRef} />
       </div>
 
       {/* Input Area */}

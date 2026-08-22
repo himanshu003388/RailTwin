@@ -558,7 +558,7 @@ export const useDriftStore = create<DriftState>((set, get) => ({
         setTimeout(() => {
           const inboxEl = document.getElementById('recon-inbox-section');
           if (inboxEl) {
-            inboxEl.scrollIntoView({ behavior: 'smooth' });
+            inboxEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
             inboxEl.classList.add('drift-critical-pulse');
             setTimeout(() => inboxEl.classList.remove('drift-critical-pulse'), 3000);
           }

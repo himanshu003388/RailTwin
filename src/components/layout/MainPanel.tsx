@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDemoStore } from '../../stores/demoStore';
 import { CorridorMap } from '../map/CorridorMap';
 import { DelayChart } from '../panels/DelayChart';
@@ -10,9 +10,16 @@ import { ReconciliationPanel } from '../panels/ReconciliationPanel';
 
 export const MainPanel: React.FC = () => {
   const activePanel = useDemoStore(state => state.activePanel);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [activePanel]);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden h-full min-h-0 w-full bg-bg-page relative">
+    <div ref={containerRef} className="flex-1 flex flex-col overflow-hidden h-full min-h-0 w-full bg-bg-page relative">
       {/* Subtle blue accent bar at top of main content */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-blue/15 to-transparent pointer-events-none z-10" />
       {/* Map area (always rendered to keep MapLibre instance alive) */}

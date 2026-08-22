@@ -8,6 +8,15 @@ import { useDemoStore } from '../stores/demoStore';
 import { useDriftStore } from '../stores/driftStore';
 
 export default function AppWrapper() {
+  const activePanel = useDemoStore(state => state.activePanel);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activePanel]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);

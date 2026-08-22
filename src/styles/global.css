@@ -237,12 +237,19 @@ html {
   background: var(--color-bg-page);
   color: var(--color-text-primary);
   font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  max-height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 ::selection {

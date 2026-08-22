@@ -89,7 +89,7 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
     setTimeout(() => {
       const el = document.getElementById(`recon-item-${item!.id}`) || document.getElementById('recon-inbox-section');
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
         el.classList.add('drift-critical-pulse');
         setTimeout(() => el.classList.remove('drift-critical-pulse'), 2500);
       }
