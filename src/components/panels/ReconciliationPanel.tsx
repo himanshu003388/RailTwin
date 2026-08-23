@@ -57,8 +57,8 @@ const Sparkline: React.FC<{ points: number[]; color: string }> = ({ points, colo
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-/** Hackathon Problem Statement & Operational Rationale Card */
-const HackathonProblemStatementGuide: React.FC = () => {
+/** Operational Architecture & Drift Rationale Guide */
+const OperationalArchitectureGuide: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -88,10 +88,10 @@ const HackathonProblemStatementGuide: React.FC = () => {
           <div className="flex flex-col min-w-0 text-left">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] font-mono font-bold text-text-primary">
-                Hackathon Problem Statement: Multi-Source Digital Twin Drift & Closed-Loop Reconciliation
+                Operational Architecture: Multi-Source Digital Twin Drift & Closed-Loop Reconciliation
               </span>
               <span className="text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-accent-purple border border-purple-500/30 uppercase">
-                Round 2 Architecture
+                Corridor Telemetry Protocol
               </span>
             </div>
             <span className="text-[9px] font-mono text-text-tertiary">
@@ -101,7 +101,7 @@ const HackathonProblemStatementGuide: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0 text-text-tertiary hover:text-text-primary text-[10px] font-mono">
-          <span>{open ? 'Hide rationale' : 'View Problem Statement'}</span>
+          <span>{open ? 'Hide details' : 'View Architecture & Rationale'}</span>
           {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </div>
       </div>
@@ -111,7 +111,7 @@ const HackathonProblemStatementGuide: React.FC = () => {
           {/* Section 1: The Core Operational Problem */}
           <div className="flex flex-col gap-1">
             <span className="font-mono font-bold text-text-secondary uppercase text-[9px] tracking-wider flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3 text-accent-amber" /> 1. The Operational Problem in Indian Railways
+              <AlertTriangle className="w-3 h-3 text-accent-amber" /> 1. Digital Twin vs Field Reality Divergence
             </span>
             <p className="text-text-tertiary">
               In high-density corridors (like Mumbai–Delhi), field reality frequently drifts from planned master timetables due to monsoonal speed restrictions, signal halts, and cascade delays. If a Digital Twin operates on an outdated or static baseline, automated dispatching and AI recommendations become dangerously decoupled from actual train positions and track occupancies.
@@ -164,9 +164,9 @@ const HackathonProblemStatementGuide: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 4: Judge & Evaluation Capabilities */}
+          {/* Section 4: System Capabilities */}
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <span className="text-[8px] font-mono text-text-muted uppercase tracking-wider">Evaluation Highlights:</span>
+            <span className="text-[8px] font-mono text-text-muted uppercase tracking-wider">System Capabilities:</span>
             <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-accent-blue border border-blue-500/20 text-[8px] font-mono">
               ✓ 100% Deterministic (Zero Hallucination)
             </span>
@@ -503,7 +503,7 @@ const ReconSandbox: React.FC = () => {
             Interactive Reconciler Sandbox · Live Tester
           </span>
           <span className="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-accent-purple/10 text-accent-purple border border-accent-purple/20 uppercase">
-            Judge Tool
+            Diagnostic Tool
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-text-tertiary">
@@ -730,11 +730,11 @@ export const ReconciliationPanel: React.FC = () => {
             Reconciliation · Drift Indicator
           </h2>
         </div>
-        <span className="text-[10px] font-mono text-text-muted">Round 2 · Hackathon Prototype</span>
+        <span className="text-[10px] font-mono text-text-muted">Active Monitoring</span>
       </div>
 
-      {/* ── Hackathon Problem Statement & Operational Rationale ── */}
-      <HackathonProblemStatementGuide />
+      {/* ── Operational Architecture & Drift Rationale ── */}
+      <OperationalArchitectureGuide />
 
       {/* ── Baseline / recorded context ── */}
       <div className="rounded-lg p-3 mb-3 border border-border-default flex items-center justify-between gap-3 flex-wrap shrink-0"

@@ -59,7 +59,7 @@ export function buildHandoverMarkdown(d: HandoverData): string {
   lines.push('');
   lines.push(`**Generated:** ${now.toLocaleString('en-IN', { hour12: false })} IST  `);
   lines.push(`**Corridor Division:** New Delhi Trunk Hub · 7 Major Corridors · 36 Junction Stations · 11 IR Zones  `);
-  lines.push(`**Audit Protocol:** Round 2 (Continuous Telemetry Reconciliation & Closed-Loop Drift Tracking)`);
+  lines.push(`**Audit Protocol:** Continuous Telemetry Reconciliation & Closed-Loop Drift Tracking`);
   lines.push('');
   lines.push('---');
   lines.push('');
