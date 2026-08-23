@@ -383,32 +383,46 @@ const ReconItemCard: React.FC<{ item: ReconciliationItem }> = ({ item }) => {
           <span>Resolved: {item.resolution?.replace('-', ' ')} {item.resolvedAt ? `@ ${fmtTime(item.resolvedAt)}` : ''}</span>
         </div>
       ) : (
-        <div className="flex gap-1.5 flex-wrap">
-          {([['accept-live', 'Accept live'], ['keep-baseline', 'Keep baseline'], ['merge', 'Merge']] as const).map(([res, label]) => (
-            <button
-              key={res}
-              onClick={() => resolveItem(item.id, res)}
-              className="text-[10px] font-mono font-semibold px-2 sm:px-2.5 py-1 rounded-md border transition-all active:scale-[0.97] cursor-pointer"
-              style={{
-                borderColor: item.suggestedResolution === res ? meta.color : 'var(--color-border-default)',
-                color: item.suggestedResolution === res ? meta.color : 'var(--color-text-secondary)',
-                background: item.suggestedResolution === res ? `color-mix(in srgb, ${meta.color} 10%, transparent)` : 'var(--color-bg-elevated)',
-              }}
-            >
-              {label}{item.suggestedResolution === res ? ' ★' : ''}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-1.5 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
+            {([['accept-live', 'Accept live'], ['keep-baseline', 'Keep baseline'], ['merge', 'Merge']] as const).map(([res, label]) => (
+              <button
+                key={res}
+                onClick={() => resolveItem(item.id, res)}
+                className="text-[10px] font-mono font-semibold px-2 sm:px-2.5 py-1 rounded-md border transition-all active:scale-[0.97] cursor-pointer"
+                style={{
+                  borderColor: item.suggestedResolution === res ? meta.color : 'var(--color-border-default)',
+                  color: item.suggestedResolution === res ? meta.color : 'var(--color-text-secondary)',
+                  background: item.suggestedResolution === res ? `color-mix(in srgb, ${meta.color} 10%, transparent)` : 'var(--color-bg-elevated)',
+                }}
+              >
+                {label}{item.suggestedResolution === res ? ' ★' : ''}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const prompt = `Evaluate this reconciliation triage item for ${item.entityLabel} (${item.field}):\nSource A (${item.sourceA.name}): "${item.sourceA.value}"\nSource B (${item.sourceB.name}): "${item.sourceB.value}"\nSuggested resolution: ${item.suggestedResolution}.\nRecommend whether the dispatcher should Accept Live, Keep Baseline, or Merge, and explain the operational safety trade-off.`;
+              useDemoStore.setState({ activePanel: 'copilot', copilotPrefill: prompt } as any);
+            }}
+            className="text-[9px] font-mono font-medium px-2 py-1 rounded-md border border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10 transition-all flex items-center gap-1 cursor-pointer ml-auto"
+            title="Ask Gemini Copilot to analyze trade-offs and propose resolution"
+          >
+            <Bot className="w-3 h-3" /> AI Suggest
+          </button>
         </div>
       )}
     </div>
   );
 };
 
-/** Interactive Live Tester for Judges & Operators */
+/** Interactive Live Tester & Free-Form Feed Ingestion for Judges & Operators */
 const ReconSandbox: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('Kanpur Centrall');
   const [kind, setKind] = useState<'station' | 'train'>('station');
+  const [rawText, setRawText] = useState('');
 
   const result = useMemo(() => {
     if (!query.trim()) return null;
@@ -435,6 +449,12 @@ const ReconSandbox: React.FC = () => {
         message: `"${query}" matched with high confidence (${Math.round((result.similarity || 0) * 100)}%).`,
       });
     }
+  };
+
+  const handleInjectRaw = () => {
+    if (!rawText.trim()) return;
+    useDriftStore.getState().injectRawFeedRecord(rawText);
+    setRawText('');
   };
 
   const injectWeatherConflict = () => {
@@ -495,30 +515,74 @@ const ReconSandbox: React.FC = () => {
     <div className="border border-border-default rounded-lg mb-3 overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-bg-elevated/50 transition-colors"
+        className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-bg-elevated/50 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2">
           <FlaskConical className="w-3.5 h-3.5 text-accent-purple" />
           <span className="text-[11px] font-mono font-semibold text-text-primary">
-            Interactive Reconciler Sandbox · Live Tester
+            Live Telemetry Ingestion Playground · Interactive Sandbox
           </span>
           <span className="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-accent-purple/10 text-accent-purple border border-accent-purple/20 uppercase">
-            Diagnostic Tool
+            Judge & Operator Lab
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-text-tertiary">
-          <span className="text-[9px] font-mono hidden sm:inline">{open ? 'Hide sandbox' : 'Test matcher & conflicts'}</span>
+          <span className="text-[9px] font-mono hidden sm:inline">{open ? 'Hide playground' : 'Inject raw telemetry & test pipeline'}</span>
           {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </div>
       </button>
 
       {open && (
         <div className="p-3 border-t border-border-subtle flex flex-col gap-3">
-          {/* Fuzzy Match Tester */}
+          {/* Section 1: Free-Form Raw Feed Ingestion */}
+          <div className="flex flex-col gap-2 p-2.5 rounded-md border border-accent-purple/30 bg-accent-purple/5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold text-accent-purple uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-accent-purple" /> Free-Form Telemetry Injection (Live Ingestion Test)
+              </span>
+              <span className="text-[8px] font-mono text-text-muted">Type arbitrary raw dispatch records</span>
+            </div>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={rawText}
+                onChange={e => setRawText(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleInjectRaw(); }}
+                placeholder='e.g. "Kanpur Centrall, 1295l, +35m delay" or "Bhusaval, rain 65mm, 28C"'
+                className="flex-1 text-[11px] font-mono px-2.5 py-1.5 rounded border border-border-default outline-none bg-bg-page text-text-primary focus:border-accent-purple"
+              />
+              <button
+                onClick={handleInjectRaw}
+                className="text-[10px] font-mono font-bold px-3 py-1.5 rounded text-white bg-accent-purple hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                Inject Record
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap text-[9px] font-mono text-text-muted">
+              <span>Preset judge tests:</span>
+              {[
+                'Kanpur Centrall, 1295l, +35m delay',
+                'Bhusaval rain 68mm 26C OpenWeather',
+                '12137 lat 21.05 lng 75.80 speed 115kmh',
+                'Bhopal Jn 12301 delayed 45m',
+              ].map(preset => (
+                <button
+                  key={preset}
+                  onClick={() => setRawText(preset)}
+                  className="px-1.5 py-0.5 rounded border border-border-subtle hover:border-accent-purple hover:text-text-primary transition-colors cursor-pointer"
+                  style={{ background: 'var(--color-bg-page)' }}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 2: Jaro-Winkler + Spatial Prior Fuzzy Matcher */}
           <div className="flex flex-col gap-2 p-2.5 rounded-md border border-border-subtle" style={{ background: 'var(--color-bg-elevated)' }}>
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-text-secondary uppercase tracking-wider flex items-center gap-1">
-                <Wand2 className="w-3 h-3 text-accent-purple" /> Jaro-Winkler Similarity Matcher
+                <Wand2 className="w-3 h-3 text-accent-purple" /> Jaro-Winkler Matcher (Two-Signal: String + Spatial Route Prior)
               </span>
               <div className="flex gap-1">
                 {(['station', 'train'] as const).map(k => (
@@ -548,33 +612,10 @@ const ReconSandbox: React.FC = () => {
               />
               <button
                 onClick={queuePartialMatch}
-                className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded text-white bg-accent-purple hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
+                className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded text-text-primary border border-border-default hover:border-accent-purple hover:bg-bg-elevated active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 Queue to Inbox
               </button>
-            </div>
-
-            {/* Quick Chips */}
-            <div className="flex items-center gap-1 flex-wrap text-[9px] font-mono text-text-muted">
-              <span>Quick tests:</span>
-              {['Kanpur Centr', 'Bhopal Jn', '1295l (train)', 'Mumbay Central', 'NDLS'].map(chip => (
-                <button
-                  key={chip}
-                  onClick={() => {
-                    if (chip.includes('train')) {
-                      setKind('train');
-                      setQuery('1295l');
-                    } else {
-                      setKind('station');
-                      setQuery(chip);
-                    }
-                  }}
-                  className="px-1.5 py-0.5 rounded border border-border-subtle hover:border-accent-purple hover:text-text-primary transition-colors cursor-pointer"
-                  style={{ background: 'var(--color-bg-page)' }}
-                >
-                  {chip}
-                </button>
-              ))}
             </div>
 
             {/* Match output card */}
@@ -603,10 +644,10 @@ const ReconSandbox: React.FC = () => {
             )}
           </div>
 
-          {/* Quick Scenario Injections */}
+          {/* Section 3: 1-Click Multi-Source Scenario Injections */}
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-accent-blue" /> Instant Scenario Injections (1-Click)
+              <Activity className="w-3 h-3 text-accent-blue" /> Instant Multi-Source Conflict Injections
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
               <button
@@ -778,14 +819,25 @@ export const ReconciliationPanel: React.FC = () => {
             <span className="inline-flex items-center gap-1"><Pin className="w-3 h-3" /> Pin baseline</span>
           </button>
           <button
-            onClick={() => (replayActive ? stopReplay() : startReplay())}
+            onClick={() => (replayActive ? stopReplay() : startReplay(false))}
             className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-border-default transition-all active:scale-[0.97] cursor-pointer hover:border-border-hover"
             style={{ background: 'var(--color-bg-elevated)', color: replayActive ? 'var(--color-accent-red)' : 'var(--color-accent-purple)' }}
           >
             <span className="inline-flex items-center gap-1">
               {replayActive ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-              <span className="hidden sm:inline">{replayActive ? 'Stop replay' : 'Replay scenario'}</span>
-              <span className="sm:hidden">{replayActive ? 'Stop' : 'Replay'}</span>
+              <span className="hidden sm:inline">{replayActive ? 'Stop replay' : 'Replay (60s)'}</span>
+              <span className="sm:hidden">{replayActive ? 'Stop' : '60s'}</span>
+            </span>
+          </button>
+          <button
+            onClick={() => (replayActive ? stopReplay() : startReplay(true))}
+            className="text-[10px] font-mono font-semibold px-2.5 py-1.5 rounded-md border border-accent-purple/40 transition-all active:scale-[0.97] cursor-pointer hover:border-accent-purple"
+            style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-accent-purple)' }}
+            title="Accelerate 60-second replay scenario into 18 seconds (3x speed) for rapid booth presentation"
+          >
+            <span className="inline-flex items-center gap-1">
+              <Play className="w-3 h-3 text-amber-400" />
+              <span>⚡ 18s Fast</span>
             </span>
           </button>
           <button

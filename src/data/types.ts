@@ -31,6 +31,8 @@ export interface WeatherSnapshot {
   temperature: number;
   visibility: number;
   source: string;
+  name?: string;
+  fetchedAt?: string;
 }
 
 /** Per-train state frozen inside a baseline ("recorded context"). */
@@ -126,6 +128,7 @@ export interface ReconciliationItem {
   sourceA: ReconSource;
   sourceB: ReconSource;
   similarity?: number;  // 0-1, for partial matches
+  divergenceKm?: number; // numeric km divergence for spatial conflicts
   severity: 'low' | 'moderate' | 'high' | 'critical';
   suggestedResolution: ReconResolution;
   suggestion: string;

@@ -9,7 +9,7 @@
 [![Live Demo](https://img.shields.io/badge/Live_Demo-rail--twin.vercel.app-black?style=for-the-badge&logo=vercel)](https://rail-twin.vercel.app)
 [![Replay Demo](https://img.shields.io/badge/Replay_Demo-?demo=replay-dc2626?style=for-the-badge&logo=googlechrome)](https://rail-twin.vercel.app/?demo=replay)
 [![GitHub](https://img.shields.io/badge/GitHub-RailTwin-181717?style=for-the-badge&logo=github)](https://github.com/himanshu003388/RailTwin)
-[![Tests](https://img.shields.io/badge/Vitest-42%2F42%20Passed-22c55e?style=for-the-badge&logo=vitest)](https://github.com/himanshu003388/RailTwin)
+[![Tests](https://img.shields.io/badge/Vitest-48%2F48%20Passed-22c55e?style=for-the-badge&logo=vitest)](https://github.com/himanshu003388/RailTwin)
 [![FAR AWAY 2026](https://img.shields.io/badge/FAR_AWAY_2026-Railways_Theme-3b82f6?style=for-the-badge)](https://rail-twin.vercel.app)
 
 > *Bridging the gap between recorded dispatch plans and ground reality — through explainable ML, continuous telemetry reconciliation, and real-time digital twin intelligence.*
@@ -134,21 +134,49 @@ $$\text{Drift Score} = 0.40 \cdot \text{Schedule} + 0.25 \cdot \text{Position} +
 
 ## 🧪 Unit Test Suite & Verification
 
-All drift calculation math, fuzzy string reconciliation, deduplication, and conflict arbitration logic are implemented as pure, deterministic TypeScript modules validated by Vitest:
+All drift calculation math, fuzzy string reconciliation, deduplication, state store mutations, and conflict arbitration logic are implemented as pure, deterministic TypeScript modules validated by Vitest:
 
 ```bash
 npm test
 ```
 
 ```text
- ✓ tests/drift-engine.test.ts (15 tests) 46ms
- ✓ tests/reconciler.test.ts (27 tests) 80ms
+ ✓ tests/drift-engine.test.ts (15 tests) 23ms
+ ✓ tests/reconciler.test.ts (27 tests) 77ms
+ ✓ tests/drift-store.test.ts (6 tests) 131ms
 
- Test Files  2 passed (2)
-      Tests  42 passed (42)
-   Start at  07:10:45
-   Duration  2.30s (tests 126ms)
+ Test Files  3 passed (3)
+      Tests  48 passed (48)
+   Duration  2.24s (tests 232ms)
 ```
+
+---
+
+## 💡 Algorithmic Choices & Engineering Trade-offs
+
+| Engineering Decision | Choice Selected | Alternatives Considered | Operational Rationale |
+|---|---|---|---|
+| **String Metric** | **Jaro-Winkler with Prefix Scaling** | Levenshtein, Damerau-Levenshtein, Soundex | Railway station names frequently share prefixes (*"Kanpur"* $\rightarrow$ *"Kanpur Central"*, *"Bhopal"* $\rightarrow$ *"Bhopal Jn"*). Jaro-Winkler rewards matching initial characters ($p=0.10, \ell \le 4$), outperforming edit-distance metrics. |
+| **Two-Signal Matching** | **String Sim + Spatial Route Prior** | Pure string lookup, Vector embeddings | When parsing noisy OCR text like *"Kanpur"*, knowing the train is Train 12301 moving GAYA $\rightarrow$ NDLS applies a **$+0.12$ route plausibility prior**, ensuring the correct junction is identified instantly without hallucination risk. |
+| **Drift Score Weights** | **40% Sched, 25% Pos, 20% Pred, 15% Wx** | Equal $25\%$ split, Dynamic ML weights | Schedule deviations directly violate timetable authority (primary operational factor). Spatial position represents physical reality. Feature validity and meteorological data act as leading indicators. Shared philosophy with Tier-2 prediction weights. |
+| **State Arbitration** | **Deterministic Pure TypeScript** | LLM-driven JSON parsing | Safety-critical digital twins cannot tolerate LLM probabilistic variance or hallucinations in mathematical scoring. Google Gemini acts as an **explainability copilot**, never a score calculator. |
+
+---
+
+## ⚖️ Limitations & Honest Hackathon Scope
+
+To maintain rigorous production integrity, RailTwin explicitly documents its operational boundaries:
+1. **Network Scope:** Demonstrates 7 major long-distance Indian Railways trunk routes across 36 junction hubs spanning all 11 administrative zones.
+2. **Telemetry Ingestion:** Operates on 5-second simulated Server-Sent Events (SSE) synchronized with actual timetable progressions. In production, this drops onto an Apache Kafka / Apache Flink event stream.
+3. **Storage Tier:** Leverages SQLite with Write-Ahead Logging (WAL) for local prototype persistence with zero cloud dependencies, backed by cloud memory fallbacks.
+4. **Machine Learning Model:** Browser-side Ridge Regression ML ($R^2 = 0.73$) trained on 448 historical delay records.
+
+---
+
+## ⚡ Scalability & Industrial Deployment Architecture
+
+* **Computational Complexity:** The drift calculation is strictly $O(T \times C)$ where $T$ is the number of active trains and $C = 4$ is the component count. For Indian Railways' entire daily fleet of $\approx 13,000$ trains, this amounts to $< 52,000$ elementary arithmetic operations per tick ($< 15\text{ms}$ on a standard CPU core).
+* **Stream Partitioning:** The reconciler is written as a pure function over event batches, allowing horizontal scaling across Kafka consumer partitions keyed by `trainId` or `zoneCode`.
 
 ---
 

@@ -50,27 +50,28 @@
 
 ---
 
-### [1:45 – 2:30] Phase 4 · Triage Inbox & Closed-Loop Resolution (The Climax)
-> **Action:** Switch to Drift Monitor (`Key: 7`), scroll to Triage Inbox, click **"✓ Accept live"** on Punjab Mail (or click "✓ Accept live" directly inside the Map ghost popup).
+### [1:45 – 2:30] Phase 4 · Triage Inbox, Live Feed Ingestion & Closed-Loop Resolution (The Climax)
+> **Action:** Switch to Drift Monitor (`Key: 7`), open the **Live Telemetry Ingestion Playground**, and show live record parsing or click **"✓ Accept live"** on Punjab Mail.
 
 * **What to say:**
-  > *"Unlike passive dashboards, RailTwin offers **closed-loop resolution**:"*
-  > *"In our Triage Inbox, we see 4 classified items:"*
-  > - **Partial Match:** *'Kanpur Centrall' resolved via Jaro-Winkler (87% similarity) to Kanpur Central (`CNB`) — eliminating Round 1's silent NDLS fallback.*
-  > - **Weather Conflict:** *Operator accepts Open-Meteo's live sensor data; network weather updates immediately.*
-  > - **Schedule Conflict:** *Clicking **'Accept live'** re-anchors the recorded plan to Punjab Mail's actual coordinates and delay.*
+  > *"Unlike passive dashboards, RailTwin offers **active live ingestion & closed-loop resolution**:"*
+  > 1. **Live Feed Ingestion Playground:** *"Judges can type any noisy, malformed record into our live sandbox — e.g. `'Kanpur Centrall, 1295l, +35m delay'` — and watch it flow in real time through our Two-Signal Matcher (Jaro-Winkler + Spatial Route Prior) straight into the Triage Inbox."*
+  > 2. **Triage Inbox Arbitration:**
+  >    - **Partial Match:** *'Kanpur Centrall' resolved via Jaro-Winkler (87% similarity + route boost) to Kanpur Central (`CNB`) — eliminating Round 1's silent NDLS fallback.*
+  >    - **Weather Conflict:** *Operator accepts Open-Meteo's live sensor data; network weather updates immediately.*
+  >    - **Schedule Conflict:** *Clicking **'Accept live'** re-anchors the recorded plan to Punjab Mail's actual coordinates and delay.*
   > *"Watch what happens right now as we click **Accept live**:"*
   > **[CLICK]** — *Corridor score instantly collapses from 74 (Critical) down to Stable, ghost tether line vanishes from the map, and a 'Drift Mitigated' notification sounds.*
 
 ---
 
 ### [2:30 – 3:00] Phase 5 · Shift Handover Audit & AI Copilot Explanation
-> **Action:** Click **"Handover .md"** or **"PDF"** in the top bar, then click **"Explain"** on a train row to invoke Gemini AI Copilot (`Key: 4`).
+> **Action:** Click **"Handover .md"** or **"PDF"** in the top bar, then click **"AI Suggest"** on an inbox card or **"Explain"** on a train row to invoke Gemini AI Copilot (`Key: 4`).
 
 * **What to say:**
   > *"Every single operator decision is committed to our SQLite audit log. With one click on **'Handover .md'**, the dispatcher downloads a complete, print-ready handover briefing for the incoming shift."*
-  > *"Finally, if the operator needs advisory guidance, clicking **'Explain'** queries our Gemini AI Copilot."*
-  > *"Gemini is injected with live drift telemetry to explain root causes and suggest routing maneuvers — but **the deterministic drift math remains 100% pure TypeScript with zero hallucinations**."*
+  > *"If the dispatcher wants advisory assistance on a trade-off, clicking **'AI Suggest'** queries Google Gemini."*
+  > *"Gemini is injected with live drift telemetry to analyze root causes and recommend tactical maneuvers — but **the deterministic drift scoring remains 100% pure TypeScript with zero hallucinations**."*
 
 ---
 
@@ -78,9 +79,13 @@
 
 | Feature | Round 1 Baseline | Round 2 Innovation |
 |---|---|---|
-| **Unknown Station Handling** | Silently fell back to NDLS (`'ndls'`) | Jaro-Winkler triage inbox with confidence thresholds (0.6 / 0.9) |
-| **Data Ingestion** | Single trusted feed assumed | Dual-source weather arbitration & duplicate stream deduplication |
-| **Plan Tracking** | Static schedule | Continuous drift engine (Schedule, Position, Prediction, Weather) |
-| **Map Inspection** | Live train markers only | Ghost plan markers (◌) with tether lines & Plan vs Live diff cards |
-| **Operator Action** | Read-only viewing | Closed-loop re-anchoring that collapses drift in real time |
-| **Audit & Governance** | Ephemeral state | SQLite WAL audit log + Shift Handover Markdown & PDF export |
+| **Unknown Station Handling** | Silently fell back to NDLS (`'ndls'`) | **Two-Signal Matcher (Jaro-Winkler + Spatial Route Prior)** with review triage |
+| **Live Ingestion Playground** | Staged inputs only | **Interactive Sandbox** accepting free-form noisy text/CSV strings live |
+| **Data Ingestion** | Single trusted feed assumed | **Dual-source weather arbitration** & duplicate stream deduplication |
+| **Plan Tracking** | Static schedule | **Continuous 4-factor drift engine** (Schedule, Position, Prediction, Weather) |
+| **Map Inspection** | Live train markers only | **Ghost plan markers (◌)** with tether lines & Plan vs Live diff cards |
+| **Operator Action** | Read-only viewing | **Closed-loop re-anchoring** that collapses drift in real time |
+| **Replay Presentation** | Single fixed speed | **60s Full Replay + ⚡ 18s Fast Replay** mode (`?fast=1`) |
+| **Audit & Governance** | Ephemeral state | **SQLite WAL audit log + Shift Handover Markdown & PDF export** |
+| **Unit Verification** | Basic tests | **48 / 48 Vitest Unit & Store Integration Tests (100% Passed)** |
+

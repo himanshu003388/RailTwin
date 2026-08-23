@@ -59,12 +59,15 @@ interface DriftState {
   feedEventsSeen: number;
   replayActive: boolean;
   replayStep: string | null;
+  fastReplay: boolean;
 
   captureBaseline: (name?: string, source?: BaselineSnapshot['source']) => void;
   computeDriftNow: () => void;
   resolveItem: (id: string, resolution: ReconResolution) => void;
   ingestFeedEvents: (events: FeedEvent[]) => void;
-  startReplay: () => void;
+  injectRawFeedRecord: (text: string) => { success: boolean; count: number; message: string };
+  toggleFastReplay: () => void;
+  startReplay: (fast?: boolean) => void;
   stopReplay: (silent?: boolean) => void;
 }
 
@@ -434,20 +437,140 @@ export const useDriftStore = create<DriftState>((set, get) => ({
     return unique;
   },
 
-  startReplay: () => {
+  fastReplay: false,
+
+  toggleFastReplay: () => set(state => ({ fastReplay: !state.fastReplay })),
+
+  injectRawFeedRecord: (rawInput: string) => {
+    const text = rawInput.trim();
+    if (!text) return { success: false, count: 0, message: 'Please enter telemetry or dispatch record text.' };
+    const demo = useDemoStore.getState();
+    const ts = nowIso();
+    const createdItems: ReconciliationItem[] = [];
+    const timelineEvents: DriftTimelineEvent[] = [];
+
+    // Parse keywords & entities
+    // 1. Train number detection (5-digit number or OCR typo like 1295l)
+    const trainMatch = text.match(/\b(\d{4}[0-9a-zA-Z]|\d{5})\b/);
+    const candidateTrainStr = trainMatch ? trainMatch[1] : null;
+    let targetTrainId: string | null = null;
+    if (candidateTrainStr) {
+      const trResult = matchTrain(candidateTrainStr);
+      if (trResult.status === 'exact' || trResult.status === 'auto') {
+        targetTrainId = trResult.matchedId;
+      } else if (trResult.status === 'review') {
+        const item = partialMatchItem('train', trResult, 'Manual Injection Feed');
+        if (item) createdItems.push(item);
+      }
+    }
+
+    // 2. Station name detection (words or abbreviations)
+    const parts = text.split(/[,;\n]/).map(p => p.trim()).filter(Boolean);
+    for (const part of parts) {
+      if (!part.match(/^(speed|lat|lng|rain|delay|\+|\d+$)/i) && part.length >= 3) {
+        const stResult = matchStation(part, { trainId: targetTrainId || undefined });
+        if (stResult.status === 'review' || stResult.status === 'rejected') {
+          const item = partialMatchItem('station', stResult, 'Manual Injection Feed');
+          if (item && !createdItems.some(i => i.entityLabel === item.entityLabel)) {
+            createdItems.push(item);
+          }
+        }
+      }
+    }
+
+    // 3. Weather check (e.g. "rain 65mm", "62mm/hr", "28C")
+    const rainMatch = text.match(/(\d+)\s*(mm|\/hr|rain)/i);
+    const tempMatch = text.match(/(\d+)\s*(°?C|deg)/i);
+    if (rainMatch || tempMatch || text.toLowerCase().includes('rain') || text.toLowerCase().includes('fog')) {
+      const rain = rainMatch ? parseInt(rainMatch[1]) : 58;
+      const temp = tempMatch ? parseInt(tempMatch[1]) : 28;
+      const foundStation = Object.values(STATIONS).find(s => text.toLowerCase().includes(s.name.toLowerCase()) || text.toLowerCase().includes(s.code.toLowerCase()));
+      const stId = foundStation ? foundStation.id : (demo.weatherAlert?.station || 'bsl');
+      const liveW = demo.weatherData?.[stId] || { rainfall: 0, description: 'Clear', temperature: 30, visibility: 10, source: 'live' };
+      const injectedW: WeatherSnapshot = { rainfall: rain, description: rain > 50 ? 'Heavy Rain' : 'Rain', temperature: temp, visibility: rain > 50 ? 2 : 6, source: 'Injected Weather Sensor', fetchedAt: ts };
+      const item = detectWeatherConflict(stId, { ...liveW, name: 'Live Corridor Weather' }, injectedW);
+      if (item) createdItems.push(item);
+    }
+
+    // 4. Delay movement check (e.g. "+35m delay" or "delayed 40m")
+    const delayMatch = text.match(/(\+|-)?\s*(\d+)\s*(m|min|mins|minutes)?\s*delay/i) || text.match(/delay\s*(\+|-)?\s*(\d+)/i);
+    if (delayMatch && targetTrainId) {
+      const addedMin = parseInt(delayMatch[2] || delayMatch[1] || '30');
+      replayOverrides.delays[targetTrainId] = (replayOverrides.delays[targetTrainId] ?? (demo.trains.find(t => t.id === targetTrainId)?.predictedDelay ?? 0)) + addedMin;
+      get().computeDriftNow();
+    }
+
+    // 5. Position check (e.g. "lat 21.05 lng 75.80" or coordinates)
+    const latLngMatch = text.match(/lat\s*([\d.]+)\s*lng\s*([\d.]+)/i);
+    if (latLngMatch && targetTrainId) {
+      const lat = parseFloat(latLngMatch[1]);
+      const lng = parseFloat(latLngMatch[2]);
+      const train = demo.trains.find(t => t.id === targetTrainId);
+      if (train) {
+        const item = detectPositionConflict(
+          targetTrainId,
+          train.name,
+          { coordinates: [lng, lat], currentStation: train.currentStation, source: 'Injected GPS Beacon', timestamp: ts },
+          { coordinates: train.coordinates, currentStation: train.currentStation, source: 'Schedule position engine', timestamp: ts }
+        );
+        if (item) createdItems.push(item);
+      }
+    }
+
+    if (createdItems.length === 0 && !delayMatch) {
+      const item = makeReconItem({
+        type: 'partial-match',
+        entity: targetTrainId || 'telemetry-custom',
+        entityLabel: `Injected Record "${text.slice(0, 28)}..."`,
+        field: 'raw telemetry record',
+        sourceA: { name: 'Manual Injection', value: text },
+        sourceB: { name: 'Registry & Timetable', value: 'Requires triage verification' },
+        severity: 'moderate',
+        suggestedResolution: 'merge',
+        suggestion: `Custom operator record ingested into telemetry pipeline. Confirm merge into digital twin.`,
+      });
+      createdItems.push(item);
+    }
+
+    for (const item of createdItems) {
+      timelineEvents.push({
+        at: ts,
+        kind: item.type,
+        message: `Injected telemetry triaged: ${item.entityLabel} (${item.field})`,
+      });
+    }
+
+    set(state => ({
+      reconItems: [...createdItems, ...state.reconItems].slice(0, 40),
+      timeline: [...timelineEvents, ...state.timeline].slice(0, 60),
+    }));
+
+    demo.addToast({
+      type: 'info',
+      title: 'Feed Injected',
+      message: `Processed "${text.slice(0, 24)}...": ${createdItems.length} triage item(s) generated.`,
+    });
+
+    get().computeDriftNow();
+    return { success: true, count: createdItems.length, message: `Created ${createdItems.length} triage item(s).` };
+  },
+
+  startReplay: (fastOverride?: boolean) => {
     const { replayActive, stopReplay, captureBaseline } = get();
     if (replayActive) stopReplay(true);
-    // Always start from a clean slate — a previous finished replay leaves
-    // its overrides in place for demo visibility.
     for (const t of replayTimeouts) clearTimeout(t);
     replayTimeouts = [];
     replayOverrides = { delays: {}, weather: {} };
     const demo = useDemoStore.getState();
     const step = (label: string) => set({ replayStep: label });
 
+    const isFast = fastOverride ?? (typeof window !== 'undefined' && window.location.search.includes('fast=1')) ?? get().fastReplay;
+    const timeScale = isFast ? 0.3 : 1.0; // 3x speed in fast mode (60s -> 18s)
+
     set(state => ({
       replayActive: true,
-      timeline: pushTimeline(state, { at: nowIso(), kind: 'replay', message: 'Replay scenario started — deterministic 60s drift story' }),
+      fastReplay: isFast,
+      timeline: pushTimeline(state, { at: nowIso(), kind: 'replay', message: `Replay scenario started — deterministic ${isFast ? '18s fast' : '60s'} drift story` }),
     }));
 
     // t=0 · pin the recorded context
@@ -455,7 +578,7 @@ export const useDriftStore = create<DriftState>((set, get) => ({
     step('Baseline pinned — network stable');
 
     const schedule = (ms: number, fn: () => void) => {
-      replayTimeouts.push(setTimeout(() => { if (get().replayActive) fn(); }, ms));
+      replayTimeouts.push(setTimeout(() => { if (get().replayActive) fn(); }, Math.round(ms * timeScale)));
     };
 
     const baseDelay = (id: string) =>
@@ -539,7 +662,7 @@ export const useDriftStore = create<DriftState>((set, get) => ({
         demo.addToast({
           type: 'warning',
           title: 'Position Conflict',
-          message: `12625 Kerala Exp: Feed B reports at ${ghostSt?.code || ghostStId.toUpperCase()} (~${Math.round(haversineKm(ghostCoords, liveCoords))}km divergence).`,
+          message: `12625 Kerala Exp: Feed B reports at ${ghostSt?.code || ghostStId.toUpperCase()} (~${item.divergenceKm || Math.round(haversineKm(ghostCoords, liveCoords))}km divergence).`,
         });
         step(`Position conflict — 12625 Feed B (${ghostSt?.code || ghostStId.toUpperCase()}) vs timetable engine`);
       }
@@ -667,7 +790,7 @@ if (typeof window !== 'undefined') {
                 { coordinates: engine.coordinates, currentStation: engine.currentStation, source: 'Position engine (schedule-derived)', timestamp: nowIso() },
               );
               if (item) {
-                const km = parseFloat((item.suggestion.match(/(\d+)km/) || [])[1] || '0');
+                const km = item.divergenceKm ?? 0;
                 if (!worst || km > worst.km) worst = { item, km };
               }
             }

@@ -82,25 +82,43 @@ export interface MatchResult {
   candidates: MatchCandidate[];
 }
 
+export interface MatchContext {
+  trainId?: string;
+  currentStation?: string;
+}
+
 /**
  * Score an incoming free-text station reference against every known
  * station id, code and name. Never silently falls back: anything in
  * the 0.6–0.9 band lands in the needs-review queue.
+ *
+ * Supports two-signal Bayesian matching: combines Jaro-Winkler string
+ * similarity with a spatial route prior when a train context is known.
  */
-export function matchStation(input: string): MatchResult {
+export function matchStation(input: string, context?: MatchContext): MatchResult {
   const cleaned = (input || '').toLowerCase().trim();
   if (!cleaned) return { input, status: 'rejected', matchedId: null, similarity: 0, candidates: [] };
+
+  const routeStations = context?.trainId ? (TRAIN_ROUTES[context.trainId] || []) : [];
 
   const scored: MatchCandidate[] = [];
   for (const st of Object.values(STATIONS)) {
     const exact = cleaned === st.id || cleaned === st.code.toLowerCase() || cleaned === st.name.toLowerCase();
     if (exact) return { input, status: 'exact', matchedId: st.id, similarity: 1, candidates: [{ id: st.id, label: st.name, similarity: 1 }] };
-    const sim = Math.max(
+    
+    let sim = Math.max(
       jaroWinkler(cleaned, st.name),
       jaroWinkler(cleaned, st.code),
       // A short input may be a prefix of the full name ("Kanpur" → "Kanpur Central")
       st.name.toLowerCase().startsWith(cleaned) && cleaned.length >= 4 ? 0.85 : 0,
     );
+
+    // Two-Signal Matching: Apply spatial route prior if train context is known
+    if (routeStations.length > 0 && routeStations.includes(st.id)) {
+      // Station is along the train's route: boost similarity by +0.12 (clamped to 0.99 for non-exact)
+      sim = Math.min(0.99, sim + 0.12);
+    }
+
     scored.push({ id: st.id, label: st.name, similarity: Math.round(sim * 1000) / 1000 });
   }
   scored.sort((a, b) => b.similarity - a.similarity);
@@ -195,8 +213,8 @@ export function makeReconItem(
 /** Two weather sources disagreeing about the same station right now. */
 export function detectWeatherConflict(
   stationId: string,
-  a: (WeatherSnapshot & { name: string }),
-  b: (WeatherSnapshot & { name: string }),
+  a: (WeatherSnapshot & { name?: string }),
+  b: (WeatherSnapshot & { name?: string }),
 ): ReconciliationItem | null {
   const clsA = weatherClassOf(a);
   const clsB = weatherClassOf(b);
@@ -206,8 +224,8 @@ export function detectWeatherConflict(
   const st = STATIONS[stationId];
   const severity = clsA !== clsB && (clsA === 'Heavy Rain' || clsB === 'Heavy Rain' || clsA === 'Fog' || clsB === 'Fog')
     ? 'high' : clsA !== clsB ? 'moderate' : 'low';
-  const sourceA: ReconSource = { name: a.name, value: `${clsA}, ${Math.round(a.rainfall)}mm, ${Math.round(a.temperature)}°C`, timestamp: (a as any).fetchedAt };
-  const sourceB: ReconSource = { name: b.name, value: `${clsB}, ${Math.round(b.rainfall)}mm, ${Math.round(b.temperature)}°C`, timestamp: (b as any).fetchedAt };
+  const sourceA: ReconSource = { name: a.name || a.source || 'Source A', value: `${clsA}, ${Math.round(a.rainfall)}mm, ${Math.round(a.temperature)}°C`, timestamp: a.fetchedAt };
+  const sourceB: ReconSource = { name: b.name || b.source || 'Source B', value: `${clsB}, ${Math.round(b.rainfall)}mm, ${Math.round(b.temperature)}°C`, timestamp: b.fetchedAt };
   return makeReconItem({
     type: 'conflict',
     entity: stationId,
@@ -234,16 +252,18 @@ export function detectPositionConflict(
   if (km < POSITION_CONFLICT_KM) return null;
   const stF = STATIONS[feed.currentStation];
   const stE = STATIONS[engine.currentStation];
+  const roundedKm = Math.round(km);
   return makeReconItem({
     type: 'conflict',
     entity: trainId,
     entityLabel: `${trainId} · ${trainName}`,
     field: 'position',
+    divergenceKm: roundedKm,
     sourceA: { name: feed.source, value: `near ${stF ? stF.code : feed.currentStation.toUpperCase()}`, timestamp: feed.timestamp },
     sourceB: { name: engine.source, value: `near ${stE ? stE.code : engine.currentStation.toUpperCase()}`, timestamp: engine.timestamp },
     severity: km > 100 ? 'critical' : 'high',
     suggestedResolution: 'accept-live',
-    suggestion: `Position estimates are ${Math.round(km)}km apart. Suggest accepting the live feed and flagging the schedule-derived estimate for recalibration.`,
+    suggestion: `Position estimates are ${roundedKm}km apart. Suggest accepting the live feed and flagging the schedule-derived estimate for recalibration.`,
   });
 }
 
