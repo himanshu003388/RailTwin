@@ -108,6 +108,125 @@ function getBaseUrl() {
   return base.endsWith('/') ? base : `${base}/`;
 }
 
+export function getTrainRiskLevel(
+  train: Train,
+  weather?: { rainfall: number; visibility: number; description?: string } | null
+): {
+  level: 'low' | 'moderate' | 'high' | 'critical';
+  statusLabel: string;
+  reason: string;
+} {
+  const delay = train.predictedDelay || 0;
+  const isHeavyRain = weather ? weather.rainfall > 35 : false;
+  const isModerateRain = weather ? weather.rainfall > 10 : false;
+  const isFog = weather ? weather.visibility < 1.5 : false;
+
+  if (delay >= 40 || (delay >= 25 && isHeavyRain)) {
+    return {
+      level: 'critical',
+      statusLabel: 'CRITICAL DELAY',
+      reason: isHeavyRain ? `+${delay}m delay compounded by heavy rainstorm (${weather?.rainfall}mm/h)` : `Severe delay (+${delay}m) causing track congestion`,
+    };
+  }
+  if (delay >= 20 || isHeavyRain || (delay >= 12 && (isModerateRain || isFog))) {
+    return {
+      level: 'high',
+      statusLabel: 'HIGH RISK',
+      reason: isHeavyRain
+        ? `Adverse weather alert at ${train.nextStation.toUpperCase()} (${weather?.rainfall}mm/h)`
+        : `+${delay}m delay on active route segment`,
+    };
+  }
+  if (delay >= 8 || isModerateRain || isFog) {
+    return {
+      level: 'moderate',
+      statusLabel: 'MODERATE',
+      reason: isFog
+        ? `Reduced visibility (${weather?.visibility}km fog)`
+        : isModerateRain
+        ? `Light rain showers (${weather?.rainfall}mm/h)`
+        : `Minor timetable variation (+${delay}m)`,
+    };
+  }
+  return {
+    level: 'low',
+    statusLabel: 'NOMINAL',
+    reason: 'Running on schedule with clear corridor telemetry',
+  };
+}
+
+export function getStationCompositeRisk(
+  risks: StationRisk,
+  weather?: { rainfall: number; visibility: number; description?: string } | null
+): 'low' | 'moderate' | 'high' | 'critical' {
+  const order: Array<'low' | 'moderate' | 'high' | 'critical'> = ['low', 'moderate', 'high', 'critical'];
+  let maxIdx = Math.max(order.indexOf(risks.crowdRisk), order.indexOf(risks.delayRisk));
+
+  if (risks.platformConflicts > 1) maxIdx = Math.max(maxIdx, 3);
+  else if (risks.platformConflicts === 1) maxIdx = Math.max(maxIdx, 2);
+
+  if (weather) {
+    if (weather.rainfall > 45 || weather.visibility < 1) maxIdx = Math.max(maxIdx, 2);
+    else if (weather.rainfall > 15 || weather.visibility < 3) maxIdx = Math.max(maxIdx, 1);
+  }
+
+  return order[maxIdx];
+}
+
+export const computeDynamicStationRisks = (
+  trains: Train[],
+  stationsList: any[],
+  weatherData: Record<string, any> | null,
+  simulation: LiveState['simulation'],
+  whatIfResult: LiveState['whatIfResult']
+): Record<string, StationRisk> => {
+  const risks: Record<string, StationRisk> = {};
+  const list = stationsList && stationsList.length > 0 ? stationsList : ALL_STATIONS;
+
+  list.forEach(station => {
+    // 1. Check incoming train delays
+    const incomingTrains = trains.filter(
+      t => t.nextStation === station.id || t.currentStation === station.id
+    );
+    const maxDelay = incomingTrains.reduce((max, t) => Math.max(max, t.predictedDelay || 0), 0);
+    let delayRisk: StationRisk['delayRisk'] = 'low';
+    if (maxDelay >= 35) delayRisk = 'critical';
+    else if (maxDelay >= 20) delayRisk = 'high';
+    else if (maxDelay >= 8) delayRisk = 'moderate';
+
+    // 2. Crowd risk from simulation or passenger load
+    let crowdRisk: StationRisk['crowdRisk'] = 'low';
+    let platformConflicts = 0;
+
+    if (simulation && simulation.stationsImpacted?.includes(station.id)) {
+      const isPrimary = simulation.stationsImpacted[0] === station.id;
+      crowdRisk = isPrimary ? 'critical' : 'high';
+      platformConflicts = isPrimary ? (simulation.conflictsDetected || 1) : 1;
+    } else if (whatIfResult?.riskLevels?.[station.id]) {
+      crowdRisk = (whatIfResult.riskLevels[station.id].crowdRisk as any) || 'moderate';
+      platformConflicts = whatIfResult.conflictsGenerated || 0;
+    } else {
+      // Base traffic crowd heuristic for major termini
+      if (['ndls', 'csmt', 'hwh'].includes(station.id) && maxDelay > 15) {
+        crowdRisk = 'moderate';
+      }
+    }
+
+    // 3. Weather impact escalation
+    const stWeather = weatherData?.[station.id];
+    if (stWeather) {
+      if (stWeather.rainfall > 50 || stWeather.visibility < 1) {
+        if (delayRisk === 'low') delayRisk = 'moderate';
+        else if (delayRisk === 'moderate') delayRisk = 'high';
+      }
+    }
+
+    risks[station.id] = { crowdRisk, delayRisk, platformConflicts };
+  });
+
+  return risks;
+};
+
 const createInitialStationRisks = (stationsList?: any[]): Record<string, StationRisk> => {
   const risks: Record<string, StationRisk> = {};
   const list = stationsList || ALL_STATIONS;
@@ -123,18 +242,39 @@ const computeNetworkHealth = (
   simulation: LiveState['simulation'],
   weatherAlert: LiveState['weatherAlert'],
 ): NetworkHealth => {
-  const totalDelay = trains.reduce((sum, t) => sum + t.predictedDelay, 0);
+  const totalDelay = trains.reduce((sum, t) => sum + (t.predictedDelay || 0), 0);
   const avgDelay = trains.length > 0 ? totalDelay / trains.length : 0;
-  const onTimeTrains = trains.filter(t => t.predictedDelay === 0).length;
+  const onTimeTrains = trains.filter(t => (t.predictedDelay || 0) <= 5).length;
   const onTimePerf = trains.length > 0 ? Math.round((onTimeTrains / trains.length) * 100) : 100;
   const totalCapacity = trains.reduce((sum, t) => sum + t.capacity, 0);
   const totalPassengers = trains.reduce((sum, t) => sum + t.passengerCount, 0);
   const platformUtil = totalCapacity > 0 ? Math.round((totalPassengers / totalCapacity) * 100) : 0;
-  const hasCritical = Object.values(stationRisks).some(r => r.crowdRisk === 'critical' || r.delayRisk === 'critical');
-  const hasHigh = Object.values(stationRisks).some(r => r.crowdRisk === 'high' || r.delayRisk === 'high');
-  const signalStatus = hasCritical ? 'disrupted' : hasHigh ? 'degraded' : 'operational';
-  const efficiency = Math.max(0, Math.min(100, Math.round(100 - avgDelay * 2 - (simulation?.conflictsDetected || 0) * 10)));
-  const activeAlerts = (weatherAlert ? 1 : 0) + (simulation ? simulation.conflictsDetected : 0);
+
+  const severeDelayedCount = trains.filter(t => (t.predictedDelay || 0) >= 20).length;
+  const criticalStationsCount = Object.values(stationRisks).filter(
+    r => r.crowdRisk === 'critical' || r.delayRisk === 'critical'
+  ).length;
+  const highStationsCount = Object.values(stationRisks).filter(
+    r => r.crowdRisk === 'high' || r.delayRisk === 'high'
+  ).length;
+
+  const signalStatus: NetworkHealth['signalStatus'] =
+    criticalStationsCount > 0 || severeDelayedCount >= 2 || (simulation?.conflictsDetected || 0) > 1
+      ? 'disrupted'
+      : highStationsCount > 0 || severeDelayedCount > 0 || !!weatherAlert || !!simulation
+      ? 'degraded'
+      : 'operational';
+
+  const efficiency = Math.max(
+    15,
+    Math.min(100, Math.round(100 - avgDelay * 1.8 - (simulation?.conflictsDetected || 0) * 8))
+  );
+
+  const activeAlerts =
+    (weatherAlert ? 1 : 0) +
+    (simulation ? (simulation.conflictsDetected || 1) : 0) +
+    severeDelayedCount;
+
   return { efficiency, onTimePerf, platformUtil, signalStatus, activeAlerts };
 };
 
@@ -203,10 +343,10 @@ export const useDemoStore = create<LiveState>((set, get) => ({
   setMobileRightOpen: (open) => set({ mobileRightOpen: open }),
 
   recalculateDynamicPredictions: async () => {
-    const { trains, weatherData, stationRisks } = get();
+    const { trains, weatherData, stationRisks, stations, simulation, whatIfResult, weatherAlert } = get();
     const updatedTrains = [...trains];
     const newPredictions: any[] = [];
-    const newStationRisks = { ...stationRisks };
+
     for (const train of trains) {
       const route = await railwayDataset.getRouteByTrainNo(train.id);
       let routeLengthKm = 1500;
@@ -243,14 +383,17 @@ export const useDemoStore = create<LiveState>((set, get) => ({
         if (trainIdx !== -1) updatedTrains[trainIdx].predictedDelay = pred.predictedDelay;
         if (pred.predictedDelay > 0) {
           newPredictions.push({ trainId: train.id, delayMinutes: pred.predictedDelay, affectedStation: targetStationId, confidence: pred.confidence, timestamp: Date.now(), explanation: pred.explanation });
-          if (newStationRisks[targetStationId]) newStationRisks[targetStationId].delayRisk = pred.predictedDelay > 30 ? 'high' : 'moderate';
         }
       } catch {
         const fallbackDelay = Math.round(5 + Math.random() * 25 + (train.type === 'mail' ? 10 : train.type === 'express' ? 5 : 0));
         newPredictions.push({ trainId: train.id, delayMinutes: fallbackDelay, affectedStation: targetStationId, confidence: 0.55, timestamp: Date.now(), explanation: `Estimated delay of ${fallbackDelay}min on segment ${train.currentStation.toUpperCase()} → ${train.nextStation.toUpperCase()}. AI model unavailable.` });
       }
     }
-    set({ trains: updatedTrains, predictions: newPredictions, stationRisks: newStationRisks });
+
+    const newStationRisks = computeDynamicStationRisks(updatedTrains, stations, weatherData, simulation, whatIfResult);
+    const health = computeNetworkHealth(updatedTrains, newStationRisks, simulation, weatherAlert);
+
+    set({ trains: updatedTrains, predictions: newPredictions, stationRisks: newStationRisks, networkHealth: health });
   },
 
   toggleAudio: () => set(state => ({ audioEnabled: !state.audioEnabled })),
@@ -360,15 +503,31 @@ export const useDemoStore = create<LiveState>((set, get) => ({
         conflictsGenerated: resultData.conflictsDetected,
         riskLevels,
       };
+      const simObj = {
+        cascadeDelay: resultData.cascadeDelay,
+        conflictsDetected: resultData.conflictsDetected,
+        passengersAffected: resultData.passengersAffected,
+        stationsImpacted: impactedStationIds,
+        running: false,
+      };
+      const updatedRisks = computeDynamicStationRisks(
+        state.trains,
+        state.stations,
+        state.weatherData,
+        simObj,
+        result
+      );
+      const health = computeNetworkHealth(
+        state.trains,
+        updatedRisks,
+        simObj,
+        state.weatherAlert
+      );
       set({
         whatIfResult: result,
-        simulation: {
-          cascadeDelay: resultData.cascadeDelay,
-          conflictsDetected: resultData.conflictsDetected,
-          passengersAffected: resultData.passengersAffected,
-          stationsImpacted: impactedStationIds,
-          running: false,
-        },
+        stationRisks: updatedRisks,
+        networkHealth: health,
+        simulation: simObj,
       });
       get().addToast({ type: 'info', title: 'What-If Analysis Complete', message: `${scenario.replace('_', ' ')} at ${station.name}: ${resultData.cascadeDelay}min cascade, ${affectedTrains.length} trains affected` });
     } catch (e) {
@@ -417,18 +576,29 @@ export const useDemoStore = create<LiveState>((set, get) => ({
       const trainIds = state.trains.map(t => t.id);
       const affectedIds = trainIds.slice(0, Math.min(2, trainIds.length));
       const resolvedTrains = state.trains.map(t => {
-        if (affectedIds.includes(t.id)) return { ...t, predictedDelay: Math.max(0, t.predictedDelay - 15) };
+        if (affectedIds.includes(t.id)) return { ...t, predictedDelay: Math.max(0, (t.predictedDelay || 0) - 15) };
         return t;
       });
       get().addToast({ type: 'success', title: 'Mitigation Successful', message: 'Intervention applied. Delays reduced.' });
-      const updatedStationRisks = { ...state.stationRisks };
-      if (state.whatIfStation && updatedStationRisks[state.whatIfStation]) {
-        updatedStationRisks[state.whatIfStation] = { crowdRisk: 'moderate', delayRisk: 'moderate', platformConflicts: 0 };
-      }
+      const newSim = state.simulation ? { ...state.simulation, cascadeDelay: Math.round(state.simulation.cascadeDelay * 0.5), conflictsDetected: 0 } : null;
+      const updatedStationRisks = computeDynamicStationRisks(
+        resolvedTrains,
+        state.stations,
+        state.weatherData,
+        newSim,
+        state.whatIfResult
+      );
+      const newHealth = computeNetworkHealth(
+        resolvedTrains,
+        updatedStationRisks,
+        newSim,
+        state.weatherAlert
+      );
       set({
         stationRisks: updatedStationRisks,
         trains: resolvedTrains,
-        simulation: state.simulation ? { ...state.simulation, cascadeDelay: Math.round(state.simulation.cascadeDelay * 0.5), conflictsDetected: 0 } : null,
+        networkHealth: newHealth,
+        simulation: newSim,
         resolved: { newCascadeDelay: Math.round((state.simulation?.cascadeDelay || 40) * 0.5), conflictsResolved: state.simulation?.conflictsDetected || 0, riskReduction: 'HIGH→MODERATE', minutesSaved: 25 },
         copilot: { ...state.copilot, messages: state.copilot.messages },
       });
@@ -501,13 +671,20 @@ export const useDemoStore = create<LiveState>((set, get) => ({
         const pos = positions.find(p => p.id === t.id);
         return pos ? { ...t, ...pos } : t;
       });
+      const dynamicRisks = computeDynamicStationRisks(
+        updatedTrains,
+        get().stations,
+        get().weatherData,
+        get().simulation,
+        get().whatIfResult
+      );
       const health = computeNetworkHealth(
         updatedTrains,
-        get().stationRisks,
+        dynamicRisks,
         get().simulation,
         get().weatherAlert,
       );
-      set({ trains: updatedTrains, lastUpdated: new Date(), networkHealth: health });
+      set({ trains: updatedTrains, stationRisks: dynamicRisks, lastUpdated: new Date(), networkHealth: health });
     } catch {
       // silently ignore
     }
@@ -543,8 +720,7 @@ if (typeof window !== 'undefined') {
           const pos = livePositions.find(p => p.id === t.id);
           return pos ? { ...t, ...pos } : t;
         });
-        const risks: Record<string, StationRisk> = {};
-        stations.forEach((station: any) => { risks[station.id] = { crowdRisk: 'low', delayRisk: 'low', platformConflicts: 0 }; });
+        const risks = computeDynamicStationRisks(mergedTrains, stations, null, null, null);
         useDemoStore.setState({ stations, trains: mergedTrains, stationRisks: risks });
       }
     } catch (err) { console.error('Failed to load network data:', err); }
@@ -572,8 +748,15 @@ if (typeof window !== 'undefined') {
       useDemoStore.setState({ predictions: seededPredictions, trains: updatedTrains });
     }
 
-    const health = computeNetworkHealth(state.trains, state.stationRisks, state.simulation, state.weatherAlert);
-    useDemoStore.setState({ loading: false, lastUpdated: new Date(), networkHealth: health });
+    const dynamicRisks = computeDynamicStationRisks(
+      state.trains,
+      state.stations,
+      state.weatherData,
+      state.simulation,
+      state.whatIfResult
+    );
+    const health = computeNetworkHealth(state.trains, dynamicRisks, state.simulation, state.weatherAlert);
+    useDemoStore.setState({ loading: false, lastUpdated: new Date(), stationRisks: dynamicRisks, networkHealth: health });
 
     // Auto-trigger a default cascade simulation so the Sim tab has data
     setTimeout(() => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useDemoStore } from '../../stores/demoStore';
+import { useDemoStore, getStationCompositeRisk } from '../../stores/demoStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import { StatCard } from '../ui/StatCard';
 import { CloudRain, CloudFog, Wind } from 'lucide-react';
@@ -22,26 +22,25 @@ const StationCard: React.FC<StationCardProps> = ({
   weather
 }) => {
   const [isFlash, setIsFlash] = useState(false);
-  const prevRiskRef = useRef(risks.crowdRisk);
-
-  const crowdRisk = risks.crowdRisk;
+  const compositeRisk = getStationCompositeRisk(risks, weather);
+  const prevRiskRef = useRef(compositeRisk);
 
   // Track risk level changes to trigger a border flash
   useEffect(() => {
-    if (prevRiskRef.current !== crowdRisk) {
+    if (prevRiskRef.current !== compositeRisk) {
       setIsFlash(true);
       const timer = setTimeout(() => setIsFlash(false), 600);
-      prevRiskRef.current = crowdRisk;
+      prevRiskRef.current = compositeRisk;
       return () => clearTimeout(timer);
     }
-  }, [crowdRisk]);
+  }, [compositeRisk]);
 
   // Determine flash border color
   let flashBorderColor = 'var(--color-border-default)';
   if (isFlash) {
-    if (crowdRisk === 'moderate') flashBorderColor = 'var(--color-risk-moderate)';
-    else if (crowdRisk === 'high')     flashBorderColor = 'var(--color-risk-high)';
-    else if (crowdRisk === 'critical') flashBorderColor = 'var(--color-risk-critical)';
+    if (compositeRisk === 'moderate') flashBorderColor = 'var(--color-risk-moderate)';
+    else if (compositeRisk === 'high')     flashBorderColor = 'var(--color-risk-high)';
+    else if (compositeRisk === 'critical') flashBorderColor = 'var(--color-risk-critical)';
     else flashBorderColor = 'var(--color-risk-low)';
   }
 
@@ -51,7 +50,7 @@ const StationCard: React.FC<StationCardProps> = ({
   const hasWeather = hasRain || hasFog;
   const hasPrediction = !!prediction;
   const hasConflicts = risks.platformConflicts > 0;
-  const hasHighCrowd = crowdRisk === 'high' || crowdRisk === 'critical';
+  const hasHighCrowd = risks.crowdRisk === 'high' || risks.crowdRisk === 'critical';
   const hasDetails = hasPrediction || hasConflicts || hasHighCrowd || hasWeather;
 
   return (
@@ -88,7 +87,7 @@ const StationCard: React.FC<StationCardProps> = ({
         </div>
 
         {/* Right Side: Risk pill */}
-        <RiskBadge level={crowdRisk} />
+        <RiskBadge level={compositeRisk} />
       </div>
 
       {/* Bottom details row */}
@@ -142,6 +141,19 @@ export const StationRiskPanel: React.FC = () => {
   const hasCriticalStation = Object.values(stationRisks).some(
     r => r.crowdRisk === 'critical' || r.delayRisk === 'critical'
   );
+  const hasElevatedStation = Object.values(stationRisks).some(
+    r => r.crowdRisk === 'high' || r.delayRisk === 'high'
+  );
+  const stationStatusLabel = hasCriticalStation
+    ? 'CRITICAL RISK'
+    : hasElevatedStation
+    ? 'ELEVATED RISK'
+    : 'NOMINAL';
+  const stationStatusColor = hasCriticalStation
+    ? 'var(--color-accent-red)'
+    : hasElevatedStation
+    ? 'var(--color-accent-amber)'
+    : 'var(--color-accent-green)';
 
   // Stats Card Calculations
   const activeTrainsCount = trains.length;
@@ -207,15 +219,15 @@ export const StationRiskPanel: React.FC = () => {
           <span className="relative flex h-2 w-2">
             <span
               className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-              style={{ background: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)' }}
+              style={{ background: stationStatusColor }}
             />
             <span
               className="relative inline-flex rounded-full h-2 w-2"
-              style={{ background: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)', boxShadow: hasCriticalStation ? 'var(--glow-red)' : 'var(--glow-green)' }}
+              style={{ background: stationStatusColor, boxShadow: `0 0 6px ${stationStatusColor}` }}
             />
           </span>
-          <span className="text-[10px] text-text-secondary font-mono select-none font-bold uppercase tracking-wider" style={{ color: hasCriticalStation ? 'var(--color-accent-red)' : 'var(--color-accent-green)' }}>
-            {hasCriticalStation ? 'CRITICAL RISK' : 'NOMINAL'}
+          <span className="text-[10px] font-mono select-none font-bold uppercase tracking-wider" style={{ color: stationStatusColor }}>
+            {stationStatusLabel}
           </span>
         </div>
       </div>

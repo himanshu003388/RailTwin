@@ -1,7 +1,8 @@
 import React from 'react';
-import { useDemoStore } from '../../stores/demoStore';
+import { useDemoStore, getTrainRiskLevel } from '../../stores/demoStore';
 import { X, ArrowRight, Gauge, Users } from 'lucide-react';
 import { StationRiskPanel } from '../panels/StationRiskPanel';
+import { RiskBadge } from '../ui/RiskBadge';
 
 const TRAIN_COLORS: Record<string, string> = {
   '12951': '#3b82f6',
@@ -17,6 +18,7 @@ export const RightSidebar: React.FC = () => {
   const mobileRightOpen = useDemoStore(state => state.mobileRightOpen);
   const setMobileRightOpen = useDemoStore(state => state.setMobileRightOpen);
   const trains = useDemoStore(state => state.trains);
+  const weatherData = useDemoStore(state => state.weatherData);
   const lastUpdated = useDemoStore(state => state.lastUpdated);
 
   const lastUpdatedStr = lastUpdated
@@ -67,13 +69,16 @@ export const RightSidebar: React.FC = () => {
                 <span className="text-[10px] font-mono">No train data available</span>
               </div>
             ) : trains.map(train => {
-              const isDelayed = train.predictedDelay > 0;
-              const isSevere = train.predictedDelay > 30;
+              const isDelayed = (train.predictedDelay || 0) > 0;
+              const isSevere = (train.predictedDelay || 0) >= 25;
               const delayColor = isSevere ? '#ef4444' : isDelayed ? '#f59e0b' : '#22c55e';
               const delayBg = isSevere ? 'rgba(239,68,68,0.08)' : isDelayed ? 'rgba(245,158,11,0.08)' : 'rgba(34,197,94,0.08)';
               const delayBorder = isSevere ? 'rgba(239,68,68,0.25)' : isDelayed ? 'rgba(245,158,11,0.25)' : 'rgba(34,197,94,0.20)';
               const delayText = isDelayed ? `+${train.predictedDelay}m` : 'On Time';
-              const occupancyRate = Math.round((train.passengerCount / train.capacity) * 100);
+              const occupancyRate = train.capacity > 0 ? Math.round((train.passengerCount / train.capacity) * 100) : 0;
+              const targetStation = train.nextStation || train.currentStation;
+              const stWeather = weatherData?.[targetStation];
+              const trainRisk = getTrainRiskLevel(train, stWeather);
 
               return (
                 <div
@@ -85,12 +90,15 @@ export const RightSidebar: React.FC = () => {
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ background: TRAIN_COLORS[train.id] || '#3b82f6' }} />
                       <span className="text-[11px] font-semibold text-text-primary truncate">{train.name}</span>
                     </div>
-                    <span
-                      className="text-[9px] font-mono font-bold shrink-0 px-1.5 py-0.5 rounded"
-                      style={{ color: delayColor, background: delayBg, border: `1px solid ${delayBorder}`, fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {delayText}
-                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className="text-[9px] font-mono font-bold shrink-0 px-1.5 py-0.5 rounded"
+                        style={{ color: delayColor, background: delayBg, border: `1px solid ${delayBorder}`, fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {delayText}
+                      </span>
+                      <RiskBadge level={trainRisk.level} />
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 px-2 py-1 rounded text-[9px] font-mono" style={{ background: 'var(--color-bg-elevated)' }}>

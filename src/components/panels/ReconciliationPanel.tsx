@@ -3,7 +3,7 @@ import { useDriftStore } from '../../stores/driftStore';
 import { RiskBadge } from '../ui/RiskBadge';
 import {
   GitCompare, Pin, Play, Square, AlertTriangle, CheckCircle2, Clock, Copy, CloudRain, MapPin, FileDown, Printer,
-  FlaskConical, Wand2, ChevronDown, ChevronUp, Sparkles, Bot,
+  FlaskConical, Wand2, ChevronDown, ChevronUp, Sparkles, Bot, Users, Activity,
 } from 'lucide-react';
 import { useDemoStore } from '../../stores/demoStore';
 import { downloadHandoverMarkdown, printHandoverReport, type HandoverData } from '../../lib/export-report';
@@ -57,10 +57,152 @@ const Sparkline: React.FC<{ points: number[]; color: string }> = ({ points, colo
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+/** Hackathon Problem Statement & Operational Rationale Card */
+const HackathonProblemStatementGuide: React.FC = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="bg-bg-card border border-accent-purple/30 rounded-lg p-3 mb-3 shrink-0 transition-all duration-200"
+      style={{
+        boxShadow: '0 0 12px rgba(168,85,247,0.10)',
+        background: 'linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(59,130,246,0.03) 100%)',
+      }}
+    >
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(o => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen(o => !o);
+          }
+        }}
+        className="w-full flex items-center justify-between gap-2 cursor-pointer select-none outline-none"
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-5 h-5 rounded-md bg-accent-purple/15 border border-accent-purple/30 flex items-center justify-center shrink-0">
+            <Sparkles className="w-3 h-3 text-accent-purple" />
+          </div>
+          <div className="flex flex-col min-w-0 text-left">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] font-mono font-bold text-text-primary">
+                Hackathon Problem Statement: Multi-Source Digital Twin Drift & Closed-Loop Reconciliation
+              </span>
+              <span className="text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-accent-purple border border-purple-500/30 uppercase">
+                Round 2 Architecture
+              </span>
+            </div>
+            <span className="text-[9px] font-mono text-text-tertiary">
+              Why digital twins diverge from field reality and how RailTwin closes the reconciliation loop
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0 text-text-tertiary hover:text-text-primary text-[10px] font-mono">
+          <span>{open ? 'Hide rationale' : 'View Problem Statement'}</span>
+          {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </div>
+      </div>
+
+      {open && (
+        <div className="mt-3 pt-3 border-t border-border-subtle flex flex-col gap-3 animate-fade-in text-[10px] leading-relaxed">
+          {/* Section 1: The Core Operational Problem */}
+          <div className="flex flex-col gap-1">
+            <span className="font-mono font-bold text-text-secondary uppercase text-[9px] tracking-wider flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3 text-accent-amber" /> 1. The Operational Problem in Indian Railways
+            </span>
+            <p className="text-text-tertiary">
+              In high-density corridors (like Mumbai–Delhi), field reality frequently drifts from planned master timetables due to monsoonal speed restrictions, signal halts, and cascade delays. If a Digital Twin operates on an outdated or static baseline, automated dispatching and AI recommendations become dangerously decoupled from actual train positions and track occupancies.
+            </p>
+          </div>
+
+          {/* Section 2: 4D Mathematical Drift Engine */}
+          <div className="flex flex-col gap-1.5">
+            <span className="font-mono font-bold text-text-secondary uppercase text-[9px] tracking-wider flex items-center gap-1">
+              <GitCompare className="w-3 h-3 text-accent-blue" /> 2. 4-Dimensional Deterministic Drift Formulation
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="p-2 rounded bg-bg-elevated border border-border-subtle flex flex-col gap-0.5">
+                <span className="font-mono font-bold text-accent-blue text-[9px]">40% Schedule Drift</span>
+                <span className="text-text-tertiary text-[9px]">Calculates live delay change Δmin vs scheduled baseline ceiling (45m max).</span>
+              </div>
+              <div className="p-2 rounded bg-bg-elevated border border-border-subtle flex flex-col gap-0.5">
+                <span className="font-mono font-bold text-accent-green text-[9px]">25% Position Drift</span>
+                <span className="text-text-tertiary text-[9px]">Measures spatial deviation Δkm between actual train coordinates and planned kinematics.</span>
+              </div>
+              <div className="p-2 rounded bg-bg-elevated border border-border-subtle flex flex-col gap-0.5">
+                <span className="font-mono font-bold text-accent-purple text-[9px]">20% ML Model Validity</span>
+                <span className="text-text-tertiary text-[9px]">Audits if original ML Ridge delay assumptions (weather/speed) still hold or collapsed.</span>
+              </div>
+              <div className="p-2 rounded bg-bg-elevated border border-border-subtle flex flex-col gap-0.5">
+                <span className="font-mono font-bold text-accent-amber text-[9px]">15% Micro-Climate Drift</span>
+                <span className="text-text-tertiary text-[9px]">Tracks live Doppler radar rainfall and fog visibility shifts at upcoming stations.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Passenger Weighting & Closed-Loop Reconciliation */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <div className="p-2.5 rounded bg-bg-elevated/70 border border-border-subtle flex flex-col gap-1">
+              <span className="font-mono font-bold text-text-secondary text-[9px] uppercase tracking-wider flex items-center gap-1">
+                <Users className="w-3 h-3 text-accent-purple" /> Passenger-Exposure Weighting
+              </span>
+              <p className="text-text-tertiary text-[9px]">
+                Corridor drift is weighted by passenger capacity (<code className="font-mono text-text-secondary">∑(Score_i × Pass_i) / ∑Pass_i</code>). A 30m delay on a 1,600-passenger Rajdhani carries higher operational severity than an empty rake.
+              </p>
+            </div>
+
+            <div className="p-2.5 rounded bg-bg-elevated/70 border border-border-subtle flex flex-col gap-1">
+              <span className="font-mono font-bold text-text-secondary text-[9px] uppercase tracking-wider flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-accent-green" /> Closed-Loop Resolution Action
+              </span>
+              <p className="text-text-tertiary text-[9px]">
+                Operators resolve conflicting feeds in 1-click (<strong className="text-text-secondary">Accept live</strong>, <strong className="text-text-secondary">Keep baseline</strong>, or <strong className="text-text-secondary">Merge ★</strong>). Resolving an item re-anchors the Digital Twin and writes to an immutable handover audit ledger.
+              </p>
+            </div>
+          </div>
+
+          {/* Section 4: Judge & Evaluation Capabilities */}
+          <div className="flex items-center gap-1.5 flex-wrap pt-1">
+            <span className="text-[8px] font-mono text-text-muted uppercase tracking-wider">Evaluation Highlights:</span>
+            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-accent-blue border border-blue-500/20 text-[8px] font-mono">
+              ✓ 100% Deterministic (Zero Hallucination)
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-green-500/10 text-accent-green border border-green-500/20 text-[8px] font-mono">
+              ✓ Dual-Source Auto-Deduplication
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-accent-purple border border-purple-500/20 text-[8px] font-mono">
+              ✓ Interactive Sandbox & Fuzzy Matcher
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-accent-amber border border-amber-500/20 text-[8px] font-mono">
+              ✓ Shift Handover Markdown & PDF Export
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, history }) => {
   const [open, setOpen] = useState(false);
   const color = CLASS_COLOR[t.driftClass];
-  const isDrifted = t.driftClass === 'significant' || t.driftClass === 'critical';
+  const isDrifted = t.driftClass === 'significant' || t.driftClass === 'critical' || t.driftClass === 'minor';
+  const worst = [...t.components].sort((a, b) => b.weighted - a.weighted)[0];
+  const liveDelay = t.live.delay || 0;
+  const baseDelay = t.baseline.delay || 0;
+  const deltaDelay = Math.abs(liveDelay - baseDelay);
+
+  let operationalSummary = 'Nominal on-time schedule';
+  if (t.score >= 40) {
+    operationalSummary = `Significant drift (+${liveDelay}m) · ${worst.label}: ${worst.detail}`;
+  } else if (t.score >= 15) {
+    operationalSummary = `Minor drift (+${liveDelay}m) · ${worst.detail}`;
+  } else if (liveDelay > 0) {
+    operationalSummary = `Low drift (+${liveDelay}m schedule)`;
+  }
 
   const handleReconcile = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,18 +247,33 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
 
   return (
     <div className="border border-border-default rounded-lg overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-bg-elevated/50 transition-colors"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen(o => !o);
+          }
+        }}
+        className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-bg-elevated/50 transition-colors cursor-pointer outline-none"
       >
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-[12px] font-mono font-bold text-text-primary truncate">{t.trainId} · {t.trainName}</span>
-          <span className="text-[9px] font-mono text-text-tertiary uppercase">
-            {t.live.station.toUpperCase()} → {t.live.nextStation.toUpperCase()} · Δdelay {Math.abs(t.live.delay - t.baseline.delay)}min
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-mono font-bold text-text-primary truncate">{t.trainId} · {t.trainName}</span>
+            {liveDelay > 0 && (
+              <span className="text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-accent-amber border border-amber-500/20">
+                +{liveDelay}m live
+              </span>
+            )}
+          </div>
+          <span className="text-[9px] font-mono text-text-tertiary uppercase truncate max-w-[280px] sm:max-w-[420px]">
+            {t.live.station.toUpperCase()} → {t.live.nextStation.toUpperCase()} · Δdelay {deltaDelay}min · {operationalSummary}
           </span>
         </div>
         <Sparkline points={history} color={color} />
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
           <button
             onClick={handleExplainDrift}
             className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded border border-border-default hover:border-accent-purple text-text-tertiary hover:text-accent-purple transition-all cursor-pointer flex items-center gap-1"
@@ -144,7 +301,7 @@ const TrainDriftRow: React.FC<{ t: TrainDrift; history: number[] }> = ({ t, hist
           </span>
           <RiskBadge level={CLASS_TO_RISK[t.driftClass]} />
         </div>
-      </button>
+      </div>
       {open && (
         <div className="px-3 pb-3 pt-1 border-t border-border-subtle flex flex-col gap-2">
           {t.components.map(c => (
@@ -573,8 +730,11 @@ export const ReconciliationPanel: React.FC = () => {
             Reconciliation · Drift Indicator
           </h2>
         </div>
-        <span className="text-[10px] font-mono text-text-muted">Round 2</span>
+        <span className="text-[10px] font-mono text-text-muted">Round 2 · Hackathon Prototype</span>
       </div>
+
+      {/* ── Hackathon Problem Statement & Operational Rationale ── */}
+      <HackathonProblemStatementGuide />
 
       {/* ── Baseline / recorded context ── */}
       <div className="rounded-lg p-3 mb-3 border border-border-default flex items-center justify-between gap-3 flex-wrap shrink-0"

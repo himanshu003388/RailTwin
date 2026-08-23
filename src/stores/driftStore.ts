@@ -207,12 +207,19 @@ export const useDriftStore = create<DriftState>((set, get) => ({
       restorePreOverrideWeather();
     }
     const live = buildLiveSnapshot();
+    // For initial shift start or master schedule, nominal timetable schedule has 0m delay
+    const isNominalSchedule = source === 'auto' || (name && (name.includes('Master Timetable') || name.includes('Shift start')));
+    const baselineTrains = live.trains.map(t => ({
+      ...t,
+      predictedDelay: isNominalSchedule ? 0 : t.predictedDelay,
+      weatherConditionAtNext: isNominalSchedule ? 'Clear' : t.weatherConditionAtNext,
+    }));
     const baseline: BaselineSnapshot = {
       id: `bl-${Date.now()}`,
       name: name || `Baseline ${new Date().toLocaleTimeString('en-IN', { hour12: false })}`,
       capturedAt: live.at,
       source,
-      trains: live.trains,
+      trains: baselineTrains,
       weather: live.weather,
     };
     lastClassByTrain = {};
@@ -607,6 +614,18 @@ if (typeof window !== 'undefined') {
   setInterval(() => {
     useDriftStore.getState().computeDriftNow();
   }, 5000);
+
+  // Real-time reactive sync: recompute drift immediately when demoStore updates
+  useDemoStore.subscribe((state, prevState) => {
+    if (
+      state.trains !== prevState.trains ||
+      state.predictions !== prevState.predictions ||
+      state.weatherData !== prevState.weatherData ||
+      state.simulation !== prevState.simulation
+    ) {
+      useDriftStore.getState().computeDriftNow();
+    }
+  });
 
   // SSE feed as independent Source B → duplicates + position conflicts
   setTimeout(() => {
