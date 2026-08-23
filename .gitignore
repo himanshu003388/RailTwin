@@ -44,3 +44,7 @@ data/scripts/
 
 # Agent metadata
 skills-lock.json
+
+# Scratch and temporary files
+scratch/
+~$*
