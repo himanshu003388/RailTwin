@@ -4,6 +4,7 @@ import { AlertBanner } from '../components/ui/AlertBanner';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
 
+const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 ---
 
 <!doctype html>
@@ -11,8 +12,9 @@ import { KeyboardShortcuts } from '../components/ui/KeyboardShortcuts';
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
+		<link rel="icon" type="image/x-icon" href={`${baseUrl}favicon.ico`} />
+		<link rel="apple-touch-icon" href={`${baseUrl}favicon.svg`} />
 		<meta name="generator" content={Astro.generator} />
 		<title>RailTwin AI — Predictive Digital Twin | Indian Railways</title>
 		

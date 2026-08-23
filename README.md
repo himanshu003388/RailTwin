@@ -69,15 +69,21 @@ RailTwin delivers a production-grade **Telemetry Reconciliation & Drift Engine**
 
 ## 📸 Operations Control Centre Views
 
+### 🎯 Featured: Telemetry Reconciliation & Drift Engine (`Drift Monitor`)
+![Drift Monitor](public/screenshots/drift-monitor.png)
+*Real-time 4-factor drift monitoring, situational vs baseline deviation gauges, automated triage resolution, and shift audit logs.*
+
+<br/>
+
 | 1 · Live Corridor Map & Ghost Markers | 2 · Train Delay Intelligence | 3 · Cascade Simulator |
 |:---:|:---:|:---:|
 | ![Map View](public/screenshots/map-view.png) | ![Train Delays](public/screenshots/train-delays.png) | ![Simulation](public/screenshots/simulation.png) |
 | *GPU vector map with live transponders, station risk rings & ghost plan overlays* | *Ridge Regression ML delay forecasts with exact mathematical feature attributions* | *Monsoon & fog disruption ripple propagation across 36 junction hubs* |
 
-| 4 · Gemini AI Copilot | 5 · What-If Scenario Lab | 6 · Telemetry Reconciliation & Drift Engine |
+| 4 · Gemini AI Copilot | 5 · What-If Scenario Lab | 6 · System Health Dashboard |
 |:---:|:---:|:---:|
 | ![AI Copilot](public/screenshots/ai-copilot.png) | ![What-If Lab](public/screenshots/what-if-lab.png) | ![System Health](public/screenshots/system-health.png) |
-| *Context-injected operator copilot with 1-click triage & mitigation chips* | *Dispatcher sandbox for testing tactical interventions before live execution* | *Real-time 4-factor drift gauge, sparklines, triage inbox & resolution audit log* |
+| *Context-injected operator copilot with 1-click triage & mitigation chips* | *Dispatcher sandbox for testing tactical interventions before live execution* | *Corridor OTP, section throughput diagnostics, and junction platform utilization* |
 
 ---
 

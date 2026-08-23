@@ -37,6 +37,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.3",
+    "puppeteer-core": "^25.8.0",
     "vitest": "^3.2.4"
   },
   "description": "A **Predictive Digital Twin dashboard** for Indian Railway operations, modeling the Delhi-Howrah Corridor (1,531 km). Built as a hackathon prototype demonstrating monsoon weather disruption simulation, train delay prediction, cascade analysis, and AI-powered copilot recommendations.",
