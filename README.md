@@ -24,23 +24,21 @@
 
 - 🌐 **Live Web Application:** [https://rail-twin.vercel.app](https://rail-twin.vercel.app)
 - ⏱ **60-Second Deterministic Replay:** [https://rail-twin.vercel.app/?demo=replay](https://rail-twin.vercel.app/?demo=replay)
-- ⚡ **18-Second Fast Replay for Judges:** [https://rail-twin.vercel.app/?demo=replay&fast=1](https://rail-twin.vercel.app/?demo=replay&fast=1)
-- 📋 **3-Minute Judge Presentation Script:** [`DEMO.md`](file:///c:/Users/himan/Desktop/RailTwin-main/DEMO.md)
+- ⚡ **18-Second Fast Replay:** [https://rail-twin.vercel.app/?demo=replay&fast=1](https://rail-twin.vercel.app/?demo=replay&fast=1)
+- 📋 **Demonstration & Walkthrough Guide:** [`DEMO.md`](file:///c:/Users/himan/Desktop/RailTwin-main/DEMO.md)
 - 🎨 **Industrial Design System & Telemetry Tokens:** [`DESIGN.md`](file:///c:/Users/himan/Desktop/RailTwin-main/DESIGN.md)
 
 ---
 
-## 🏆 Round 2 Problem Statement: Reconciliation & Drift Indicator
+## 🎯 Telemetry Reconciliation & Drift Engine
 
-### The Problem Statement
-> **Reconciliation: Drift Indicator**  
-> *Extend the MVP with a capability related to conflicting, duplicate, or partially matching information. Specifically, show when the current situation has drifted away from the originally recorded context. The scope should be substantial enough for 24-hour work without requiring a full rebuild.*
+### The Operational Challenge
+> **Reconciliation & Drift Detection**  
+> *Railway Operations Control Centres (OCC) constantly ingest imperfect, conflicting, duplicate, or partially matching information. Over a 12-hour shift, ground truth drifts silently away from the recorded timetable context, leading to dispatch blind spots and uncoordinated interventions.*
 
 ### How RailTwin Solves It (The Complete Architectural Solution)
 
-Railway Operations Control Centres (OCC) constantly ingest imperfect data: conflicting weather feeds from different meteorological providers, duplicated transponder packets, and garbled OCR/telegraphic station codes. Over a 12-hour shift, ground truth drifts silently away from the recorded timetable context.
-
-RailTwin delivers a complete, production-grade **Telemetry Reconciliation & Drift Engine**:
+RailTwin delivers a production-grade **Telemetry Reconciliation & Drift Engine**:
 
 ```
  ┌──────────────────────┐      ┌──────────────────────────────┐      ┌─────────────────────────────┐
@@ -60,30 +58,12 @@ RailTwin delivers a complete, production-grade **Telemetry Reconciliation & Drif
 2. **Automated Triage of Noisy Feeds:**
    - **Conflicting Feeds:** Multi-source weather arbitration between OpenWeatherMap and Open-Meteo with operator override.
    - **Duplicate Packets:** Real-time stream deduplication filtering identical timestamp/train telemetry without corrupting the live twin.
-   - **Partial Matching:** **Two-Signal Matcher** combining **Jaro-Winkler string similarity** ($p=0.10, \ell \le 4$) with a **$+0.12$ Spatial Route Plausibility Prior** to resolve noisy OCR inputs (e.g. `"Kanpur Centrall"` $\rightarrow$ `CNB`), completely eliminating Round 1's silent fallback to `NDLS`.
+   - **Partial Matching:** **Two-Signal Matcher** combining **Jaro-Winkler string similarity** ($p=0.10, \ell \le 4$) with a **$+0.12$ Spatial Route Plausibility Prior** to resolve noisy OCR inputs (e.g. `"Kanpur Centrall"` $\rightarrow$ `CNB`), eliminating silent fallback errors.
 3. **Continuous 4-Factor Drift Formulation:** Real-time $0–100$ scoring measuring schedule deviation ($40\%$), spatial GPS/transponder distance ($25\%$), ML prediction validity ($20\%$), and station weather divergence ($15\%$).
 4. **Ghost Marker Spatial Visualization:** Dotted ghost markers ($\large\circ$) on MapLibre GL indicating planned timetable coordinates with dynamic tether lines and Plan vs. Live diff cards.
 5. **Closed-Loop Operator Resolution:** Interactive triage actions (*Accept Live*, *Keep Baseline*, *Merge*) that mutate the active twin state immediately, collapsing drift scores back to Stable.
-6. **Live Telemetry Ingestion Sandbox:** Interactive playground allowing judges to input arbitrary malformed telemetry strings and watch them flow through the reconciliation pipeline in real time.
+6. **Live Telemetry Ingestion Sandbox:** Interactive playground allowing operators to input arbitrary malformed telemetry strings and watch them flow through the reconciliation pipeline in real time.
 7. **Shift Handover Briefings:** 1-click automated generation of Markdown (`.md`) and PDF audit logs summarizing baseline diffs, peak drift, zone signal integrity, and operator actions.
-
----
-
-## 🎯 Software Judging Criteria Alignment
-
-Evaluation parameters for software projects and how RailTwin AI excels in every category:
-
-| Judging Parameter | Hackathon Expectation | RailTwin AI Implementation & Proof | Score |
-|---|---|---|:---:|
-| **1. Task Implementation** | Effectively solve conflicting, duplicate, partial data & drift | Full end-to-end reconciliation pipeline: baseline pinning, Jaro-Winkler string matching, dual-source weather arbitration, stream deduplication, 4-factor drift math, ghost map markers, and closed-loop resolution. | **10 / 10** |
-| **2. Task Complexity & Technical Depth** | Non-trivial algorithms & mathematical rigor | • Pure TypeScript deterministic 4-factor scoring engine<br/>• Jaro-Winkler string distance combined with spatial route priors<br/>• Browser Ridge Regression ML ($R^2 = 0.73, \text{RMSE} = 8.7\text{ min}$)<br/>• Graph cascade disruption propagation across 36 junctions | **10 / 10** |
-| **3. Technical Execution Quality** | Robustness, testing & error handling | • **48 / 48 Vitest unit tests passing** ([`tests/`](file:///c:/Users/himan/Desktop/RailTwin-main/tests))<br/>• Zero silent fallbacks (fixed legacy `nameToId()` fallback to NDLS)<br/>• Deterministic pure functions separated from probabilistic LLMs<br/>• Graceful fallback layers across all external APIs | **10 / 10** |
-| **4. Innovation & Creativity** | Novel ideas & operational utility | • Pinned baseline diffing with visual ghost train overlays & tether lines<br/>• Live Telemetry Ingestion Playground for interactive judge testing<br/>• Dual-tier Gemini 2.0/2.5 Flash copilot with context-injected triage chips<br/>• Web Audio API two-tone critical frequency alarms | **10 / 10** |
-| **5. Functionality & Reliability** | Live deployment, repeatable demos & zero crashes | • 100% deployed and live on Vercel Edge<br/>• Deterministic 60-second and 18-second turbo replay modes (`?demo=replay&fast=1`)<br/>• Responsive, resilient state persistence across SQLite WAL and browser storage | **10 / 10** |
-| **6. Architecture & Code Quality** | Clean structure, separation of concerns & type safety | • Astro SSR + React 19 + Zustand v5 + Tailwind CSS v4<br/>• Strict TypeScript interfaces with zero `any` shortcuts in core engines<br/>• Decoupled analytical panel islands with zero unnecessary re-renders | **10 / 10** |
-| **7. User Experience (UX/UI)** | Mission-critical OCC aesthetics & accessibility | • Industrial control-room dark/light design system ([`DESIGN.md`](file:///c:/Users/himan/Desktop/RailTwin-main/DESIGN.md))<br/>• High-density telemetry HUDs, Recharts sparklines, tabular numerics<br/>• Keyboard shortcuts (`1`–`7`, `Space`, `M`, `H`), WCAG AA contrast compliance | **10 / 10** |
-| **8. Scalability & Performance** | Industrial-scale capability & throughput | • $O(T \times C)$ mathematical complexity ($< 15\text{ms}$ CPU time for 13,000 IR trains)<br/>• Stream reconciler partitioned by `trainId` / `zoneCode` for Kafka/Flink readiness<br/>• Client-side ML execution with zero server latency bottlenecks | **10 / 10** |
-| **9. Documentation & Presentation** | Clear guides, screenshots, APIs & presenter script | • Exhaustive README with architecture, math formulas, and test outputs<br/>• 3-Minute Presenter Walkthrough Guide ([`DEMO.md`](file:///c:/Users/himan/Desktop/RailTwin-main/DEMO.md))<br/>• Full 18-endpoint API reference table | **10 / 10** |
 
 ---
 
@@ -147,12 +127,12 @@ export const DRIFT_THRESHOLDS = {
 
 ---
 
-## 🔬 Round 1 Baseline vs Round 2 Innovation
+## 🔬 Baseline Tracking vs Advanced Reconciliation Capabilities
 
-| Capability | Round 1 (Initial MVP) | Round 2 (Reconciliation & Drift System) |
+| Capability | Standard Telemetry Tracking | RailTwin Intelligent Reconciliation & Drift Engine |
 |---|---|---|
-| **Unknown Station Parsing** | Silently defaulted to NDLS (`'ndls'`) in `nameToId()` | **Two-Signal Matcher:** Jaro-Winkler ($p=0.10, \ell \le 4$) + $+0.12$ Spatial Route Plausibility Prior |
-| **Live Telemetry Ingestion** | Staged mock updates only | **Interactive Live Sandbox** allowing judges to input arbitrary noisy text/CSV strings |
+| **Unknown Station Parsing** | Silently defaulted to arbitrary stations (e.g. `'ndls'`) | **Two-Signal Matcher:** Jaro-Winkler ($p=0.10, \ell \le 4$) + $+0.12$ Spatial Route Plausibility Prior |
+| **Live Telemetry Ingestion** | Staged static updates | **Interactive Live Sandbox** allowing operators to input arbitrary noisy text/CSV strings |
 | **Data Ingestion Robustness** | Single trusted feed assumed | **Dual-source weather arbitration** (OpenWeatherMap vs Open-Meteo) & duplicate stream dedup |
 | **Operational Baseline** | Static timetable | **Immutable Shift Baseline Snapshots** persisted across SQLite WAL and browser storage |
 | **Drift Monitoring** | None (unaware of divergence) | **Continuous 4-Factor Mathematical Drift Engine** ($0–100$) with passenger exposure scaling |
@@ -160,7 +140,7 @@ export const DRIFT_THRESHOLDS = {
 | **Operator Actionability** | Passive read-only viewing | **Closed-Loop Resolution:** *Accept Live*, *Keep Baseline*, or *Merge* re-anchors twin in real time |
 | **Auditory & Alerting** | Visual banners only | **Web Audio API two-tone critical frequency alarm** ($\ge 70$) and resolution chime (Mute: `M`) |
 | **Shift Governance & Audit** | Ephemeral browser state | **SQLite WAL Audit Trail + 1-Click Shift Handover Report** (Markdown `.md` & print-ready PDF) |
-| **Deterministic Replay** | No standardized demo | **60-Second Full Replay + ⚡ 18-Second Fast Replay** (`?demo=replay&fast=1`) for judging |
+| **Deterministic Replay** | No standardized demo | **60-Second Full Replay + ⚡ 18-Second Fast Replay** (`?demo=replay&fast=1`) for testing |
 | **Test Verification** | Manual browser checks | **48 / 48 Pure Unit & Store Integration Tests (100% Passed with Vitest)** |
 
 ---
@@ -402,7 +382,7 @@ npm run preview
 | `4` | **AI Copilot** | Activates Gemini AI Copilot chat drawer with live context injection |
 | `5` | **What-If Lab** | Launches tactical scenario sandbox |
 | `6` | **System Health** | Opens network efficiency, platform capacity, and OTP diagnostics |
-| `7` | **Drift Monitor** | Opens Round 2 Telemetry Reconciliation & Triage Inbox |
+| `7` | **Drift Monitor** | Opens Telemetry Reconciliation & Triage Inbox |
 | `Space` | **Toggle Replay** | Starts or pauses the 60-second deterministic replay scenario |
 | `M` | **Mute / Unmute** | Toggles Web Audio critical alarm and resolution chime |
 | `?` or `H`| **Help & Shortcuts** | Opens OCC documentation and keyboard modal |
@@ -422,9 +402,9 @@ npm run preview
 
 ---
 
-## 📜 Hackathon Submission Notice
+## 📜 Operational Grounding
 
-Developed for **FAR AWAY 2026 — Railways Theme (Round 2: Reconciliation & Drift Indicator)**.  
+Developed as an Operations Control Centre (OCC) Predictive Digital Twin & Telemetry Reconciliation system for Indian Railways.  
 All datasets, timetable geometries, and operational protocols are grounded in authentic Indian Railways operating rules.
 
 <div align="center">
